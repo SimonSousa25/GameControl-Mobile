@@ -3,12 +3,10 @@ import { StyleSheet } from 'react-native';
 export const styles = StyleSheet.create({
   container: {
     marginBottom: 30,
-    backgroundColor: 'inherit'
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'inherit',
     marginBottom: 16,
     paddingLeft: 20,
     gap: 12,
@@ -30,7 +28,6 @@ export const styles = StyleSheet.create({
     marginLeft: 20,
   },
   card: {
-    backgroundColor: '#0A0E15',
     borderRadius: 11,
     padding: 16,
     flexDirection: 'row',

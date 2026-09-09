@@ -3,13 +3,28 @@ import { StyleSheet } from 'react-native';
 export const styles = StyleSheet.create({
   container: {
     marginBottom: 30,
-    backgroundColor: 'inherit',
   },
   wrapper: {
     position: 'relative',
   },
   slide: {
     height: 340,
+    paddingHorizontal: 16,
+  },
+  cardShadow: {
+    flex: 1,
+    borderRadius: 14,
+    backgroundColor: '#0A0E15',
+    shadowColor: '#9933FF',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.25,
+    shadowRadius: 18.5,
+    elevation: 12,
+  },
+  card: {
+    flex: 1,
+    borderRadius: 14,
+    overflow: 'hidden',
   },
   image: {
     flex: 1,
@@ -24,7 +39,7 @@ export const styles = StyleSheet.create({
   content: {
     flex: 1,
     justifyContent: 'flex-end',
-    padding: 50,
+    padding: 60,
     paddingBottom: 60,
   },
   badge: {
@@ -32,14 +47,14 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'flex-start',
     gap: 6,
-    backgroundColor: 'rgba(10, 14, 21, 0.65)',
+    backgroundColor: 'rgba(10, 14, 21, 0.45)',
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 14,
     marginBottom: 12,
   },
   badgeText: {
-    fontSize: 10,
+    fontSize: 6,
     fontWeight: '700',
     color: '#F5F7FF',
     fontFamily: 'Orbitron',
@@ -61,7 +76,7 @@ export const styles = StyleSheet.create({
   },
   ctaButton: {
     alignSelf: 'flex-start',
-    borderRadius: 24,
+    borderRadius: 6,
     overflow: 'hidden',
   },
   ctaGradient: {
@@ -69,7 +84,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 11,
   },
   ctaText: {
-    fontSize: 11,
+    fontSize: 8,
     fontWeight: '700',
     color: '#F5F7FF',
     fontFamily: 'Orbitron',
@@ -80,7 +95,7 @@ export const styles = StyleSheet.create({
     marginTop: -18,
     width: 36,
     height: 36,
-    borderRadius: 18,
+    borderRadius: 8,
     backgroundColor: 'rgba(10, 14, 21, 0.65)',
     borderWidth: 1,
     borderColor: 'rgba(245, 247, 255, 0.15)',
@@ -89,10 +104,10 @@ export const styles = StyleSheet.create({
     zIndex: 2,
   },
   prevButton: {
-    left: 12,
+    left: 28,
   },
   nextButton: {
-    right: 12,
+    right: 28,
   },
   pagination: {
     position: 'absolute',

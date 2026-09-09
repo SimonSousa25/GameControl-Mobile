@@ -71,7 +71,7 @@ export default function HeroBanner({
 
   if (loading) {
     return (
-      <View style={styles.container}>
+      <View style={styles.container} lightColor="transparent" darkColor="transparent">
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#F52E8F" />
         </View>
@@ -84,7 +84,7 @@ export default function HeroBanner({
   }
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} lightColor="transparent" darkColor="transparent">
       <View style={styles.wrapper}>
         <ScrollView
           ref={scrollRef}
@@ -95,63 +95,66 @@ export default function HeroBanner({
           onMomentumScrollEnd={handleScrollEnd}
         >
           {games.map((game) => (
-            <TouchableOpacity
-              key={game.id}
-              style={[styles.slide, { width: slideWidth }]}
-              activeOpacity={0.95}
-              onPress={() => onGamePress?.(game.id)}
-            >
-              <ImageBackground
-                source={{ uri: game.coverImageUrl || game.capa }}
-                style={styles.image}
-                resizeMode="cover"
-              >
-                <LinearGradient
-                  colors={[
-                    "transparent",
-                    "rgba(3, 7, 13, 0.55)",
-                    "rgba(3, 7, 13, 0.95)",
-                  ]}
-                  locations={[0, 0.5, 1]}
-                  style={styles.overlay}
-                />
-
-                <View
-                  style={styles.content}
-                  lightColor="transparent"
-                  darkColor="transparent"
+            <View key={game.id} style={[styles.slide, { width: slideWidth }]}>
+              <View style={styles.cardShadow}>
+                <TouchableOpacity
+                  style={styles.card}
+                  activeOpacity={0.95}
+                  onPress={() => onGamePress?.(game.id)}
                 >
-                  <View
-                    style={styles.badge}
-                    lightColor="transparent"
-                    darkColor="transparent"
-                  >
-                    <AntDesign name="star" size={12} color="#FFD700" />
-                    <Text style={styles.badgeText}>Bem avaliado</Text>
-                  </View>
-
-                  <Text style={styles.gameTitle}>{game.title}</Text>
-
-                  <Text style={styles.description} numberOfLines={4}>
-                    {game.description || "Confira este jogo incrível."}
-                  </Text>
-
-                  <TouchableOpacity
-                    style={styles.ctaButton}
-                    onPress={() => onGamePress?.(game.id)}
+                  <ImageBackground
+                    source={{ uri: game.coverImageUrl || game.capa }}
+                    style={styles.image}
+                    resizeMode="cover"
                   >
                     <LinearGradient
-                      colors={["#F52E8F", "#A3186A"]}
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 1, y: 0 }}
-                      style={styles.ctaGradient}
+                      colors={[
+                        "transparent",
+                        "rgba(3, 7, 13, 0.55)",
+                        "rgba(3, 7, 13, 0.95)",
+                      ]}
+                      locations={[0, 0.5, 1]}
+                      style={styles.overlay}
+                    />
+
+                    <View
+                      style={styles.content}
+                      lightColor="transparent"
+                      darkColor="transparent"
                     >
-                      <Text style={styles.ctaText}>Conheça o Jogo</Text>
-                    </LinearGradient>
-                  </TouchableOpacity>
-                </View>
-              </ImageBackground>
-            </TouchableOpacity>
+                      <View
+                        style={styles.badge}
+                        lightColor="transparent"
+                        darkColor="transparent"
+                      >
+                        <AntDesign name="star" size={12} color="#FFD700" />
+                        <Text style={styles.badgeText}>Bem avaliado</Text>
+                      </View>
+
+                      <Text style={styles.gameTitle}>{game.title}</Text>
+
+                      <Text style={styles.description} numberOfLines={4}>
+                        {game.description || "Confira este jogo incrível."}
+                      </Text>
+
+                      <TouchableOpacity
+                        style={styles.ctaButton}
+                        onPress={() => onGamePress?.(game.id)}
+                      >
+                        <LinearGradient
+                          colors={["#F52E8F", "#A3186A"]}
+                          start={{ x: 0, y: 0 }}
+                          end={{ x: 1, y: 0 }}
+                          style={styles.ctaGradient}
+                        >
+                          <Text style={styles.ctaText}>Conheça o Jogo</Text>
+                        </LinearGradient>
+                      </TouchableOpacity>
+                    </View>
+                  </ImageBackground>
+                </TouchableOpacity>
+              </View>
+            </View>
           ))}
         </ScrollView>
 

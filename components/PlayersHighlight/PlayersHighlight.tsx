@@ -46,11 +46,11 @@ export default function PlayersHighlight({
 
   if (loading) {
     return (
-      <View style={styles.container}>
-        <View style={styles.header}>
+      <View style={styles.container} lightColor="transparent" darkColor="transparent">
+        <View style={styles.header} lightColor="transparent" darkColor="transparent">
           <Text style={styles.title}>Jogadores em Destaque</Text>
         </View>
-        <View style={styles.loadingContainer}>
+        <View style={styles.loadingContainer} lightColor="transparent" darkColor="transparent">
           <ActivityIndicator size="large" color="#007AFF" />
         </View>
       </View>
@@ -62,8 +62,8 @@ export default function PlayersHighlight({
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
+    <View style={styles.container} lightColor="transparent" darkColor="transparent">
+      <View style={styles.header} lightColor="transparent" darkColor="transparent">
         <LinearGradient
           colors={["#0559AB", "#F22E8F"]}
           start={{ x: 0, y: 0 }}
@@ -83,35 +83,42 @@ export default function PlayersHighlight({
         style={styles.carouselContainer}
       >
         {users.map((user, index) => (
-          <TouchableOpacity
+          <LinearGradient
             key={user.id}
-            style={styles.userCard}
-            onPress={() => onUserPress?.(user.id)}
-            activeOpacity={0.8}
+            colors={["#33121F", "#060814"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.cardGradient}
           >
-            <View style={styles.avatarContainer}>
-              {user.profilePictureUrl ? (
-                <Image
-                  source={{ uri: user.profilePictureUrl }}
-                  style={styles.avatar}
-                />
-              ) : (
-                <AvatarGradient
-                  initial={getInitials(user.username)}
-                  colorIndex={index}
-                />
-              )}
-            </View>
-            <Text style={styles.username} numberOfLines={2}>
-              {user.username}
-            </Text>
             <TouchableOpacity
-              style={styles.followButton}
+              style={styles.userCard}
               onPress={() => onUserPress?.(user.id)}
+              activeOpacity={0.8}
             >
-              <Text style={styles.followButtonText}>Seguir</Text>
+              <View style={styles.avatarContainer}>
+                {user.profilePictureUrl ? (
+                  <Image
+                    source={{ uri: user.profilePictureUrl }}
+                    style={styles.avatar}
+                  />
+                ) : (
+                  <AvatarGradient
+                    initial={getInitials(user.username)}
+                    colorIndex={index}
+                  />
+                )}
+              </View>
+              <Text style={styles.username} numberOfLines={2}>
+                {user.username}
+              </Text>
+              <TouchableOpacity
+                style={styles.followButton}
+                onPress={() => onUserPress?.(user.id)}
+              >
+                <Text style={styles.followButtonText}>Seguir</Text>
+              </TouchableOpacity>
             </TouchableOpacity>
-          </TouchableOpacity>
+          </LinearGradient>
         ))}
       </ScrollView>
     </View>
