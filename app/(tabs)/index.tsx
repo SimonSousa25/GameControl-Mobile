@@ -2,6 +2,7 @@ import { ScrollView, StyleSheet } from "react-native";
 
 import GameCarousel from "@/components/GameCarousel/GameCarousel";
 import GameOfWeek from "@/components/GameOfWeek/GameOfWeek";
+import Header from "@/components/Header/Header";
 import NavBottom from "@/components/NavBottom/NavBottom";
 import PlayersHighlight from "@/components/PlayersHighlight/PlayersHighlight";
 import { View } from "@/components/Themed";
@@ -12,6 +13,13 @@ import { View } from "@/components/Themed";
 export default function HomeScreen() {
   return (
     <View style={styles.screenContainer}>
+      <View style={styles.headerContainer}>
+        <Header
+          onSearchPress={() => {
+            console.log("Search pressed");
+          }}
+        />
+      </View>
       <ScrollView
         style={styles.container}
         showsVerticalScrollIndicator={false}
@@ -64,6 +72,12 @@ const styles = StyleSheet.create({
     maxWidth: 402, // Largura máxima para parecer mobile
     alignSelf: "center",
     width: "100%",
+  },
+  headerContainer: {
+    maxWidth: 402, // Largura máxima para parecer mobile
+    alignSelf: "center",
+    width: "100%",
+    backgroundColor: "#03070D",
   },
   contentContainer: {
     paddingTop: 16,
