@@ -20,7 +20,7 @@ export const styles = StyleSheet.create({
     borderRadius: 2,
   },
   title: {
-    fontSize: 18,
+    fontSize: 12,
     fontWeight: "700",
     color: "#F5F7FF",
     fontFamily: "Orbitron",
