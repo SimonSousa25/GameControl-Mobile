@@ -1,0 +1,135 @@
+import { StyleSheet } from 'react-native';
+
+export const styles = StyleSheet.create({
+  container: {
+    paddingHorizontal: 20,
+    paddingTop: 12,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 80,
+  },
+  errorText: {
+    color: '#A0A0A0',
+    fontSize: 14,
+    textAlign: 'center',
+    paddingHorizontal: 24,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: '700',
+    fontFamily: 'OrbitronBold',
+    color: '#F5F7FF',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  coverWrapper: {
+    alignSelf: 'center',
+    marginBottom: 20,
+  },
+  cover: {
+    width: 220,
+    height: 300,
+    borderRadius: 16,
+    backgroundColor: '#0A0E15',
+  },
+  genreRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 8,
+    marginBottom: 24,
+  },
+  genreTag: {
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#F52E8F',
+  },
+  genreTagText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#F52E8F',
+    fontFamily: 'Orbitron',
+  },
+  section: {
+    marginBottom: 24,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 12,
+  },
+  sectionGradientBar: {
+    width: 4,
+    height: 20,
+    borderRadius: 2,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#F5F7FF',
+  },
+  description: {
+    fontSize: 13,
+    lineHeight: 20,
+    color: '#A0A0A0',
+  },
+  infoList: {
+    gap: 10,
+    marginBottom: 24,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#0A0E15',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  infoLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#5C6478',
+    fontFamily: 'Orbitron',
+    marginBottom: 4,
+  },
+  infoValue: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#F5F7FF',
+    fontFamily: 'Orbitron',
+  },
+  ratingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    marginBottom: 24,
+  },
+  ratingText: {
+    fontSize: 12,
+    color: '#A0A0A0',
+    marginLeft: 6,
+  },
+  playlistButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#F52E8F',
+    borderRadius: 24,
+    paddingVertical: 14,
+  },
+  playlistButtonText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#F5F7FF',
+    fontFamily: 'OrbitronBold',
+  },
+});

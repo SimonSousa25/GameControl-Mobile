@@ -1,7 +1,9 @@
+import { useRouter } from "expo-router";
 import { ScrollView, StyleSheet } from "react-native";
 
 import GameCarousel from "@/components/GameCarousel/GameCarousel";
 import GameOfWeek from "@/components/GameOfWeek/GameOfWeek";
+import Header from "@/components/Header/Header";
 import NavBottom from "@/components/NavBottom/NavBottom";
 import PlayersHighlight from "@/components/PlayersHighlight/PlayersHighlight";
 import { View } from "@/components/Themed";
@@ -10,19 +12,27 @@ import { View } from "@/components/Themed";
 // TODO: Tirar esses Tab One e Tab two, que doidera é essa? kkkk
 // TODO: Colocar components e services dentro de /app
 export default function HomeScreen() {
+  const router = useRouter();
+
   return (
     <View style={styles.screenContainer}>
+      <View style={styles.headerContainer}>
+        <Header
+          onSearchPress={() => {
+            console.log("Search pressed");
+          }}
+        />
+      </View>
       <ScrollView
         style={styles.container}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.contentContainer}
       >
-        {/* TODO: Galera aqui os clicks estão com logs, vou deixar com log mesmo e quando começarmos a fazer navegação trocamos aqui. */}
         <GameCarousel
           title="Em destaque"
           fetchRecent={true}
           onGamePress={(gameId) => {
-            console.log("Game pressed:", gameId);
+            router.push(`/game/${gameId}`);
           }}
           onViewAllPress={() => {
             console.log("View all pressed");
@@ -31,7 +41,7 @@ export default function HomeScreen() {
 
         <GameOfWeek
           onGamePress={(gameId) => {
-            console.log("Game pressed:", gameId);
+            router.push(`/game/${gameId}`);
           }}
         />
 
@@ -64,6 +74,12 @@ const styles = StyleSheet.create({
     maxWidth: 402, // Largura máxima para parecer mobile
     alignSelf: "center",
     width: "100%",
+  },
+  headerContainer: {
+    maxWidth: 402, // Largura máxima para parecer mobile
+    alignSelf: "center",
+    width: "100%",
+    backgroundColor: "#03070D",
   },
   contentContainer: {
     paddingTop: 16,
