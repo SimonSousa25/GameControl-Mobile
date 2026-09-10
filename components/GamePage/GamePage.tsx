@@ -109,42 +109,36 @@ export default function GamePage({ gameId }: GamePageProps) {
 
       <View style={styles.infoList}>
         <View style={styles.infoRow}>
-          <View>
-            <Text style={styles.infoLabel}>DESENVOLVEDOR</Text>
-            <Text style={styles.infoValue}>{game.developer || '—'}</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={18} color="#5C6478" />
+          <Text style={styles.infoLabel}>DESENVOLVEDOR</Text>
+          <Text style={styles.infoValue}>{game.developer || '—'}</Text>
         </View>
 
         <View style={styles.infoRow}>
-          <View>
-            <Text style={styles.infoLabel}>PUBLICADORA</Text>
-            <Text style={styles.infoValue}>{game.publisher || '—'}</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={18} color="#5C6478" />
+          <Text style={styles.infoLabel}>PUBLICADORA</Text>
+          <Text style={styles.infoValue}>{game.publisher || '—'}</Text>
         </View>
 
         <View style={styles.infoRow}>
-          <View>
-            <Text style={styles.infoLabel}>LANÇAMENTO</Text>
-            <Text style={styles.infoValue}>{formattedDate}</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={18} color="#5C6478" />
+          <Text style={styles.infoLabel}>LANÇAMENTO</Text>
+          <Text style={styles.infoValue}>{formattedDate}</Text>
         </View>
       </View>
 
       <View style={styles.ratingRow}>
-        {[1, 2, 3, 4, 5].map((position) => (
-          <Ionicons
-            key={position}
-            name={position <= filledStars ? 'star' : 'star-outline'}
-            size={16}
-            color="#FFD700"
-          />
-        ))}
-        <Text style={styles.ratingText}>
-          {starRating.toFixed(1)}/5 · {game.ratingCount ?? 0} avaliações
-        </Text>
+        <View style={styles.ratingStars}>
+          {[1, 2, 3, 4, 5].map((position) => (
+            <Ionicons
+              key={position}
+              name={position <= filledStars ? 'star' : 'star-outline'}
+              size={16}
+              color="#FFD700"
+            />
+          ))}
+          <Text style={styles.ratingText}>
+            {starRating.toFixed(1)}/5 · {game.ratingCount ?? 0} avaliações
+          </Text>
+        </View>
+        <Ionicons name="chevron-forward" size={18} color="#5C6478" />
       </View>
 
       <TouchableOpacity

@@ -90,14 +90,13 @@ export const styles = StyleSheet.create({
     backgroundColor: '#0A0E15',
     borderRadius: 12,
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 14,
   },
   infoLabel: {
     fontSize: 10,
     fontWeight: '700',
     color: '#5C6478',
     fontFamily: 'Orbitron',
-    marginBottom: 4,
   },
   infoValue: {
     fontSize: 14,
@@ -108,9 +107,17 @@ export const styles = StyleSheet.create({
   ratingRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 4,
+    justifyContent: 'space-between',
+    backgroundColor: '#0A0E15',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
     marginBottom: 24,
+  },
+  ratingStars: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
   ratingText: {
     fontSize: 12,
