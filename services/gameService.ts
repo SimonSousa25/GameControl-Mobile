@@ -9,10 +9,22 @@ export interface GameDTO {
   coverImageUrl?: string;
   capa?: string;
   genero?: string;
+  genreIds?: string[];
   plataforma?: string;
   dataDeLancamento?: string;
+  releaseDate?: string;
+  developer?: string;
+  publisher?: string;
+  rating?: number;
+  ratingCount?: number;
   preco?: number;
   [key: string]: any;
+}
+
+export interface GenreDTO {
+  id: string;
+  name: string;
+  slug: string;
 }
 
 class GameService {
@@ -72,6 +84,19 @@ class GameService {
       return await response.json();
     } catch (error) {
       console.error("Erro ao buscar jogo por slug:", error);
+      throw error;
+    }
+  }
+
+  async listarGeneros(): Promise<GenreDTO[]> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/genres`);
+      if (!response.ok) {
+        throw new Error(`Erro ao listar gêneros: ${response.statusText}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error("Erro ao listar gêneros:", error);
       throw error;
     }
   }

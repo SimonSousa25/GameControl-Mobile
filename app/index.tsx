@@ -1,3 +1,4 @@
+import { useRouter } from "expo-router";
 import { ScrollView, StyleSheet } from "react-native";
 
 import Header from "@/components/Header/Header";
@@ -11,6 +12,8 @@ import { View } from "@/components/Themed";
 // TODO: Separar essa home em /pages
 // TODO: Colocar components e services dentro de /app
 export default function HomeScreen() {
+  const router = useRouter();
+
   return (
     <View style={styles.screenContainer}>
       <View style={styles.headerContainer}>
@@ -25,7 +28,6 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.contentContainer}
       >
-        {/* TODO: Galera aqui os clicks estão com logs, vou deixar com log mesmo e quando começarmos a fazer navegação trocamos aqui. */}
         <HeroBanner
           onGamePress={(gameId) => {
             console.log("Game pressed:", gameId);
@@ -36,7 +38,7 @@ export default function HomeScreen() {
           title="Em destaque"
           fetchRecent={true}
           onGamePress={(gameId) => {
-            console.log("Game pressed:", gameId);
+            router.push(`/game/${gameId}`);
           }}
           onViewAllPress={() => {
             console.log("View all pressed");
@@ -45,7 +47,7 @@ export default function HomeScreen() {
 
         <GameOfWeek
           onGamePress={(gameId) => {
-            console.log("Game pressed:", gameId);
+            router.push(`/game/${gameId}`);
           }}
         />
 
