@@ -23,13 +23,6 @@ export default function HomeScreen() {
           }}
         />
       </View>
-      <View style={styles.headerContainer}>
-        <Header
-          onSearchPress={() => {
-            console.log("Search pressed");
-          }}
-        />
-      </View>
       <ScrollView
         style={styles.container}
         showsVerticalScrollIndicator={false}
