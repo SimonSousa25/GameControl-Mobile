@@ -1,11 +1,11 @@
 import { ScrollView, StyleSheet } from "react-native";
 
-import GameCarousel from "@/components/GameCarousel/GameCarousel";
-import GameOfWeek from "@/components/GameOfWeek/GameOfWeek";
 import Header from "@/components/Header/Header";
 import HeroBanner from "@/components/HeroBanner/HeroBanner";
-import NavBottom from "@/components/NavBottom/NavBottom";
+import GameCarousel from "@/components/GameCarousel/GameCarousel";
+import GameOfWeek from "@/components/GameOfWeek/GameOfWeek";
 import PlayersHighlight from "@/components/PlayersHighlight/PlayersHighlight";
+import NavBottom from "@/components/NavBottom/NavBottom";
 import { View } from "@/components/Themed";
 
 // TODO: Separar essa home em /pages
