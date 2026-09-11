@@ -3,13 +3,11 @@ import { StyleSheet } from 'react-native';
 export const styles = StyleSheet.create({
   container: {
     marginBottom: 30,
-    backgroundColor: 'inherit'
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'inherit',
     marginBottom: 16,
     paddingLeft: 20,
     gap: 12,
@@ -20,7 +18,7 @@ export const styles = StyleSheet.create({
     borderRadius: 2,
   },
   title: {
-    fontSize: 18,
+    fontSize: 12,
     fontWeight: '700',
     color: '#F5F7FF',
     fontFamily: 'Orbitron',
@@ -45,7 +43,7 @@ export const styles = StyleSheet.create({
     height: 120,
     borderRadius: 9,
     marginBottom: 8,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#0A0E15',
   },
   gameTitle: {
     fontSize: 12,
