@@ -1,4 +1,5 @@
 import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import { ScrollView, StyleSheet } from "react-native";
 
 import Header from "@/components/Header/Header";
@@ -7,12 +8,28 @@ import GameCarousel from "@/components/GameCarousel/GameCarousel";
 import GameOfWeek from "@/components/GameOfWeek/GameOfWeek";
 import PlayersHighlight from "@/components/PlayersHighlight/PlayersHighlight";
 import NavBottom from "@/components/NavBottom/NavBottom";
+import Presentation from "@/components/Presentation/Presentation";
 import { View } from "@/components/Themed";
+
+const PRESENTATION_DURATION_MS = 2000;
 
 // TODO: Separar essa home em /pages
 // TODO: Colocar components e services dentro de /app
 export default function HomeScreen() {
   const router = useRouter();
+  const [isPresenting, setIsPresenting] = useState(true);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setIsPresenting(false);
+    }, PRESENTATION_DURATION_MS);
+
+    return () => clearTimeout(timeout);
+  }, []);
+
+  if (isPresenting) {
+    return <Presentation />;
+  }
 
   return (
     <View style={styles.screenContainer}>

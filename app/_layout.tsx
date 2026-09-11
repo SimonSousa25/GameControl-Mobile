@@ -1,5 +1,6 @@
 import {
   Orbitron_400Regular,
+  Orbitron_500Medium,
   Orbitron_700Bold,
   Orbitron_900Black,
 } from "@expo-google-fonts/orbitron";
@@ -32,6 +33,7 @@ export default function RootLayout() {
   const [loaded, error] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
     Orbitron: Orbitron_400Regular,
+    OrbitronMedium: Orbitron_500Medium,
     OrbitronBold: Orbitron_700Bold,
     OrbitronBlack: Orbitron_900Black,
     ...FontAwesome.font,
