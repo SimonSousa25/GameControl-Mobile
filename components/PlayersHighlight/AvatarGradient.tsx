@@ -19,16 +19,17 @@ export default function AvatarGradient({
   const innerColor = INNER_COLORS[colorIndex % INNER_COLORS.length];
   const gradientId = `avatarGradient-${colorIndex}`;
 
+  // TODO: achei que esse componente ficou mt pequeno, aumentar dps?
   return (
     <View style={styles.avatarGradientContainer}>
-      <Svg width="68" height="68" viewBox="0 0 68 68">
+      <Svg width="36" height="36" viewBox="0 0 36 36">
         <Defs>
           <RadialGradient id={gradientId} cx="50%" cy="50%" r="50%">
             <Stop offset="0%" stopColor={innerColor} />
             <Stop offset="100%" stopColor={OUTER_COLOR} />
           </RadialGradient>
         </Defs>
-        <Circle cx="34" cy="34" r="34" fill={`url(#${gradientId})`} />
+        <Circle cx="18" cy="18" r="18" fill={`url(#${gradientId})`} />
       </Svg>
       <Text style={styles.userInitialOnGradient}>{initial}</Text>
     </View>

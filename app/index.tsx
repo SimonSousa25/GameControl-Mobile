@@ -1,15 +1,15 @@
 import { useRouter } from "expo-router";
 import { ScrollView, StyleSheet } from "react-native";
 
+import Header from "@/components/Header/Header";
+import HeroBanner from "@/components/HeroBanner/HeroBanner";
 import GameCarousel from "@/components/GameCarousel/GameCarousel";
 import GameOfWeek from "@/components/GameOfWeek/GameOfWeek";
-import Header from "@/components/Header/Header";
-import NavBottom from "@/components/NavBottom/NavBottom";
 import PlayersHighlight from "@/components/PlayersHighlight/PlayersHighlight";
+import NavBottom from "@/components/NavBottom/NavBottom";
 import { View } from "@/components/Themed";
 
 // TODO: Separar essa home em /pages
-// TODO: Tirar esses Tab One e Tab two, que doidera é essa? kkkk
 // TODO: Colocar components e services dentro de /app
 export default function HomeScreen() {
   const router = useRouter();
@@ -23,11 +23,24 @@ export default function HomeScreen() {
           }}
         />
       </View>
+      <View style={styles.headerContainer}>
+        <Header
+          onSearchPress={() => {
+            console.log("Search pressed");
+          }}
+        />
+      </View>
       <ScrollView
         style={styles.container}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.contentContainer}
       >
+        <HeroBanner
+          onGamePress={(gameId) => {
+            console.log("Game pressed:", gameId);
+          }}
+        />
+
         <GameCarousel
           title="Em destaque"
           fetchRecent={true}
@@ -83,6 +96,6 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingTop: 16,
-    paddingBottom: 100,
+    paddingBottom: 70,
   },
 });

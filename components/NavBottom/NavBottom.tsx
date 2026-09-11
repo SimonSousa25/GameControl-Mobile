@@ -1,13 +1,17 @@
-import { View, TouchableOpacity, Image } from 'react-native';
+import { View, TouchableOpacity } from 'react-native';
 import { Text } from '@/components/Themed';
 import { styles } from './styles';
+import { CatalogIcon, FeedIcon, HomeIcon, ProfileIcon } from './icons';
 
 const navItems = [
-  { id: 'home', label: 'Início', icon: require('./utils/home.svg') },
-  { id: 'catalog', label: 'Catálogo', icon: require('./utils/catalog.svg') },
-  { id: 'feed', label: 'Feed', icon: require('./utils/feed.svg') },
-  { id: 'profile', label: 'Perfil', icon: require('./utils/profile.svg') },
+  { id: 'home', label: 'Início', Icon: HomeIcon },
+  { id: 'catalog', label: 'Catálogo', Icon: CatalogIcon },
+  { id: 'feed', label: 'Feed', Icon: FeedIcon },
+  { id: 'profile', label: 'Perfil', Icon: ProfileIcon },
 ];
+
+const INACTIVE_COLOR = '#A0A0A0';
+const ACTIVE_COLOR = '#F52E8F';
 
 interface NavBottomProps {
   activeTab?: string;
@@ -28,12 +32,9 @@ export default function NavBottom({ activeTab = 'home', onTabPress }: NavBottomP
             onPress={() => onTabPress?.(item.id)}
             activeOpacity={0.7}
           >
-            <Image
-              source={item.icon}
-              style={[
-                styles.icon,
-                activeTab === item.id && styles.iconActive,
-              ]}
+            <item.Icon
+              color={activeTab === item.id ? ACTIVE_COLOR : INACTIVE_COLOR}
+              size={24}
             />
             <Text
               style={[
