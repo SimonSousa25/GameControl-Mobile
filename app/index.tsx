@@ -2,12 +2,12 @@ import { ScrollView, StyleSheet } from "react-native";
 
 import GameCarousel from "@/components/GameCarousel/GameCarousel";
 import GameOfWeek from "@/components/GameOfWeek/GameOfWeek";
+import HeroBanner from "@/components/HeroBanner/HeroBanner";
 import NavBottom from "@/components/NavBottom/NavBottom";
 import PlayersHighlight from "@/components/PlayersHighlight/PlayersHighlight";
 import { View } from "@/components/Themed";
 
 // TODO: Separar essa home em /pages
-// TODO: Tirar esses Tab One e Tab two, que doidera é essa? kkkk
 // TODO: Colocar components e services dentro de /app
 export default function HomeScreen() {
   return (
@@ -18,6 +18,12 @@ export default function HomeScreen() {
         contentContainerStyle={styles.contentContainer}
       >
         {/* TODO: Galera aqui os clicks estão com logs, vou deixar com log mesmo e quando começarmos a fazer navegação trocamos aqui. */}
+        <HeroBanner
+          onGamePress={(gameId) => {
+            console.log("Game pressed:", gameId);
+          }}
+        />
+
         <GameCarousel
           title="Em destaque"
           fetchRecent={true}
@@ -67,6 +73,6 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingTop: 16,
-    paddingBottom: 100,
+    paddingBottom: 70,
   },
 });

@@ -49,11 +49,11 @@ export default function GameCarousel({
 
   if (loading) {
     return (
-      <View style={styles.container}>
-        <View style={styles.header}>
+      <View style={styles.container} lightColor="transparent" darkColor="transparent">
+        <View style={styles.header} lightColor="transparent" darkColor="transparent">
           <Text style={styles.title}>{title}</Text>
         </View>
-        <View style={styles.loadingContainer}>
+        <View style={styles.loadingContainer} lightColor="transparent" darkColor="transparent">
           <ActivityIndicator size="large" color="#007AFF" />
         </View>
       </View>
@@ -65,8 +65,8 @@ export default function GameCarousel({
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
+    <View style={styles.container} lightColor="transparent" darkColor="transparent">
+      <View style={styles.header} lightColor="transparent" darkColor="transparent">
         <LinearGradient
           colors={["#0559AB", "#F22E8F"]}
           start={{ x: 0, y: 0 }}

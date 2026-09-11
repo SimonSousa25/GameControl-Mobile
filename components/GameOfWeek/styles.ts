@@ -3,12 +3,10 @@ import { StyleSheet } from 'react-native';
 export const styles = StyleSheet.create({
   container: {
     marginBottom: 30,
-    backgroundColor: 'inherit'
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'inherit',
     marginBottom: 16,
     paddingLeft: 20,
     gap: 12,
@@ -19,7 +17,7 @@ export const styles = StyleSheet.create({
     borderRadius: 2,
   },
   title: {
-    fontSize: 18,
+    fontSize: 12,
     fontWeight: '700',
     color: '#F5F7FF',
     fontFamily: 'Orbitron',
@@ -30,7 +28,6 @@ export const styles = StyleSheet.create({
     marginLeft: 20,
   },
   card: {
-    backgroundColor: '#0A0E15',
     borderRadius: 11,
     padding: 16,
     flexDirection: 'row',
