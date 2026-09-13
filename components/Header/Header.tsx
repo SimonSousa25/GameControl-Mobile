@@ -9,6 +9,9 @@ interface HeaderProps {
   searchValue?: string;
   onSearchChange?: (text: string) => void;
   onSearchPress?: () => void;
+  onSearchSubmit?: () => void;
+  onClose?: () => void;
+  autoFocusSearch?: boolean;
 }
 
 export default function Header({
@@ -16,6 +19,9 @@ export default function Header({
   searchValue,
   onSearchChange,
   onSearchPress,
+  onSearchSubmit,
+  onClose,
+  autoFocusSearch,
 }: HeaderProps) {
   return (
     <View style={styles.container}>
@@ -30,14 +36,35 @@ export default function Header({
 
       {variant === 'search' ? (
         <View style={styles.searchBar}>
+          {onClose ? (
+            <TouchableOpacity
+              accessibilityLabel="Fechar busca"
+              accessibilityRole="button"
+              onPress={onClose}
+              hitSlop={8}
+            >
+              <Ionicons name="close" size={18} color="#5C6478" />
+            </TouchableOpacity>
+          ) : null}
           <TextInput
             style={styles.searchInput}
             placeholder="Pesquisar por um jogo"
             placeholderTextColor="#5C6478"
             value={searchValue}
             onChangeText={onSearchChange}
+            onSubmitEditing={onSearchSubmit}
+            returnKeyType="search"
+            autoFocus={autoFocusSearch}
           />
-          <Ionicons name="search" size={18} color="#F5F7FF" />
+          <TouchableOpacity
+            accessibilityLabel="Buscar"
+            accessibilityRole="button"
+            onPress={onSearchSubmit}
+            disabled={!onSearchSubmit}
+            hitSlop={8}
+          >
+            <Ionicons name="search" size={18} color="#F5F7FF" />
+          </TouchableOpacity>
         </View>
       ) : (
         <TouchableOpacity
