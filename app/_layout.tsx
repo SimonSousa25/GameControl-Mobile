@@ -31,7 +31,6 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
-    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
     Orbitron: Orbitron_400Regular,
     OrbitronMedium: Orbitron_500Medium,
     OrbitronBold: Orbitron_700Bold,
@@ -68,7 +67,8 @@ function RootLayoutNav() {
         <Stack.Screen name="home" options={{ headerShown: false }} />
         <Stack.Screen name="catalog" options={{ headerShown: false }} />
         <Stack.Screen name="game/[id]" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+        <Stack.Screen name="profile" options={{ headerShown: false }} />
+        <Stack.Screen name="playlists" options={{ headerShown: false }} />
       </Stack>
     </ThemeProvider>
   );

@@ -1,7 +1,7 @@
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
 
-import Presentation from "@/components/Presentation/Presentation";
+import Presentation from "@/pages/Presentation/Presentation";
 
 const PRESENTATION_DURATION_MS = 2000;
 

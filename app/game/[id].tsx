@@ -1,13 +1,30 @@
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { ScrollView, StyleSheet } from "react-native";
 
-import GamePage from "@/components/GamePage/GamePage";
+import GamePage from "@/pages/GamePage/GamePage";
 import Header from "@/components/Header/Header";
 import NavBottom from "@/components/NavBottom/NavBottom";
 import { View } from "@/components/Themed";
 
 export default function GameDetailsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
+
+  const handleTabPress = (tabId: string) => {
+    if (tabId === "home") {
+      router.replace("/home");
+      return;
+    }
+    if (tabId === "catalog") {
+      router.push("/catalog");
+      return;
+    }
+    if (tabId === "profile") {
+      router.push("/profile");
+      return;
+    }
+    console.log(`${tabId} pressed`);
+  };
 
   return (
     <View style={styles.screenContainer}>
@@ -26,7 +43,7 @@ export default function GameDetailsScreen() {
       >
         {id ? <GamePage gameId={id} /> : null}
       </ScrollView>
-      <NavBottom />
+      <NavBottom onTabPress={handleTabPress} />
     </View>
   );
 }

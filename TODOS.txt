@@ -1,0 +1,6 @@
+// Arquivo excluível apenas para algumas observações que podemos encontrar no decorrer do projeto;
+
+Clicar na logo está voltando para a tela de login mesmo depois logado, está assim só pra mim ou pra vcs também? - iago 15/09
+
+
+
