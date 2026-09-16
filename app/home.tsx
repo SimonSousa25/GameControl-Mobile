@@ -1,128 +1,53 @@
 import { useRouter } from "expo-router";
-import { useState } from "react";
-import { ScrollView, StyleSheet } from "react-native";
 
-import Header from "@/components/Header/Header";
-import HeroBanner from "@/components/HeroBanner/HeroBanner";
-import GameCarousel from "@/components/GameCarousel/GameCarousel";
-import GameOfWeek from "@/components/GameOfWeek/GameOfWeek";
-import PlayersHighlight from "@/components/PlayersHighlight/PlayersHighlight";
-import NavBottom from "@/components/NavBottom/NavBottom";
-import { View } from "@/components/Themed";
+import Home from "@/pages/Home/Home";
 
-// TODO: Separar essa home em /pages
-// TODO: Colocar components e services dentro de /app
 export default function HomeScreen() {
   const router = useRouter();
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
 
-  const handleSearchSubmit = () => {
-    const termo = searchTerm.trim();
-    if (termo) {
-      router.push({ pathname: "/catalog", params: { search: termo } });
+  const handleSearchSubmit = (searchTerm: string) => {
+    if (searchTerm) {
+      router.push({ pathname: "/catalog", params: { search: searchTerm } });
     } else {
       router.push("/catalog");
     }
   };
 
-  const closeSearch = () => {
-    setIsSearchOpen(false);
-    setSearchTerm("");
+  const handleTabPress = (tabId: string) => {
+    if (tabId === "catalog") {
+      router.push("/catalog");
+      return;
+    }
+    if (tabId === "profile") {
+      router.push("/profile");
+      return;
+    }
+    if (tabId === "home") {
+      return;
+    }
+    // TODO: Criar rota de feed quando existir.
+    console.log(`${tabId} pressed`);
   };
 
   return (
-    <View style={styles.screenContainer}>
-      <View style={styles.headerContainer}>
-        <Header
-          variant={isSearchOpen ? "search" : "icon"}
-          searchValue={searchTerm}
-          onSearchChange={setSearchTerm}
-          onSearchPress={() => setIsSearchOpen(true)}
-          onSearchSubmit={handleSearchSubmit}
-          onClose={closeSearch}
-          autoFocusSearch={isSearchOpen}
-        />
-      </View>
-      <ScrollView
-        style={styles.container}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.contentContainer}
-      >
-        <HeroBanner
-          onGamePress={(gameId) => {
-            console.log("Game pressed:", gameId);
-          }}
-        />
-
-        <GameCarousel
-          title="Em destaque"
-          fetchRecent={true}
-          onGamePress={(gameId) => {
-            router.push(`/game/${gameId}`);
-          }}
-          onViewAllPress={() => {
-            console.log("View all pressed");
-          }}
-        />
-
-        <GameOfWeek
-          onGamePress={(gameId) => {
-            router.push(`/game/${gameId}`);
-          }}
-        />
-
-        <PlayersHighlight
-          onUserPress={(userId) => {
-            console.log("User pressed:", userId);
-          }}
-          onViewAllPress={() => {
-            console.log("View all players pressed");
-          }}
-        />
-      </ScrollView>
-      <NavBottom
-        activeTab="home"
-        onTabPress={(tabId) => {
-          if (tabId === "catalog") {
-            router.push("/catalog");
-            return;
-          }
-          if (tabId === "home") {
-            return;
-          }
-          // TODO: Criar rotas de feed e perfil quando existirem.
-          console.log(`${tabId} pressed`);
-        }}
-      />
-    </View>
+    <Home
+      onSearchSubmit={handleSearchSubmit}
+      onFeaturedGamePress={(gameId) => {
+        console.log("Game pressed:", gameId);
+      }}
+      onGamePress={(gameId) => {
+        router.push(`/game/${gameId}`);
+      }}
+      onViewAllFeaturedPress={() => {
+        console.log("View all pressed");
+      }}
+      onUserPress={(userId) => {
+        console.log("User pressed:", userId);
+      }}
+      onViewAllPlayersPress={() => {
+        console.log("View all players pressed");
+      }}
+      onTabPress={handleTabPress}
+    />
   );
 }
-
-const styles = StyleSheet.create({
-  screenContainer: {
-    flex: 1,
-    backgroundColor: "#03070D",
-  },
-  // TODO: Apenas um questionamento, não seria melhor trabalharmos com 360?
-
-  // 'A largura padrão mais recomendada para design mobile em CSS e web design responsivo é de 320 a 360 pixels para o limite mínimo.'
-
-  // Lá no trabalho a gnt trabalha usando 360, em alguns dispositivos menores (se formos testar usando eles) pode parecer bugado se usarmos um width maior (Vamos perguntar qual a largura de tela do celular da professora kkkkkk)
-  container: {
-    flex: 1,
-    maxWidth: 402, // Largura máxima para parecer mobile
-    alignSelf: "center",
-    width: "100%",
-  },
-  headerContainer: {
-    maxWidth: 402, // Largura máxima para parecer mobile
-    alignSelf: "center",
-    width: "100%",
-    backgroundColor: "#03070D",
-  },
-  contentContainer: {
-    paddingTop: 16,
-    paddingBottom: 70,
-  },
-});

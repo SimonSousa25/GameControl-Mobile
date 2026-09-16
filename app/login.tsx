@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 
-import Login from "@/components/Login/Login";
+import Login from "@/pages/Login/Login";
 
 export default function LoginScreen() {
   const router = useRouter();

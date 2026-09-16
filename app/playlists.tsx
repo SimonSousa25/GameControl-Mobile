@@ -1,17 +1,20 @@
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 
-import Catalog from "@/pages/Catalog/Catalog";
+import Playlist from "@/pages/Playlist/Playlist";
 
-export default function CatalogScreen() {
+// TODO: Substituir pelo ID do usuário autenticado quando o contexto de
+// autenticação/sessão existir (ainda não há login persistido no app).
+const CURRENT_USER_ID_PLACEHOLDER = "me";
+
+export default function PlaylistsScreen() {
   const router = useRouter();
-  const { search } = useLocalSearchParams<{ search?: string }>();
 
   const goBack = () => {
     if (router.canGoBack()) {
       router.back();
       return;
     }
-    router.replace("/home");
+    router.replace("/profile");
   };
 
   const handleTabPress = (tabId: string) => {
@@ -20,18 +23,19 @@ export default function CatalogScreen() {
       return;
     }
     if (tabId === "catalog") {
+      router.push("/catalog");
       return;
     }
     if (tabId === "profile") {
-      router.push("/profile");
+      router.replace("/profile");
       return;
     }
     console.log(`${tabId} pressed`);
   };
 
   return (
-    <Catalog
-      initialSearch={typeof search === "string" ? search : ""}
+    <Playlist
+      userId={CURRENT_USER_ID_PLACEHOLDER}
       onBackPress={goBack}
       onGamePress={(gameId) => router.push(`/game/${gameId}`)}
       onTabPress={handleTabPress}
