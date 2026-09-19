@@ -1,4 +1,3 @@
-import { Ionicons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 import { useRef, useState } from "react";
 import {
@@ -13,56 +12,12 @@ import {
   View,
 } from "react-native";
 
-import type { StyleProp, TextInputProps, ViewStyle } from "react-native";
-
-import PresentationLogo from "@/components/PresentationLogo";
+import type { StyleProp, ViewStyle } from "react-native";
 
 import { styles } from "./styles";
 
-interface FormFieldProps extends TextInputProps {
-  icon: keyof typeof Ionicons.glyphMap;
-  inputRef?: React.RefObject<TextInput | null>;
-  onToggleVisibility?: () => void;
-  passwordVisible?: boolean;
-}
-
-function FormField({
-  icon,
-  inputRef,
-  onToggleVisibility,
-  passwordVisible,
-  ...inputProps
-}: FormFieldProps) {
-  return (
-    <View style={styles.field}>
-      <Ionicons name={icon} size={28} color="#3E4E66" />
-      <TextInput
-        ref={inputRef}
-        placeholderTextColor="#3E4E66"
-        selectionColor="#E51580"
-        style={styles.fieldInput}
-        {...inputProps}
-      />
-      {onToggleVisibility ? (
-        <Pressable
-          accessibilityLabel={
-            passwordVisible ? "Ocultar senha" : "Mostrar senha"
-          }
-          accessibilityRole="button"
-          hitSlop={8}
-          onPress={onToggleVisibility}
-          style={styles.visibilityButton}
-        >
-          <Ionicons
-            name={passwordVisible ? "eye-off-outline" : "eye-outline"}
-            size={30}
-            color="#47658D"
-          />
-        </Pressable>
-      ) : null}
-    </View>
-  );
-}
+import PresentationLogo from "@/components/PresentationLogo";
+import FormField from "@/components/FormField/FormField";
 
 export interface ForgotPasswordThreeProps {
   onSubmit?: (password: string) => Promise<void>;
