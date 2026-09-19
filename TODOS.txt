@@ -2,5 +2,12 @@
 
 Clicar na logo está voltando para a tela de login mesmo depois logado, está assim só pra mim ou pra vcs também? - iago 15/09
 
+-----------------------------------------------------------------------------------------------------------------------------
 
+Limitação Atual: falta de endpoint de recuperação de senha no backend(Apagar observação depois de implementar a funcionalidade) - simon 18/09
 
+O fluxo de recuperação de senha valida o e-mail, e navega corretamente, porém, ainda não envia código nem altera senha;
+Para o fluxo funcionar de verdade, a API precisará posteriormente, de rotas iguais(ou parecidas) a essas:
+    -> POST /api/users/password-recovery/request
+    -> POST /api/users/password-recovery/verify
+    -> POST /api/users/password-recovery/reset
