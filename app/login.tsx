@@ -15,7 +15,7 @@ export default function LoginScreen() {
 
   const handleForgotPassword = () => {
     // TODO: Criar fluxo de recuperação de senha quando a tela existir.
-    console.log("Esqueceu sua senha pressed");
+    router.push("/forgot-password");
   };
 
   return (
