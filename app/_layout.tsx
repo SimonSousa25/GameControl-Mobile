@@ -1,19 +1,14 @@
-import {
-  Orbitron_400Regular,
-  Orbitron_500Medium,
-  Orbitron_700Bold,
-  Orbitron_900Black,
-} from "@expo-google-fonts/orbitron";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import {
   DarkTheme,
   DefaultTheme,
   ThemeProvider,
-} from "expo-router/react-navigation"; // ← única mudança
-import { useFonts } from "expo-font";
+} from "expo-router/react-navigation";
+import { FontDisplay, useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
+import { StyleSheet, View } from "react-native";
 import "react-native-reanimated";
 
 import { useColorScheme } from "@/components/useColorScheme";
@@ -30,11 +25,24 @@ export const unstable_settings = {
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  // Os arquivos locais evitam depender do carregamento do pacote de fontes.
   const [loaded, error] = useFonts({
-    Orbitron: Orbitron_400Regular,
-    OrbitronMedium: Orbitron_500Medium,
-    OrbitronBold: Orbitron_700Bold,
-    OrbitronBlack: Orbitron_900Black,
+    Orbitron: {
+      uri: require("../assets/fonts/Orbitron.ttf"),
+      display: FontDisplay.BLOCK,
+    },
+    OrbitronMedium: {
+      uri: require("../assets/fonts/OrbitronMedium.ttf"),
+      display: FontDisplay.BLOCK,
+    },
+    OrbitronBold: {
+      uri: require("../assets/fonts/OrbitronBold.ttf"),
+      display: FontDisplay.BLOCK,
+    },
+    OrbitronBlack: {
+      uri: require("../assets/fonts/OrbitronBlack.ttf"),
+      display: FontDisplay.BLOCK,
+    },
     ...FontAwesome.font,
   });
 
@@ -42,9 +50,10 @@ export default function RootLayout() {
     if (error) throw error;
   }, [error]);
 
-  useEffect(() => {
+  // Mantém o splash até o primeiro layout já estar usando a Orbitron.
+  const handleRootLayout = useCallback(() => {
     if (loaded) {
-      SplashScreen.hideAsync();
+      void SplashScreen.hideAsync();
     }
   }, [loaded]);
 
@@ -52,7 +61,11 @@ export default function RootLayout() {
     return null;
   }
 
-  return <RootLayoutNav />;
+  return (
+    <View onLayout={handleRootLayout} style={styles.root}>
+      <RootLayoutNav />
+    </View>
+  );
 }
 
 function RootLayoutNav() {
@@ -73,3 +86,10 @@ function RootLayoutNav() {
     </ThemeProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: "#03070D",
+  },
+});

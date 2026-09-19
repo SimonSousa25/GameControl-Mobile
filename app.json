@@ -21,7 +21,17 @@
     },
     "plugins": [
       "expo-router",
-      "expo-font",
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./assets/fonts/Orbitron.ttf",
+            "./assets/fonts/OrbitronMedium.ttf",
+            "./assets/fonts/OrbitronBold.ttf",
+            "./assets/fonts/OrbitronBlack.ttf"
+          ]
+        }
+      ],
       [
         "expo-splash-screen",
         {
