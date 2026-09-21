@@ -80,6 +80,10 @@ function RootLayoutNav() {
         <Stack.Screen name="home" options={{ headerShown: false }} />
         <Stack.Screen name="catalog" options={{ headerShown: false }} />
         <Stack.Screen name="game/[id]" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="game/[id]/reviews"
+          options={{ headerShown: false }}
+        />
         <Stack.Screen name="profile" options={{ headerShown: false }} />
         <Stack.Screen name="playlists" options={{ headerShown: false }} />
       </Stack>
