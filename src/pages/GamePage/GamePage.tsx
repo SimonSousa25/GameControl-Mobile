@@ -4,15 +4,19 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Image, TouchableOpacity, View } from 'react-native';
 import { Text } from '@/components/Themed';
 import gameService, { GameDTO, GenreDTO } from '@/services/gameService';
+import reviewService from '@/services/reviewService';
 import { styles } from './styles';
 
 interface GamePageProps {
   gameId: string;
+  onReviewsPress?: () => void;
 }
 
-export default function GamePage({ gameId }: GamePageProps) {
+export default function GamePage({ gameId, onReviewsPress }: GamePageProps) {
   const [game, setGame] = useState<GameDTO | null>(null);
   const [genres, setGenres] = useState<GenreDTO[]>([]);
+  const [reviewsAverage, setReviewsAverage] = useState(0);
+  const [reviewsCount, setReviewsCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -24,9 +28,13 @@ export default function GamePage({ gameId }: GamePageProps) {
     try {
       setLoading(true);
       setError(false);
-      const [gameData, genresData] = await Promise.all([
+      const [gameData, genresData, reviewsPage] = await Promise.all([
         gameService.buscarJogoPorId(gameId),
         gameService.listarGeneros(),
+        reviewService.buscarPaginaDeAvaliacoes(gameId).catch((err) => {
+          console.error('Erro ao carregar avaliações do jogo:', err);
+          return null;
+        }),
       ]);
 
       if (!gameData) {
@@ -36,6 +44,8 @@ export default function GamePage({ gameId }: GamePageProps) {
 
       setGame(gameData);
       setGenres(genresData);
+      setReviewsAverage(reviewsPage?.average ?? 0);
+      setReviewsCount(reviewsPage?.reviews.length ?? 0);
     } catch (err) {
       console.error('Erro ao carregar detalhes do jogo:', err);
       setError(true);
@@ -64,7 +74,7 @@ export default function GamePage({ gameId }: GamePageProps) {
     .map((id) => genres.find((genre) => genre.id === id)?.name)
     .filter((name): name is string => Boolean(name));
 
-  const starRating = (game.rating ?? 0) / 20;
+  const starRating = reviewsAverage;
   const filledStars = Math.round(starRating);
   const formattedDate = game.releaseDate
     ? new Date(game.releaseDate).toLocaleDateString('pt-BR')
@@ -124,7 +134,12 @@ export default function GamePage({ gameId }: GamePageProps) {
         </View>
       </View>
 
-      <View style={styles.ratingRow}>
+      <TouchableOpacity
+        style={styles.ratingRow}
+        activeOpacity={0.8}
+        onPress={onReviewsPress}
+        disabled={!onReviewsPress}
+      >
         <View style={styles.ratingStars}>
           {[1, 2, 3, 4, 5].map((position) => (
             <Ionicons
@@ -135,11 +150,11 @@ export default function GamePage({ gameId }: GamePageProps) {
             />
           ))}
           <Text style={styles.ratingText}>
-            {starRating.toFixed(1)}/5 · {game.ratingCount ?? 0} avaliações
+            {starRating.toFixed(1)}/5 · {reviewsCount} avaliações
           </Text>
         </View>
         <Ionicons name="chevron-forward" size={18} color="#5C6478" />
-      </View>
+      </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.playlistButton}
