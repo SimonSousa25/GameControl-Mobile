@@ -1,0 +1,77 @@
+import { StyleSheet } from "react-native";
+
+export const styles = StyleSheet.create({
+  card: {
+    marginHorizontal: 20,
+    marginTop: 14,
+    backgroundColor: "#0A0E15",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "rgba(0, 229, 255, 0.1)",
+    padding: 16,
+  },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+  },
+  headerLeft: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  iconCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "rgba(245, 46, 143, 0.5)",
+    backgroundColor: "rgba(245, 46, 143, 0.08)",
+  },
+  title: {
+    color: "#F5F7FF",
+    fontFamily: "OrbitronBold",
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  subtitle: {
+    marginTop: 2,
+    color: "#6B7280",
+    fontFamily: "OrbitronMedium",
+    fontSize: 9,
+  },
+  expandButton: {
+    width: 32,
+    height: 32,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  placeholderBox: {
+    marginTop: 16,
+    alignItems: "center",
+    gap: 6,
+    paddingVertical: 24,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderStyle: "dashed",
+    borderColor: "rgba(0, 229, 255, 0.15)",
+    backgroundColor: "#03070D",
+  },
+  placeholderTitle: {
+    color: "#AAB2C0",
+    fontFamily: "OrbitronBold",
+    fontSize: 12,
+    fontWeight: "700",
+  },
+  placeholderText: {
+    color: "#6B7280",
+    fontFamily: "OrbitronMedium",
+    fontSize: 11,
+    textAlign: "center",
+  },
+});

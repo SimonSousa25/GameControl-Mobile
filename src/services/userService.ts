@@ -4,6 +4,10 @@ export interface UserDTO {
   email: string;
   profilePictureUrl?: string;
   bio?: string;
+  country?: string;
+  /** Ids de quem segue / quem é seguido (arrays do Firestore). */
+  followers?: string[];
+  following?: string[];
   followersCount?: number;
   followingCount?: number;
   createdAt?: string;
@@ -49,7 +53,6 @@ const userService = {
     }
   },
 
-  // TODO: Testar quando tivermos profile page
   async buscarUsuarioPorId(id: string): Promise<UserDTO> {
     try {
       const response = await fetch(`${API_BASE_URL}/users/${id}`, {
@@ -70,7 +73,6 @@ const userService = {
     }
   },
 
-  // TODO: Testar quando tivermos cadastro
   async cadastrarUsuario(dados: CreateUserRequest): Promise<UserDTO> {
     try {
       const response = await fetch(`${API_BASE_URL}/users`, {

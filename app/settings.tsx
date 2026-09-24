@@ -1,13 +1,11 @@
-import { Redirect, useLocalSearchParams, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 
 import { useAuth } from "@/contexts/AuthContext";
+import Settings from "@/pages/Settings/Settings";
 
-import Playlist from "@/pages/Playlist/Playlist";
-
-export default function PlaylistsScreen() {
+export default function SettingsScreen() {
   const router = useRouter();
-  const { user } = useAuth();
-  const { playlistId } = useLocalSearchParams<{ playlistId?: string }>();
+  const { signOut } = useAuth();
 
   const goBack = () => {
     if (router.canGoBack()) {
@@ -33,14 +31,17 @@ export default function PlaylistsScreen() {
     console.log(`${tabId} pressed`);
   };
 
-  if (!user) return <Redirect href="/login" />;
+  const handleLogout = async () => {
+    await signOut();
+    // Limpa o histórico para o botão voltar não retornar a telas autenticadas.
+    if (router.canDismiss()) router.dismissAll();
+    router.replace("/login");
+  };
 
   return (
-    <Playlist
-      userId={user.id}
-      initialPlaylistId={playlistId}
+    <Settings
       onBackPress={goBack}
-      onGamePress={(gameId) => router.push(`/game/${gameId}`)}
+      onLogoutPress={handleLogout}
       onTabPress={handleTabPress}
     />
   );

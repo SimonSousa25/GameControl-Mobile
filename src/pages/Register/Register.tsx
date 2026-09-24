@@ -16,7 +16,7 @@ import {
 import type { StyleProp, TextInputProps, ViewStyle } from "react-native";
 
 import PresentationLogo from "@/components/PresentationLogo";
-import userService from "@/services/userService";
+import userService, { AuthResponse } from "@/services/userService";
 
 import { styles } from "./styles";
 
@@ -65,7 +65,8 @@ function FormField({
 
 export interface RegisterProps {
   onLoginPress?: () => void;
-  onSuccess?: () => void;
+  /** Chamado com a sessão criada pelo login automático após o cadastro. */
+  onSuccess?: (auth: AuthResponse) => void;
   style?: StyleProp<ViewStyle>;
   testID?: string;
 }
@@ -107,20 +108,37 @@ export function Register({
       return;
     }
 
+    const normalizedEmail = email.trim().toLowerCase();
+
     try {
       setIsSubmitting(true);
       await userService.cadastrarUsuario({
         username: username.trim(),
-        email: email.trim().toLowerCase(),
+        email: normalizedEmail,
         password,
       });
-      Alert.alert("Conta criada", "Seu cadastro foi realizado com sucesso.", [
-        { text: "Continuar", onPress: onSuccess },
-      ]);
     } catch {
       Alert.alert(
         "Não foi possível criar a conta",
         "Verifique os dados informados e tente novamente.",
+      );
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Conta criada: entra automaticamente com as mesmas credenciais.
+    try {
+      const auth = await userService.login({
+        email: normalizedEmail,
+        password,
+      });
+      onSuccess?.(auth);
+    } catch {
+      // O cadastro deu certo, só o login automático falhou: manda para o login.
+      Alert.alert(
+        "Conta criada",
+        "Seu cadastro foi realizado, mas não foi possível entrar automaticamente. Faça login para continuar.",
+        [{ text: "Ir para o login", onPress: onLoginPress }],
       );
     } finally {
       setIsSubmitting(false);

@@ -12,6 +12,9 @@
       "@/services/*": [
         "./src/services/*"
       ],
+      "@/contexts/*": [
+        "./src/contexts/*"
+      ],
       "@/constants/*": [
         "./src/constants/*"
       ],

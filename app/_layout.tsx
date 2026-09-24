@@ -12,6 +12,7 @@ import { StyleSheet, View } from "react-native";
 import "react-native-reanimated";
 
 import { useColorScheme } from "@/components/useColorScheme";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -25,6 +26,16 @@ export const unstable_settings = {
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  return (
+    <AuthProvider>
+      <RootLayoutContent />
+    </AuthProvider>
+  );
+}
+
+function RootLayoutContent() {
+  const { loading: authLoading } = useAuth();
+
   // Os arquivos locais evitam depender do carregamento do pacote de fontes.
   const [loaded, error] = useFonts({
     Orbitron: {
@@ -52,12 +63,13 @@ export default function RootLayout() {
 
   // Mantém o splash até o primeiro layout já estar usando a Orbitron.
   const handleRootLayout = useCallback(() => {
-    if (loaded) {
+    if (loaded && !authLoading) {
       void SplashScreen.hideAsync();
     }
-  }, [loaded]);
+  }, [loaded, authLoading]);
 
-  if (!loaded) {
+  // Também espera a sessão salva ser lida, para o app já abrir logado.
+  if (!loaded || authLoading) {
     return null;
   }
 
@@ -89,6 +101,7 @@ function RootLayoutNav() {
         />
         <Stack.Screen name="profile" options={{ headerShown: false }} />
         <Stack.Screen name="playlists" options={{ headerShown: false }} />
+        <Stack.Screen name="settings" options={{ headerShown: false }} />
       </Stack>
     </ThemeProvider>
   );
