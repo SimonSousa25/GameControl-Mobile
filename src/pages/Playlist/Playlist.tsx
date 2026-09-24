@@ -34,8 +34,6 @@ function getCoverUrl(game: GameDTO): string | undefined {
 
 export interface PlaylistProps {
   userId: string;
-  /** Playlist a ser exibida ao abrir a página (vinda do perfil). */
-  initialPlaylistId?: string;
   onBackPress?: () => void;
   onGamePress?: (gameId: string) => void;
   onTabPress?: (tabId: string) => void;
@@ -43,7 +41,6 @@ export interface PlaylistProps {
 
 export function Playlist({
   userId,
-  initialPlaylistId,
   onBackPress,
   onGamePress,
   onTabPress,
@@ -69,10 +66,7 @@ export function Playlist({
       setLoading(true);
       const data = await playlistService.listarPlaylistsDoUsuario(userId);
       setPlaylists(data);
-      const initialIndex = initialPlaylistId
-        ? data.findIndex((playlist) => playlist.id === initialPlaylistId)
-        : -1;
-      setCurrentIndex(initialIndex >= 0 ? initialIndex : 0);
+      setCurrentIndex(0);
     } catch (error) {
       console.error("Erro ao carregar playlists:", error);
       setPlaylists([]);

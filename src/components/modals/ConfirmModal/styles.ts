@@ -44,17 +44,6 @@ export const styles = StyleSheet.create({
     lineHeight: 19,
     marginBottom: 20,
   },
-  messageWithWarning: {
-    marginBottom: 10,
-  },
-  warning: {
-    color: "#FF4D5E",
-    fontFamily: "OrbitronBold",
-    fontSize: 12,
-    fontWeight: "700",
-    lineHeight: 18,
-    marginBottom: 20,
-  },
   footerRow: {
     flexDirection: "row",
     justifyContent: "flex-end",

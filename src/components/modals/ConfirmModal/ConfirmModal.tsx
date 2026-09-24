@@ -8,8 +8,6 @@ export interface ConfirmModalProps {
   visible: boolean;
   title: string;
   message?: string;
-  /** Texto de aviso destacado exibido abaixo da mensagem. */
-  warning?: string;
   confirmLabel?: string;
   cancelLabel?: string;
   destructive?: boolean;
@@ -22,7 +20,6 @@ export function ConfirmModal({
   visible,
   title,
   message,
-  warning,
   confirmLabel = "Confirmar",
   cancelLabel = "Cancelar",
   destructive = false,
@@ -54,13 +51,7 @@ export function ConfirmModal({
             <Text style={styles.title}>{title}</Text>
           </View>
 
-          {message ? (
-            <Text style={[styles.message, warning && styles.messageWithWarning]}>
-              {message}
-            </Text>
-          ) : null}
-
-          {warning ? <Text style={styles.warning}>{warning}</Text> : null}
+          {message ? <Text style={styles.message}>{message}</Text> : null}
 
           <View
             style={styles.footerRow}

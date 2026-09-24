@@ -25,7 +25,7 @@ export default function Header({
 }: HeaderProps) {
   return (
     <View style={styles.container}>
-      <Link href="/home" asChild>
+      <Link href="/" asChild>
         <TouchableOpacity style={styles.logo} activeOpacity={0.7}>
           <Image source={require('./utils/logo.svg')} style={styles.logoIcon} />
           <Text style={styles.logoText}>

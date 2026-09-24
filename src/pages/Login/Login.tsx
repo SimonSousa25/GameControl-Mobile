@@ -15,13 +15,13 @@ import type { StyleProp, ViewStyle } from "react-native";
 import { styles } from "./styles";
 
 import FormField from "@/components/FormField/FormField";
-import userService, { AuthResponse } from "@/services/userService";
+import userService from "@/services/userService";
 import PresentationTransition from "@/animations/PresentationTransition";
 
 export interface LoginProps {
   onForgotPasswordPress?: () => void;
   onRegisterPress?: () => void;
-  onSuccess?: (auth: AuthResponse) => void;
+  onSuccess?: (auth: { token: string }) => void;
   style?: StyleProp<ViewStyle>;
   testID?: string;
 }

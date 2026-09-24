@@ -1,13 +1,14 @@
-import { Redirect, useLocalSearchParams, useRouter } from "expo-router";
-
-import { useAuth } from "@/contexts/AuthContext";
+import { useLocalSearchParams, useRouter } from "expo-router";
 
 import Reviews from "@/pages/Reviews/Reviews";
+
+// TODO: Substituir pelo ID do usuário autenticado quando o contexto de
+// autenticação/sessão existir (ainda não há login persistido no app).
+const CURRENT_USER_ID_PLACEHOLDER = "me";
 
 export default function GameReviewsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { user } = useAuth();
 
   const goBack = () => {
     if (router.canGoBack()) {
@@ -33,13 +34,12 @@ export default function GameReviewsScreen() {
     console.log(`${tabId} pressed`);
   };
 
-  if (!user) return <Redirect href="/login" />;
   if (!id) return null;
 
   return (
     <Reviews
       gameId={id}
-      userId={user.id}
+      userId={CURRENT_USER_ID_PLACEHOLDER}
       onBackPress={goBack}
       onTabPress={handleTabPress}
     />
