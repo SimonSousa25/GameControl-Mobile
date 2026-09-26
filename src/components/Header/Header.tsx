@@ -1,8 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
-import { Image, TextInput, TouchableOpacity } from 'react-native';
+import { TextInput, TouchableOpacity } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, View } from '@/components/Themed';
 import { styles } from './styles';
+import LogoIcon from './utils/LogoIcon';
 
 interface HeaderProps {
   variant?: 'icon' | 'search';
@@ -23,11 +25,13 @@ export default function Header({
   onClose,
   autoFocusSearch,
 }: HeaderProps) {
+  const insets = useSafeAreaInsets();
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top + 6 }]}>
       <Link href="/home" asChild>
         <TouchableOpacity style={styles.logo} activeOpacity={0.7}>
-          <Image source={require('./utils/logo.svg')} style={styles.logoIcon} />
+          <LogoIcon width={38} height={32} />
           <Text style={styles.logoText}>
             Game<Text style={styles.logoTextAccent}>Control</Text>
           </Text>

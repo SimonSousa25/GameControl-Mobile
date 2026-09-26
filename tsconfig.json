@@ -21,6 +21,9 @@
       "@/animations/*": [
         "./src/animations/*"
       ],
+      "@/utils/*": [
+        "./src/utils/*"
+      ],
       "@/*": [
         "./*"
       ]

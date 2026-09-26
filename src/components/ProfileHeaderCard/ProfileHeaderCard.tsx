@@ -3,19 +3,9 @@ import { Image, TouchableOpacity } from "react-native";
 
 import { Text, View } from "@/components/Themed";
 import type { UserDTO } from "@/services/userService";
+import { getAvatarUrl } from "@/utils/avatar";
 
 import { styles } from "./styles";
-
-const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_URL || "http://localhost:8080/api";
-const UPLOADS_BASE_URL = API_BASE_URL.replace(/\/api\/?$/, "");
-
-// A foto pode vir como data URI (base64), URL completa ou nome de arquivo.
-function getAvatarUrl(picture?: string): string | undefined {
-  if (!picture) return undefined;
-  if (/^(https?:|data:)/.test(picture)) return picture;
-  return `${UPLOADS_BASE_URL}/uploads/${picture}`;
-}
 
 export interface ProfileHeaderCardProps {
   user?: UserDTO;
