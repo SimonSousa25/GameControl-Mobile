@@ -28,12 +28,16 @@ const TABS = ["Feed", "Playlists"];
 
 export interface ProfileProps {
   userId: string;
+  /** Usuário da sessão: exibido de imediato e usado se a API falhar. */
   initialUser?: UserDTO;
+  /** Chamado com os dados frescos da API para manter a sessão atualizada. */
   onUserRefreshed?: (user: UserDTO) => void;
   onSettingsPress?: () => void;
   onFeedPress?: () => void;
   onPlaylistPress?: (playlistId: string) => void;
   onTabPress?: (tabId: string) => void;
+  /** Chamado ao confirmar uma busca no Header (mesmo padrão da Home). */
+  onSearchSubmit?: (searchTerm: string) => void;
 }
 
 export function Profile({
@@ -41,6 +45,7 @@ export function Profile({
   initialUser,
   onUserRefreshed,
   onSettingsPress,
+  onSearchSubmit,
   onFeedPress,
   onPlaylistPress,
   onTabPress,
@@ -48,6 +53,20 @@ export function Profile({
   const [user, setUser] = useState<UserDTO | undefined>(initialUser);
   const [playlists, setPlaylists] = useState<PlaylistDTO[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Mesmo padrão da Home: o Header só tem o botão de busca; o campo/estado
+  // de busca em si fica na página que o usa.
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const handleSearchSubmit = () => {
+    onSearchSubmit?.(searchTerm.trim());
+  };
+
+  const closeSearch = () => {
+    setIsSearchOpen(false);
+    setSearchTerm("");
+  };
 
   const [formModalVisible, setFormModalVisible] = useState(false);
   const [submittingForm, setSubmittingForm] = useState(false);
@@ -83,7 +102,8 @@ export function Profile({
     setLoading(false);
   }, [userId]);
 
-
+  // Recarrega ao voltar da página de playlists/configurações, pois as
+  // contagens e os dados do perfil podem ter mudado.
   useFocusEffect(
     useCallback(() => {
       void loadProfile();
@@ -95,7 +115,7 @@ export function Profile({
     setPagerSize({ width, height });
   };
 
-
+  // Se a largura mudar (rotação/redimensionar), mantém a página atual.
   useEffect(() => {
     if (pagerSize.width > 0) {
       pagerRef.current?.scrollTo({
@@ -187,7 +207,15 @@ export function Profile({
   return (
     <View style={styles.screenContainer}>
       <View style={styles.headerContainer}>
-        <Header variant="icon" />
+        <Header
+          variant={isSearchOpen ? "search" : "icon"}
+          searchValue={searchTerm}
+          onSearchChange={setSearchTerm}
+          onSearchPress={() => setIsSearchOpen(true)}
+          onSearchSubmit={handleSearchSubmit}
+          onClose={closeSearch}
+          autoFocusSearch={isSearchOpen}
+        />
       </View>
 
       <View style={styles.content} lightColor="transparent" darkColor="transparent">

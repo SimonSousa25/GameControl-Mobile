@@ -22,6 +22,14 @@ export default function ProfileScreen() {
     console.log(`${tabId} pressed`);
   };
 
+  const handleSearchSubmit = (searchTerm: string) => {
+    if (searchTerm) {
+      router.push({ pathname: "/catalog", params: { search: searchTerm } });
+    } else {
+      router.push("/catalog");
+    }
+  };
+
   if (!user) return <Redirect href="/login" />;
 
   return (
@@ -30,6 +38,7 @@ export default function ProfileScreen() {
       initialUser={user}
       onUserRefreshed={updateUser}
       onSettingsPress={() => router.push("/settings")}
+      onSearchSubmit={handleSearchSubmit}
       onPlaylistPress={(playlistId) =>
         router.push({ pathname: "/playlists", params: { playlistId } })
       }
