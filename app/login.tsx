@@ -1,6 +1,6 @@
 import { Redirect, useRouter } from "expo-router";
 
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/src/contexts/AuthContext";
 import Login from "@/pages/Login/Login";
 import type { AuthResponse } from "@/services/userService";
 
@@ -23,7 +23,6 @@ export default function LoginScreen() {
   };
 
   const handleForgotPassword = () => {
-    // TODO: Criar fluxo de recuperação de senha quando a tela existir.
     router.push("/forgot-password");
   };
 

@@ -1,6 +1,6 @@
 import { Redirect, useLocalSearchParams, useRouter } from "expo-router";
 
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/src/contexts/AuthContext";
 
 import Playlist from "@/pages/Playlist/Playlist";
 

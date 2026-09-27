@@ -28,9 +28,7 @@ const TABS = ["Feed", "Playlists"];
 
 export interface ProfileProps {
   userId: string;
-  /** Usuário da sessão: exibido de imediato e usado se a API falhar. */
   initialUser?: UserDTO;
-  /** Chamado com os dados frescos da API para manter a sessão atualizada. */
   onUserRefreshed?: (user: UserDTO) => void;
   onSettingsPress?: () => void;
   onFeedPress?: () => void;
@@ -85,8 +83,7 @@ export function Profile({
     setLoading(false);
   }, [userId]);
 
-  // Recarrega ao voltar da página de playlists/configurações, pois as
-  // contagens e os dados do perfil podem ter mudado.
+
   useFocusEffect(
     useCallback(() => {
       void loadProfile();
@@ -98,7 +95,7 @@ export function Profile({
     setPagerSize({ width, height });
   };
 
-  // Se a largura mudar (rotação/redimensionar), mantém a página atual.
+
   useEffect(() => {
     if (pagerSize.width > 0) {
       pagerRef.current?.scrollTo({

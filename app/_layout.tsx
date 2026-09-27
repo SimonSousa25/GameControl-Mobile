@@ -13,7 +13,7 @@ import "react-native-reanimated";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { useColorScheme } from "@/components/useColorScheme";
-import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { AuthProvider, useAuth } from "@/src/contexts/AuthContext";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -39,7 +39,7 @@ export default function RootLayout() {
 function RootLayoutContent() {
   const { loading: authLoading } = useAuth();
 
-  // Os arquivos locais evitam depender do carregamento do pacote de fontes.
+
   const [loaded, error] = useFonts({
     Orbitron: {
       uri: require("../assets/fonts/Orbitron.ttf"),
@@ -64,14 +64,13 @@ function RootLayoutContent() {
     if (error) throw error;
   }, [error]);
 
-  // Mantém o splash até o primeiro layout já estar usando a Orbitron.
   const handleRootLayout = useCallback(() => {
     if (loaded && !authLoading) {
       void SplashScreen.hideAsync();
     }
   }, [loaded, authLoading]);
 
-  // Também espera a sessão salva ser lida, para o app já abrir logado.
+
   if (!loaded || authLoading) {
     return null;
   }

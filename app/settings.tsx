@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/src/contexts/AuthContext";
 import Settings from "@/pages/Settings/Settings";
 
 export default function SettingsScreen() {

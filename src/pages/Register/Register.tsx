@@ -65,7 +65,6 @@ function FormField({
 
 export interface RegisterProps {
   onLoginPress?: () => void;
-  /** Chamado com a sessão criada pelo login automático após o cadastro. */
   onSuccess?: (auth: AuthResponse) => void;
   style?: StyleProp<ViewStyle>;
   testID?: string;

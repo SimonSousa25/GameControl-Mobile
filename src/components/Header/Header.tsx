@@ -4,7 +4,7 @@ import { TextInput, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, View } from '@/components/Themed';
 import { styles } from './styles';
-import LogoIcon from './utils/LogoIcon';
+import LogoIcon from './utils/LogoIcon'; //eu importei essa logo nova porque o react nao estava conseguindo mexer com a logo svg na tag de imagem
 
 interface HeaderProps {
   variant?: 'icon' | 'search';

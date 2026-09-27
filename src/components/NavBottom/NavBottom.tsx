@@ -1,7 +1,7 @@
 import { Image, View, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '@/components/Themed';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/src/contexts/AuthContext';
 import { getAvatarUrl } from '@/utils/avatar';
 import { styles } from './styles';
 import { CatalogIcon, FeedIcon, HomeIcon, ProfileIcon } from './icons';

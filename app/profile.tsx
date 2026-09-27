@@ -1,6 +1,6 @@
 import { Redirect, useRouter } from "expo-router";
 
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/src/contexts/AuthContext";
 import Profile from "@/pages/Profile/Profile";
 
 export default function ProfileScreen() {

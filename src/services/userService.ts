@@ -53,6 +53,7 @@ const userService = {
     }
   },
 
+  // TODO: Testar quando tivermos profile page
   async buscarUsuarioPorId(id: string): Promise<UserDTO> {
     try {
       const response = await fetch(`${API_BASE_URL}/users/${id}`, {
@@ -73,6 +74,7 @@ const userService = {
     }
   },
 
+  // TODO: Testar quando tivermos cadastro
   async cadastrarUsuario(dados: CreateUserRequest): Promise<UserDTO> {
     try {
       const response = await fetch(`${API_BASE_URL}/users`, {
