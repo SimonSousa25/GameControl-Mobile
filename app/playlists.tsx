@@ -1,13 +1,13 @@
-import { useRouter } from "expo-router";
+import { Redirect, useLocalSearchParams, useRouter } from "expo-router";
+
+import { useAuth } from "@/src/contexts/AuthContext";
 
 import Playlist from "@/pages/Playlist/Playlist";
 
-// TODO: Substituir pelo ID do usuário autenticado quando o contexto de
-// autenticação/sessão existir (ainda não há login persistido no app).
-const CURRENT_USER_ID_PLACEHOLDER = "me";
-
 export default function PlaylistsScreen() {
   const router = useRouter();
+  const { user } = useAuth();
+  const { playlistId } = useLocalSearchParams<{ playlistId?: string }>();
 
   const goBack = () => {
     if (router.canGoBack()) {
@@ -33,9 +33,12 @@ export default function PlaylistsScreen() {
     console.log(`${tabId} pressed`);
   };
 
+  if (!user) return <Redirect href="/login" />;
+
   return (
     <Playlist
-      userId={CURRENT_USER_ID_PLACEHOLDER}
+      userId={user.id}
+      initialPlaylistId={playlistId}
       onBackPress={goBack}
       onGamePress={(gameId) => router.push(`/game/${gameId}`)}
       onTabPress={handleTabPress}

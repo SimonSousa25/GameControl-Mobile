@@ -1,5 +1,7 @@
 import { StyleSheet } from 'react-native';
 
+const INACTIVE_COLOR_BORDER = 'rgba(160, 160, 160, 0.6)';
+
 export const styles = StyleSheet.create({
   container: {
     position: 'absolute',
@@ -35,6 +37,16 @@ export const styles = StyleSheet.create({
   },
   navItemActive: {
     borderRadius: 12,
+  },
+  avatar: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: INACTIVE_COLOR_BORDER,
+  },
+  avatarActive: {
+    borderColor: '#F52E8F',
   },
   label: {
     fontSize: 10,

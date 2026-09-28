@@ -4,6 +4,10 @@ export interface UserDTO {
   email: string;
   profilePictureUrl?: string;
   bio?: string;
+  country?: string;
+  /** Ids de quem segue / quem é seguido (arrays do Firestore). */
+  followers?: string[];
+  following?: string[];
   followersCount?: number;
   followingCount?: number;
   createdAt?: string;
