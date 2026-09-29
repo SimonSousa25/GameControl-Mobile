@@ -1,12 +1,6 @@
 import { useFocusEffect } from "expo-router";
-import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  Alert,
-  LayoutChangeEvent,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
-  ScrollView,
-} from "react-native";
+import { useCallback, useRef, useState } from "react";
+import { Alert, ScrollView } from "react-native";
 
 import Header from "@/components/Header/Header";
 import ConfirmModal from "@/components/modals/ConfirmModal/ConfirmModal";
@@ -21,6 +15,7 @@ import SectionTabs from "@/components/SectionTabs/SectionTabs";
 import { Text, View } from "@/components/Themed";
 import playlistService, { PlaylistDTO } from "@/services/playlistService";
 import userService, { UserDTO } from "@/services/userService";
+import { useSectionPager } from "@/utils/useSectionPager";
 
 import { styles } from "./styles";
 
@@ -28,15 +23,12 @@ const TABS = ["Feed", "Playlists"];
 
 export interface ProfileProps {
   userId: string;
-  /** Usuário da sessão: exibido de imediato e usado se a API falhar. */
   initialUser?: UserDTO;
-  /** Chamado com os dados frescos da API para manter a sessão atualizada. */
   onUserRefreshed?: (user: UserDTO) => void;
   onSettingsPress?: () => void;
   onFeedPress?: () => void;
   onPlaylistPress?: (playlistId: string) => void;
   onTabPress?: (tabId: string) => void;
-  /** Chamado ao confirmar uma busca no Header (mesmo padrão da Home). */
   onSearchSubmit?: (searchTerm: string) => void;
 }
 
@@ -54,8 +46,7 @@ export function Profile({
   const [playlists, setPlaylists] = useState<PlaylistDTO[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Mesmo padrão da Home: o Header só tem o botão de busca; o campo/estado
-  // de busca em si fica na página que o usa.
+
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -76,16 +67,12 @@ export function Profile({
   );
   const [deletingPlaylist, setDeletingPlaylist] = useState(false);
 
-  // Pager horizontal (Feed <-> Playlists) com o card do perfil fixo acima.
-  const pagerRef = useRef<ScrollView>(null);
-  const [pagerSize, setPagerSize] = useState({ width: 0, height: 0 });
-  const [activePage, setActivePage] = useState(0);
+  const { pagerRef, pagerSize, activePage, onPagerLayout, onPagerScroll, goToPage } =
+    useSectionPager();
 
-  // Mantém o callback num ref para não recriar o loadProfile a cada render.
   const onUserRefreshedRef = useRef(onUserRefreshed);
   onUserRefreshedRef.current = onUserRefreshed;
 
-  // Um erro em uma das chamadas não deve derrubar a tela inteira.
   const loadProfile = useCallback(async () => {
     const [userResult, playlistsResult] = await Promise.allSettled([
       userService.buscarUsuarioPorId(userId),
@@ -102,44 +89,11 @@ export function Profile({
     setLoading(false);
   }, [userId]);
 
-  // Recarrega ao voltar da página de playlists/configurações, pois as
-  // contagens e os dados do perfil podem ter mudado.
   useFocusEffect(
     useCallback(() => {
       void loadProfile();
     }, [loadProfile]),
   );
-
-  const handlePagerLayout = (event: LayoutChangeEvent) => {
-    const { width, height } = event.nativeEvent.layout;
-    setPagerSize({ width, height });
-  };
-
-  // Se a largura mudar (rotação/redimensionar), mantém a página atual.
-  useEffect(() => {
-    if (pagerSize.width > 0) {
-      pagerRef.current?.scrollTo({
-        x: activePage * pagerSize.width,
-        animated: false,
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pagerSize.width]);
-
-  const handlePagerScroll = (
-    event: NativeSyntheticEvent<NativeScrollEvent>,
-  ) => {
-    if (pagerSize.width === 0) return;
-    const page = Math.round(
-      event.nativeEvent.contentOffset.x / pagerSize.width,
-    );
-    setActivePage((current) => (current === page ? current : page));
-  };
-
-  const goToPage = (page: number) => {
-    setActivePage(page);
-    pagerRef.current?.scrollTo({ x: page * pagerSize.width, animated: true });
-  };
 
   const closeFormModal = () => {
     if (submittingForm) return;
@@ -232,7 +186,7 @@ export function Profile({
           style={styles.pager}
           lightColor="transparent"
           darkColor="transparent"
-          onLayout={handlePagerLayout}
+          onLayout={onPagerLayout}
         >
           {pagerSize.width > 0 ? (
             <ScrollView
@@ -242,7 +196,7 @@ export function Profile({
               bounces={false}
               showsHorizontalScrollIndicator={false}
               scrollEventThrottle={16}
-              onScroll={handlePagerScroll}
+              onScroll={onPagerScroll}
             >
               <ScrollView
                 style={pageStyle}

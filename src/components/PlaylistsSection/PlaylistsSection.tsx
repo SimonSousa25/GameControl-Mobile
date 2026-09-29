@@ -8,6 +8,7 @@ import { styles } from "./styles";
 
 export interface PlaylistsSectionProps {
   playlists: PlaylistDTO[];
+  readOnly?: boolean;
   onCreatePress?: () => void;
   onPlaylistPress?: (playlistId: string) => void;
   onDeletePress?: (playlist: PlaylistDTO) => void;
@@ -34,6 +35,7 @@ function NewButton({ onPress }: { onPress?: () => void }) {
 
 export function PlaylistsSection({
   playlists,
+  readOnly = false,
   onCreatePress,
   onPlaylistPress,
   onDeletePress,
@@ -56,16 +58,18 @@ export function PlaylistsSection({
           </View>
         </View>
 
-        {!isEmpty ? <NewButton onPress={onCreatePress} /> : null}
+        {!isEmpty && !readOnly ? <NewButton onPress={onCreatePress} /> : null}
       </View>
 
       {isEmpty ? (
         <View style={styles.emptyBox}>
           <Ionicons name="albums-outline" size={28} color="#334056" />
           <Text style={styles.emptyText}>
-            Nenhuma playlist cadastrada ainda.
+            {readOnly
+              ? "Não existem playlists disponíveis para visualização."
+              : "Nenhuma playlist cadastrada ainda."}
           </Text>
-          <NewButton onPress={onCreatePress} />
+          {!readOnly ? <NewButton onPress={onCreatePress} /> : null}
         </View>
       ) : (
         <View style={styles.list} lightColor="transparent" darkColor="transparent">
@@ -104,6 +108,7 @@ export function PlaylistsSection({
                   </View>
                 </TouchableOpacity>
 
+                {!readOnly ? (
                 <TouchableOpacity
                   accessibilityLabel={`Excluir playlist ${playlist.nome}`}
                   accessibilityRole="button"
@@ -113,6 +118,7 @@ export function PlaylistsSection({
                 >
                   <Ionicons name="trash-outline" size={16} color="#FF4D5E" />
                 </TouchableOpacity>
+                ) : null}
               </View>
             );
           })}

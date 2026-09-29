@@ -42,7 +42,7 @@ export default function HomeScreen() {
         console.log("View all pressed");
       }}
       onUserPress={(userId) => {
-        console.log("User pressed:", userId);
+        router.push(`/user/${userId}`);
       }}
       onViewAllPlayersPress={() => {
         console.log("View all players pressed");

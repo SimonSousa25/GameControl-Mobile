@@ -35,6 +35,8 @@ function getCoverUrl(game: GameDTO): string | undefined {
 export interface PlaylistProps {
   userId: string;
   initialPlaylistId?: string;
+  /** Modo somente leitura: usado ao ver playlists de outro usuário (RF11.12). */
+  readOnly?: boolean;
   onBackPress?: () => void;
   onGamePress?: (gameId: string) => void;
   onTabPress?: (tabId: string) => void;
@@ -43,6 +45,7 @@ export interface PlaylistProps {
 export function Playlist({
   userId,
   initialPlaylistId,
+  readOnly = false,
   onBackPress,
   onGamePress,
   onTabPress,
@@ -110,7 +113,6 @@ export function Playlist({
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPlaylist?.id]);
 
   const currentGames = currentPlaylist
@@ -293,16 +295,18 @@ export function Playlist({
       >
         <BackButton onPress={onBackPress} />
 
-        <TouchableOpacity
-          accessibilityLabel="Criar playlist"
-          accessibilityRole="button"
-          style={styles.createButton}
-          activeOpacity={0.8}
-          onPress={openCreateModal}
-        >
-          <Ionicons name="add" size={16} color="#F5F7FF" />
-          <Text style={styles.createButtonText}>Criar playlist</Text>
-        </TouchableOpacity>
+        {!readOnly ? (
+          <TouchableOpacity
+            accessibilityLabel="Criar playlist"
+            accessibilityRole="button"
+            style={styles.createButton}
+            activeOpacity={0.8}
+            onPress={openCreateModal}
+          >
+            <Ionicons name="add" size={16} color="#F5F7FF" />
+            <Text style={styles.createButtonText}>Criar playlist</Text>
+          </TouchableOpacity>
+        ) : null}
       </View>
 
       {!currentPlaylist ? (
@@ -314,16 +318,20 @@ export function Playlist({
           <Ionicons name="albums-outline" size={40} color="#6B7280" />
           <Text style={styles.emptyTitle}>Nenhuma playlist encontrada</Text>
           <Text style={styles.emptySubtitle}>
-            Crie uma playlist para organizar seus jogos.
+            {readOnly
+              ? "Este usuário ainda não possui playlists."
+              : "Crie uma playlist para organizar seus jogos."}
           </Text>
-          <TouchableOpacity
-            style={styles.createButtonLarge}
-            activeOpacity={0.8}
-            onPress={openCreateModal}
-          >
-            <Ionicons name="add" size={18} color="#F5F7FF" />
-            <Text style={styles.createButtonText}>Criar playlist</Text>
-          </TouchableOpacity>
+          {!readOnly ? (
+            <TouchableOpacity
+              style={styles.createButtonLarge}
+              activeOpacity={0.8}
+              onPress={openCreateModal}
+            >
+              <Ionicons name="add" size={18} color="#F5F7FF" />
+              <Text style={styles.createButtonText}>Criar playlist</Text>
+            </TouchableOpacity>
+          ) : null}
         </View>
       ) : (
         <ScrollView
@@ -348,8 +356,11 @@ export function Playlist({
                   end={{ x: 0, y: 1 }}
                   style={styles.playlistLabelBar}
                 />
-                <Text style={styles.playlistLabel}>MINHA PLAYLIST</Text>
+                <Text style={styles.playlistLabel}>
+                  {readOnly ? "PLAYLIST" : "MINHA PLAYLIST"}
+                </Text>
               </View>
+              {!readOnly ? (
               <View
                 style={styles.playlistActionsRow}
                 lightColor="transparent"
@@ -393,6 +404,7 @@ export function Playlist({
                   <Ionicons name="trash-outline" size={16} color="#FF4D5E" />
                 </TouchableOpacity>
               </View>
+              ) : null}
             </View>
 
             <View
@@ -414,10 +426,11 @@ export function Playlist({
             <View style={styles.playlistDivider} />
 
             <View
-              style={styles.pagerRow}
+              style={[styles.pagerRow, readOnly && { justifyContent: "center" }]}
               lightColor="transparent"
               darkColor="transparent"
             >
+              {!readOnly ? (
               <TouchableOpacity
                 accessibilityLabel="Adicionar jogo"
                 accessibilityRole="button"
@@ -428,6 +441,7 @@ export function Playlist({
                 <Ionicons name="add" size={14} color="#F5F7FF" />
                 <Text style={styles.addGameButtonText}>Adicionar jogo</Text>
               </TouchableOpacity>
+              ) : null}
 
               <View
                 style={styles.pagerGroup}
@@ -556,6 +570,7 @@ export function Playlist({
                           {item.title}
                         </Text>
                       </TouchableOpacity>
+                      {!readOnly ? (
                       <TouchableOpacity
                         style={styles.removeButton}
                         activeOpacity={0.8}
@@ -564,6 +579,7 @@ export function Playlist({
                         <Ionicons name="trash-outline" size={14} color="#FF4D5E" />
                         <Text style={styles.removeButtonText}>Remover</Text>
                       </TouchableOpacity>
+                      ) : null}
                     </View>
                   </View>
                 );
