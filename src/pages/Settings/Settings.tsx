@@ -1,4 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
+import { ImageManipulator, SaveFormat } from "expo-image-manipulator";
+import * as ImagePicker from "expo-image-picker";
 import { useState } from "react";
 import {
   ActivityIndicator,
@@ -13,11 +15,11 @@ import { Text, View } from "@/components/Themed";
 import type { UserDTO } from "@/services/userService";
 import { getAvatarUrl } from "@/utils/avatar";
 
+import AccountPrivacySection from "@/components/AccountPrivacySection/AccountPrivacySection";
 import BackButton from "@/components/BackButton/BackButton";
 import Header from "@/components/Header/Header";
 import NavBottom from "@/components/NavBottom/NavBottom";
 import NotificationOption from "@/components/NotificationOption/NotificationOption";
-import AccountPrivacySection from "@/components/AccountPrivacySection/AccountPrivacySection";
 
 import { styles } from "./styles";
 
@@ -32,6 +34,8 @@ interface SettingsProps {
   onBackPress?: () => void;
   onLogoutPress?: () => void;
   onTabPress?: (tabId: string) => void;
+  onSearchSubmit?: (searchTerm: string) => void;
+  onProfilePictureChange?: (base64Image: string) => Promise<void>;
   onSave?: (values: SettingsFormValues) => Promise<void>;
 }
 /**
@@ -44,6 +48,8 @@ export default function Settings({
   onBackPress,
   onLogoutPress,
   onTabPress,
+  onSearchSubmit,
+  onProfilePictureChange,
   onSave,
 }: SettingsProps) {
   // Estados dos campos editáveis do perfil.
@@ -60,7 +66,76 @@ export default function Settings({
   const [isPrivateAccount, setIsPrivateAccount] = useState(false);
 
   const [saving, setSaving] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const avatarUrl = getAvatarUrl(user.profilePictureUrl);
+
+  const closeSearch = () => {
+    setIsSearchOpen(false);
+    setSearchTerm("");
+  };
+
+  const handleSearchSubmit = () => {
+    onSearchSubmit?.(searchTerm);
+  };
+
+  const handleSelectAvatar = async () => {
+    try {
+      const permission =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+      if (!permission.granted) {
+        Alert.alert(
+          "Permissão necessária",
+          "Permita o acesso às suas fotos para escolher uma imagem de perfil.",
+        );
+        return;
+      }
+
+      const pickerResult = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ["images"],
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 1,
+      });
+
+      if (pickerResult.canceled || !pickerResult.assets[0]) return;
+
+      setUploadingAvatar(true);
+
+      // Reduz a foto antes do envio para não guardar uma imagem enorme no perfil.
+      const manipulationContext = ImageManipulator.manipulate(
+        pickerResult.assets[0].uri,
+      );
+      manipulationContext.resize({ width: 512, height: 512 });
+
+      const renderedImage = await manipulationContext.renderAsync();
+      const processedImage = await renderedImage.saveAsync({
+        base64: true,
+        compress: 0.72,
+        format: SaveFormat.JPEG,
+      });
+
+      if (!processedImage.base64) {
+        throw new Error("Não foi possível converter a imagem selecionada.");
+      }
+
+      await onProfilePictureChange?.(
+        `data:image/jpeg;base64,${processedImage.base64}`,
+      );
+
+      Alert.alert("Foto atualizada", "Sua nova foto de perfil foi salva.");
+    } catch (error) {
+      console.error("Erro ao atualizar foto de perfil:", error);
+      Alert.alert(
+        "Não foi possível atualizar a foto",
+        "Escolha outra imagem ou tente novamente em instantes.",
+      );
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
 
   const handleSave = async () => {
     if (!username.trim()) {
@@ -94,7 +169,15 @@ export default function Settings({
   return (
     <View style={styles.screen}>
       <View style={styles.headerContainer}>
-        <Header variant="icon" />
+        <Header
+          variant={isSearchOpen ? "search" : "icon"}
+          searchValue={searchTerm}
+          onSearchChange={setSearchTerm}
+          onSearchPress={() => setIsSearchOpen(true)}
+          onSearchSubmit={handleSearchSubmit}
+          onClose={closeSearch}
+          autoFocusSearch={isSearchOpen}
+        />
       </View>
 
       <ScrollView
@@ -116,7 +199,16 @@ export default function Settings({
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Foto de perfil</Text>
 
-          <Pressable style={styles.avatarButton}>
+          <Pressable
+            accessibilityLabel="Escolher uma nova foto de perfil"
+            accessibilityRole="button"
+            disabled={uploadingAvatar}
+            onPress={handleSelectAvatar}
+            style={[
+              styles.avatarButton,
+              uploadingAvatar && styles.avatarButtonDisabled,
+            ]}
+          >
             {avatarUrl ? (
               <Image source={{ uri: avatarUrl }} style={styles.avatar} />
             ) : (
@@ -124,7 +216,11 @@ export default function Settings({
             )}
 
             <View style={styles.cameraBadge}>
-              <Ionicons name="camera-outline" size={15} color="#FFFFFF" />
+              {uploadingAvatar ? (
+                <ActivityIndicator color="#FFFFFF" size="small" />
+              ) : (
+                <Ionicons name="camera-outline" size={15} color="#FFFFFF" />
+              )}
             </View>
           </Pressable>
 

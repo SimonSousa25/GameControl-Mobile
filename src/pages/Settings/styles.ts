@@ -24,17 +24,20 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 14,
+    backgroundColor: "#03070D"
   },
   title: {
     color: "#FF2DA1",
     fontFamily: "OrbitronBold",
     fontSize: 18,
+    backgroundColor: "#03070D"
   },
   subtitle: {
     color: "#758096",
     fontFamily: "OrbitronMedium",
     fontSize: 9,
     marginTop: 4,
+    backgroundColor: "#03070D"
   },
   card: {
     padding: 22,
@@ -57,6 +60,9 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
     borderRadius: 38,
     backgroundColor: "#101B26",
+  },
+  avatarButtonDisabled: {
+    opacity: 0.65,
   },
   avatar: {
     width: 76,
