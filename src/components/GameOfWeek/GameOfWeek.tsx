@@ -21,9 +21,9 @@ export default function GameOfWeek({ onGamePress }: GameOfWeekProps) {
   const loadGame = async () => {
     try {
       setLoading(true);
-      const data = await gameService.listarJogosRecentes();
-      if (data.length > 0) {
-        setGame(data[0]);
+      const data = await gameService.buscarJogoDaSemana();
+      if (data) {
+        setGame(data);
       }
     } catch (error) {
       console.error('Erro ao carregar jogo da semana:', error);

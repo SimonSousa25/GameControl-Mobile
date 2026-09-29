@@ -10,6 +10,8 @@ import { styles } from "./styles";
 const API_BASE_URL =
   process.env.EXPO_PUBLIC_API_URL || "http://localhost:8080/api";
 const UPLOADS_BASE_URL = API_BASE_URL.replace(/\/api\/?$/, "");
+const MAX_RESULTS = 30;
+const SEARCH_DEBOUNCE_MS = 350;
 
 function getCoverUrl(game: GameDTO): string | undefined {
   const cover = game.coverImageUrl || game.capa;
@@ -36,33 +38,43 @@ export function GamePickerModal({
   const [games, setGames] = useState<GameDTO[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
 
   useEffect(() => {
     if (!visible) return;
     setSearchTerm("");
-    loadGames();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setDebouncedSearch("");
   }, [visible]);
 
-  const loadGames = async () => {
-    try {
-      setLoading(true);
-      const data = await gameService.listarTodosJogos();
-      setGames(data);
-    } catch (error) {
-      console.error("Erro ao carregar jogos:", error);
-      setGames([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchTerm), SEARCH_DEBOUNCE_MS);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
-  const results = useMemo(() => {
-    const termo = searchTerm.trim().toLowerCase();
-    return games
-      .filter((game) => !excludeIds.includes(game.id))
-      .filter((game) => !termo || game.title?.toLowerCase().includes(termo));
-  }, [games, searchTerm, excludeIds]);
+  useEffect(() => {
+    if (!visible) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        setLoading(true);
+        const page = await gameService.listarCatalogo(debouncedSearch, 0, MAX_RESULTS);
+        if (!cancelled) setGames(page.itens);
+      } catch (error) {
+        console.error("Erro ao carregar jogos:", error);
+        if (!cancelled) setGames([]);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [visible, debouncedSearch]);
+
+  const results = useMemo(
+    () => games.filter((game) => !excludeIds.includes(game.id)),
+    [games, excludeIds],
+  );
 
   return (
     <Modal
