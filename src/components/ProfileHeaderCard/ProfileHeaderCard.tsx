@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Image, TouchableOpacity } from "react-native";
+import type { ReactNode } from "react";
 
 import { Text, View } from "@/components/Themed";
 import type { UserDTO } from "@/services/userService";
@@ -11,12 +12,14 @@ export interface ProfileHeaderCardProps {
   user?: UserDTO;
   playlistsCount: number;
   onSettingsPress?: () => void;
+  followAction?: ReactNode;
 }
 
 export function ProfileHeaderCard({
   user,
   playlistsCount,
   onSettingsPress,
+  followAction,
 }: ProfileHeaderCardProps) {
   const avatarUrl = getAvatarUrl(user?.profilePictureUrl);
   const username = user?.username ?? "Jogador";
@@ -33,16 +36,18 @@ export function ProfileHeaderCard({
 
   return (
     <View style={styles.card}>
-      <TouchableOpacity
-        accessibilityLabel="Configurações do perfil"
-        accessibilityRole="button"
-        style={styles.settingsButton}
-        activeOpacity={0.7}
-        onPress={onSettingsPress}
-        hitSlop={8}
-      >
-        <Ionicons name="settings-outline" size={16} color="#00E5FF" />
-      </TouchableOpacity>
+      {onSettingsPress ? (
+        <TouchableOpacity
+          accessibilityLabel="Configurações do perfil"
+          accessibilityRole="button"
+          style={styles.settingsButton}
+          activeOpacity={0.7}
+          onPress={onSettingsPress}
+          hitSlop={8}
+        >
+          <Ionicons name="settings-outline" size={16} color="#00E5FF" />
+        </TouchableOpacity>
+      ) : null}
 
       <View style={styles.avatarWrap}>
         {avatarUrl ? (
@@ -63,6 +68,12 @@ export function ProfileHeaderCard({
         <Text style={styles.handle} numberOfLines={1}>
           @{user.username.toLowerCase()}
         </Text>
+      ) : null}
+
+      {followAction ? (
+        <View style={styles.followRow} lightColor="transparent" darkColor="transparent">
+          {followAction}
+        </View>
       ) : null}
 
       {user?.bio ? <Text style={styles.bio}>{user.bio}</Text> : null}

@@ -7,7 +7,10 @@ import Playlist from "@/pages/Playlist/Playlist";
 export default function PlaylistsScreen() {
   const router = useRouter();
   const { user } = useAuth();
-  const { playlistId } = useLocalSearchParams<{ playlistId?: string }>();
+  const { playlistId, ownerId } = useLocalSearchParams<{
+    playlistId?: string;
+    ownerId?: string;
+  }>();
 
   const goBack = () => {
     if (router.canGoBack()) {
@@ -35,9 +38,13 @@ export default function PlaylistsScreen() {
 
   if (!user) return <Redirect href="/login" />;
 
+  const playlistOwnerId = ownerId ?? user.id;
+  const readOnly = playlistOwnerId !== user.id;
+
   return (
     <Playlist
-      userId={user.id}
+      userId={playlistOwnerId}
+      readOnly={readOnly}
       initialPlaylistId={playlistId}
       onBackPress={goBack}
       onGamePress={(gameId) => router.push(`/game/${gameId}`)}

@@ -17,7 +17,7 @@ const INACTIVE_COLOR = '#A0A0A0';
 const ACTIVE_COLOR = '#F52E8F';
 
 interface NavBottomProps {
-  activeTab?: string;
+  activeTab?: string | null;
   onTabPress?: (tabId: string) => void;
 }
 
