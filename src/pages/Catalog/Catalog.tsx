@@ -12,6 +12,7 @@ import { styles } from "./styles";
 
 const PAGE_SIZE = 12;
 const MAX_VISIBLE_DOTS = 6;
+const SEARCH_DEBOUNCE_MS = 350;
 
 const API_BASE_URL =
   process.env.EXPO_PUBLIC_API_URL || "http://localhost:8080/api";
@@ -40,44 +41,48 @@ export function Catalog({
   onTabPress,
 }: CatalogProps) {
   const [games, setGames] = useState<GameDTO[]>([]);
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState(initialSearch);
+  const [debouncedSearch, setDebouncedSearch] = useState(initialSearch);
   const [page, setPage] = useState(0);
 
   useEffect(() => {
-    loadGames();
-  }, []);
-
-  const loadGames = async () => {
-    try {
-      setLoading(true);
-      const data = await gameService.listarTodosJogos();
-      setGames(data);
-    } catch (error) {
-      console.error("Erro ao carregar jogos:", error);
-      setGames([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const filteredGames = useMemo(() => {
-    const termo = searchTerm.trim().toLowerCase();
-    if (!termo) return games;
-    return games.filter((game) => game.title?.toLowerCase().includes(termo));
-  }, [games, searchTerm]);
-
-  // Sempre que a busca mudar, volta pra primeira página.
-  useEffect(() => {
-    setPage(0);
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+      setPage(0);
+    }, SEARCH_DEBOUNCE_MS);
+    return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  const totalPages = Math.max(1, Math.ceil(filteredGames.length / PAGE_SIZE));
-
-  const paginated = useMemo(() => {
-    const start = page * PAGE_SIZE;
-    return filteredGames.slice(start, start + PAGE_SIZE);
-  }, [filteredGames, page]);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const data = await gameService.listarCatalogo(
+          debouncedSearch,
+          page,
+          PAGE_SIZE,
+        );
+        if (cancelled) return;
+        setGames(data.itens);
+        setTotalItems(data.totalItens);
+        setTotalPages(Math.max(1, data.totalPaginas));
+      } catch (error) {
+        console.error("Erro ao carregar jogos:", error);
+        if (cancelled) return;
+        setGames([]);
+        setTotalItems(0);
+        setTotalPages(1);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [debouncedSearch, page]);
 
   const pageRange = useMemo(() => {
     if (totalPages <= MAX_VISIBLE_DOTS) {
@@ -96,7 +101,7 @@ export function Catalog({
   }, [page, totalPages]);
 
   const canGoPrev = page > 0;
-  const canGoNext = (page + 1) * PAGE_SIZE < filteredGames.length;
+  const canGoNext = page + 1 < totalPages;
 
   const goToPrev = () => {
     if (canGoPrev) setPage((p) => p - 1);
@@ -141,7 +146,7 @@ export function Catalog({
             <View lightColor="transparent" darkColor="transparent">
               <Text style={styles.titleText}>Catálogo</Text>
               <Text style={styles.subtitleText}>
-                {filteredGames.length} jogos encontrados
+                {totalItems} jogos encontrados
               </Text>
             </View>
           </View>
@@ -189,7 +194,7 @@ export function Catalog({
           </View>
         </View>
 
-        {filteredGames.length === 0 ? (
+        {games.length === 0 ? (
           <View style={styles.emptyContainer}>
             <View style={styles.emptyIconWrap}>
               <Ionicons name="search" size={26} color="#6B7280" />
@@ -201,7 +206,7 @@ export function Catalog({
           </View>
         ) : (
           <FlatList
-            data={paginated}
+            data={games}
             keyExtractor={(item) => item.id}
             numColumns={3}
             columnWrapperStyle={styles.gridRow}

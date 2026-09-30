@@ -1,3 +1,5 @@
+import { GameDTO } from "./gameService";
+
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || "http://localhost:8080/api";
 
 export interface PlaylistDTO {
@@ -6,6 +8,7 @@ export interface PlaylistDTO {
   descricao?: string;
   usuarioId: string;
   jogosIds: string[];
+  jogos?: GameDTO[];
   syncedAt?: string;
 }
 
@@ -44,10 +47,11 @@ class PlaylistService {
     dados: PlaylistDTO,
   ): Promise<PlaylistDTO> {
     try {
+      const { jogos, ...corpo } = dados;
       const response = await fetch(`${API_BASE_URL}/usuario-playlists/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(dados),
+        body: JSON.stringify(corpo),
       });
       if (!response.ok) {
         throw new Error(`Erro ao atualizar playlist: ${response.statusText}`);
@@ -73,10 +77,13 @@ class PlaylistService {
     }
   }
 
-  async listarPlaylistsDoUsuario(usuarioId: string): Promise<PlaylistDTO[]> {
+  async listarPlaylistsDoUsuario(
+    usuarioId: string,
+    incluirJogos = false,
+  ): Promise<PlaylistDTO[]> {
     try {
       const response = await fetch(
-        `${API_BASE_URL}/usuario-playlists/usuario/${usuarioId}`,
+        `${API_BASE_URL}/usuario-playlists/usuario/${usuarioId}?incluirJogos=${incluirJogos}`,
       );
       if (!response.ok) {
         throw new Error(`Erro ao listar playlists: ${response.statusText}`);

@@ -21,6 +21,14 @@ export interface GameDTO {
   [key: string]: any;
 }
 
+export interface PaginaDTO<T> {
+  itens: T[];
+  pagina: number;
+  tamanho: number;
+  totalItens: number;
+  totalPaginas: number;
+}
+
 export interface GenreDTO {
   id: string;
   name: string;
@@ -52,6 +60,65 @@ class GameService {
       return await response.json();
     } catch (error) {
       console.error("Erro ao listar jogos recentes:", error);
+      throw error;
+    }
+  }
+
+  async listarJogosEmDestaque(limite?: number): Promise<GameDTO[]> {
+    try {
+      const query = limite ? `?limite=${limite}` : "";
+      const response = await fetch(`${API_BASE_URL}/games/destaques${query}`);
+      if (!response.ok) {
+        throw new Error(
+          `Erro ao listar jogos em destaque: ${response.statusText}`,
+        );
+      }
+      return await response.json();
+    } catch (error) {
+      console.error("Erro ao listar jogos em destaque:", error);
+      throw error;
+    }
+  }
+
+  async listarCatalogo(
+    titulo: string,
+    pagina: number,
+    tamanho: number,
+  ): Promise<PaginaDTO<GameDTO>> {
+    try {
+      const params = new URLSearchParams({
+        pagina: String(pagina),
+        tamanho: String(tamanho),
+      });
+      const termo = titulo.trim();
+      if (termo) params.set("titulo", termo);
+      const response = await fetch(
+        `${API_BASE_URL}/games/catalogo?${params.toString()}`,
+      );
+      if (!response.ok) {
+        throw new Error(`Erro ao listar catálogo: ${response.statusText}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error("Erro ao listar catálogo:", error);
+      throw error;
+    }
+  }
+
+  async buscarJogoDaSemana(): Promise<GameDTO | null> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/games/jogo-da-semana`);
+      if (response.status === 204) {
+        return null;
+      }
+      if (!response.ok) {
+        throw new Error(
+          `Erro ao buscar jogo da semana: ${response.statusText}`,
+        );
+      }
+      return await response.json();
+    } catch (error) {
+      console.error("Erro ao buscar jogo da semana:", error);
       throw error;
     }
   }
