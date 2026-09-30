@@ -38,6 +38,14 @@
           "backgroundColor": "#03070D"
         }
       ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Permita que o GameControl acesse suas fotos para escolher uma imagem de perfil.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
+      ],
       "expo-status-bar"
     ],
     "experiments": {
