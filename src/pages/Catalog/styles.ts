@@ -20,6 +20,7 @@ export const styles = StyleSheet.create({
     maxWidth: 402,
     alignSelf: "center",
     width: "100%",
+    backgroundColor: "#03070D",
   },
 
   // Loading
@@ -54,6 +55,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 14,
     paddingBottom: 14,
+    backgroundColor: "transparent",
   },
   titleLeft: {
     flexDirection: "row",
@@ -118,6 +120,7 @@ export const styles = StyleSheet.create({
     gap: 12,
     paddingHorizontal: 40,
     paddingBottom: 120,
+    backgroundColor: "transparent",
   },
   emptyIconWrap: {
     width: 64,

@@ -41,6 +41,7 @@ export const styles = StyleSheet.create({
   },
   searchBar: {
     flex: 1,
+    minWidth: 0,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -53,6 +54,7 @@ export const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
+    minWidth: 0,
     fontSize: 13,
     color: '#F5F7FF',
   },
