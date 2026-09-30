@@ -45,8 +45,8 @@ export default function HeroBanner({
   const loadGames = async () => {
     try {
       setLoading(true);
-      const data = await gameService.listarJogosRecentes();
-      setGames(data.slice(0, 4));
+      const data = await gameService.listarJogosEmDestaque(4);
+      setGames(data);
     } catch (error) {
       console.error("Erro ao carregar banner principal:", error);
       setGames([]);

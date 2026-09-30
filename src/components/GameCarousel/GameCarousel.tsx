@@ -37,8 +37,8 @@ export default function GameCarousel({
   const loadGames = async () => {
     try {
       setLoading(true);
-      const data = await gameService.listarJogosRecentes();
-      setGames(data.slice(0, 5));
+      const data = await gameService.listarJogosEmDestaque(5);
+      setGames(data);
     } catch (error) {
       console.error("Erro ao carregar jogos:", error);
       setGames([]);

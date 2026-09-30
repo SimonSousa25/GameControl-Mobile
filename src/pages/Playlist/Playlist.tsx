@@ -13,7 +13,7 @@ import PlaylistFormModal, {
   PlaylistFormValues,
 } from "@/components/modals/PlaylistFormModal/PlaylistFormModal";
 import { Text, View } from "@/components/Themed";
-import gameService, { GameDTO } from "@/services/gameService";
+import { GameDTO } from "@/services/gameService";
 import playlistService, { PlaylistDTO } from "@/services/playlistService";
 
 import { styles } from "./styles";
@@ -53,7 +53,6 @@ export function Playlist({
   const [playlists, setPlaylists] = useState<PlaylistDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [gamesById, setGamesById] = useState<Record<string, GameDTO>>({});
   const [formModalVisible, setFormModalVisible] = useState(false);
   const [formMode, setFormMode] = useState<"create" | "edit">("create");
   const [submittingForm, setSubmittingForm] = useState(false);
@@ -69,7 +68,7 @@ export function Playlist({
   const loadPlaylists = async () => {
     try {
       setLoading(true);
-      const data = await playlistService.listarPlaylistsDoUsuario(userId);
+      const data = await playlistService.listarPlaylistsDoUsuario(userId, true);
       setPlaylists(data);
       const initialIndex = initialPlaylistId
        ? data.findIndex((playlist) => playlist.id === initialPlaylistId)
@@ -85,41 +84,7 @@ export function Playlist({
 
   const currentPlaylist = playlists[currentIndex];
 
-  // Busca os detalhes dos jogos da playlist atual (o backend só guarda os IDs).
-  useEffect(() => {
-    if (!currentPlaylist) return;
-    const missingIds = currentPlaylist.jogosIds.filter((id) => !gamesById[id]);
-    if (missingIds.length === 0) return;
-
-    let cancelled = false;
-    (async () => {
-      try {
-        const fetched = await Promise.all(
-          missingIds.map((id) => gameService.buscarJogoPorId(id)),
-        );
-        if (cancelled) return;
-        setGamesById((prev) => {
-          const next = { ...prev };
-          fetched.forEach((game, index) => {
-            if (game) next[missingIds[index]] = game;
-          });
-          return next;
-        });
-      } catch (error) {
-        console.error("Erro ao carregar jogos da playlist:", error);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [currentPlaylist?.id]);
-
-  const currentGames = currentPlaylist
-    ? currentPlaylist.jogosIds
-        .map((id) => gamesById[id])
-        .filter((game): game is GameDTO => Boolean(game))
-    : [];
+  const currentGames: GameDTO[] = currentPlaylist?.jogos ?? [];
 
   // Volta pra primeira página sempre que trocar de playlist.
   useEffect(() => {
@@ -177,7 +142,6 @@ export function Playlist({
         currentPlaylist.id,
         game.id,
       );
-      setGamesById((prev) => ({ ...prev, [game.id]: game }));
       setPlaylists((prev) =>
         prev.map((playlist) =>
           playlist.id === updated.id ? updated : playlist,
