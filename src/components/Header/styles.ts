@@ -30,6 +30,29 @@ export const styles = StyleSheet.create({
   logoTextAccent: {
     color: '#F52E8F',
   },
+  actions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: 'transparent',
+  },
+  badge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    minWidth: 16,
+    height: 16,
+    paddingHorizontal: 3,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#E51580',
+  },
+  badgeText: {
+    color: '#FFFFFF',
+    fontFamily: 'OrbitronBold',
+    fontSize: 9,
+  },
   searchButton: {
     width: 32,
     height: 32,
@@ -41,6 +64,7 @@ export const styles = StyleSheet.create({
   },
   searchBar: {
     flex: 1,
+    minWidth: 0,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -53,6 +77,7 @@ export const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
+    minWidth: 0,
     fontSize: 13,
     color: '#F5F7FF',
   },

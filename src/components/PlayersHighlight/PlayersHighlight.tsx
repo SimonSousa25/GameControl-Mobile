@@ -4,11 +4,10 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useState } from "react";
 import {
     ActivityIndicator,
-    Image,
     ScrollView,
     TouchableOpacity,
 } from "react-native";
-import AvatarGradient from "./AvatarGradient";
+import PlayerCard from "@/components/PlayerCard/PlayerCard";
 import { styles } from "./styles";
 
 interface PlayersHighlightProps {
@@ -38,10 +37,6 @@ export default function PlayersHighlight({
     } finally {
       setLoading(false);
     }
-  };
-
-  const getInitials = (username: string): string => {
-    return username.charAt(0).toUpperCase();
   };
 
   if (loading) {
@@ -83,42 +78,13 @@ export default function PlayersHighlight({
         style={styles.carouselContainer}
       >
         {users.map((user, index) => (
-          <LinearGradient
+          <PlayerCard
             key={user.id}
-            colors={["#33121F", "#060814"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.cardGradient}
-          >
-            <TouchableOpacity
-              style={styles.userCard}
-              onPress={() => onUserPress?.(user.id)}
-              activeOpacity={0.8}
-            >
-              <View style={styles.avatarContainer}>
-                {user.profilePictureUrl ? (
-                  <Image
-                    source={{ uri: user.profilePictureUrl }}
-                    style={styles.avatar}
-                  />
-                ) : (
-                  <AvatarGradient
-                    initial={getInitials(user.username)}
-                    colorIndex={index}
-                  />
-                )}
-              </View>
-              <Text style={styles.username} numberOfLines={2}>
-                {user.username}
-              </Text>
-              <TouchableOpacity
-                style={styles.followButton}
-                onPress={() => onUserPress?.(user.id)}
-              >
-                <Text style={styles.followButtonText}>Seguir</Text>
-              </TouchableOpacity>
-            </TouchableOpacity>
-          </LinearGradient>
+            user={user}
+            colorIndex={index}
+            onPress={onUserPress}
+            style={styles.cardSpacing}
+          />
         ))}
       </ScrollView>
     </View>
