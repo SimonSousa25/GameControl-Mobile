@@ -1,0 +1,127 @@
+import { StyleSheet } from "react-native";
+
+export const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: "#03070D",
+  },
+  headerContainer: {
+    width: "100%",
+    maxWidth: 402,
+    alignSelf: "center",
+    backgroundColor: "#03070D",
+  },
+  scrollContent: {
+    width: "100%",
+    maxWidth: 402,
+    alignSelf: "center",
+    paddingHorizontal: 20,
+    paddingTop: 18,
+    paddingBottom: 140,
+    gap: 10,
+  },
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+    marginBottom: 8,
+    backgroundColor: "transparent",
+  },
+  titleText: {
+    backgroundColor: "transparent",
+  },
+  title: {
+    color: "#FF2DA1",
+    fontFamily: "OrbitronBold",
+    fontSize: 18,
+  },
+  subtitle: {
+    color: "#758096",
+    fontFamily: "OrbitronMedium",
+    fontSize: 9,
+    marginTop: 4,
+  },
+  item: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    padding: 14,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "#123048",
+    backgroundColor: "#060B14",
+  },
+  itemUnread: {
+    borderColor: "rgba(244, 59, 151, 0.45)",
+    backgroundColor: "#0C0A16",
+  },
+  itemIcon: {
+    width: 38,
+    height: 38,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#F43B97",
+    backgroundColor: "#31041A",
+  },
+  itemText: {
+    flex: 1,
+    backgroundColor: "transparent",
+  },
+  itemMessage: {
+    color: "#CBD2DF",
+    fontFamily: "OrbitronMedium",
+    fontSize: 11,
+    lineHeight: 16,
+  },
+  itemActor: {
+    color: "#FFFFFF",
+    fontFamily: "OrbitronBold",
+  },
+  itemTime: {
+    color: "#6A7282",
+    fontFamily: "OrbitronMedium",
+    fontSize: 9,
+    marginTop: 4,
+  },
+  unreadDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#F52E8F",
+  },
+  stateContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 12,
+    paddingVertical: 60,
+    backgroundColor: "transparent",
+  },
+  emptyIconWrap: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#0A0E15",
+  },
+  stateText: {
+    color: "#6B7280",
+    fontFamily: "OrbitronMedium",
+    fontSize: 12,
+    textAlign: "center",
+  },
+  retryButton: {
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#F52E8F",
+  },
+  retryButtonText: {
+    color: "#F52E8F",
+    fontFamily: "OrbitronBold",
+    fontSize: 12,
+  },
+});
