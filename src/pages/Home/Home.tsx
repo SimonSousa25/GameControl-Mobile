@@ -60,7 +60,10 @@ export function Home({
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.contentContainer}
       >
-        <HeroBanner onGamePress={onFeaturedGamePress} />
+        <HeroBanner
+          onGamePress={onFeaturedGamePress}
+          onExplorePress={onViewAllFeaturedPress}
+        />
 
         <GameCarousel
           title="Em destaque"
