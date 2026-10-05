@@ -1,6 +1,18 @@
 import Constants, { ExecutionEnvironment } from "expo-constants";
-import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
+import type * as NotificationsModule from "expo-notifications";
+
+/**
+ * O expo-notifications lança erro já no momento do import no Expo Go (Android).
+ * Por isso ele só é carregado (require) quando o push é suportado.
+ */
+let notificationsCache: typeof NotificationsModule | null = null;
+function getNotifications(): typeof NotificationsModule {
+  if (!notificationsCache) {
+    notificationsCache = require("expo-notifications");
+  }
+  return notificationsCache!;
+}
 
 /** Mesmo id usado pelo backend ao enviar pelo FCM. */
 const ANDROID_CHANNEL_ID = "default";
@@ -21,7 +33,7 @@ function isPushSupported(): boolean {
 /** Mostra a notificação mesmo com o app aberto. Chamar uma vez na inicialização. */
 function configurarExibicao(): void {
   if (!isPushSupported()) return;
-  Notifications.setNotificationHandler({
+  getNotifications().setNotificationHandler({
     handleNotification: async () => ({
       shouldShowBanner: true,
       shouldShowList: true,
@@ -38,33 +50,33 @@ function configurarExibicao(): void {
 async function obterTokenDoAparelho(): Promise<string | null> {
   if (!isPushSupported()) return null;
 
-  await Notifications.setNotificationChannelAsync(ANDROID_CHANNEL_ID, {
+  await getNotifications().setNotificationChannelAsync(ANDROID_CHANNEL_ID, {
     name: "Notificações",
-    importance: Notifications.AndroidImportance.HIGH,
+    importance: getNotifications().AndroidImportance.HIGH,
   });
 
-  const { status: atual } = await Notifications.getPermissionsAsync();
+  const { status: atual } = await getNotifications().getPermissionsAsync();
   const status =
     atual === "granted"
       ? atual
-      : (await Notifications.requestPermissionsAsync()).status;
+      : (await getNotifications().requestPermissionsAsync()).status;
   if (status !== "granted") return null;
 
-  const { data } = await Notifications.getDevicePushTokenAsync();
+  const { data } = await getNotifications().getDevicePushTokenAsync();
   return typeof data === "string" ? data : null;
 }
 
 /** Recebe um push com o app aberto. Retorna a função para cancelar. */
 function aoReceber(callback: () => void): () => void {
   if (!isPushSupported()) return () => {};
-  const subscription = Notifications.addNotificationReceivedListener(() => callback());
+  const subscription = getNotifications().addNotificationReceivedListener(() => callback());
   return () => subscription.remove();
 }
 
 /** Usuário tocou no push. Retorna a função para cancelar. */
 function aoTocar(callback: (data: Record<string, unknown>) => void): () => void {
   if (!isPushSupported()) return () => {};
-  const subscription = Notifications.addNotificationResponseReceivedListener(
+  const subscription = getNotifications().addNotificationResponseReceivedListener(
     (response) => callback(response.notification.request.content.data ?? {}),
   );
   return () => subscription.remove();
