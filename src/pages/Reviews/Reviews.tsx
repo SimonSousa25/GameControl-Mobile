@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   ScrollView,
@@ -16,6 +16,7 @@ import NavBottom from "@/components/NavBottom/NavBottom";
 import { Text } from "@/components/Themed";
 import reviewService, {
   GameReviewsPageDTO,
+  ReviewDTO,
 } from "@/services/reviewService";
 
 import { styles } from "./styles";
@@ -46,6 +47,7 @@ export default function Reviews({
   const [myRating, setMyRating] = useState(0);
   const [myComment, setMyComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const scrollViewRef = useRef<ScrollView>(null);
 
   useEffect(() => {
     loadReviews();
@@ -60,8 +62,6 @@ export default function Reviews({
         userId,
       );
       setData(page);
-      setMyRating(page.userReview?.rating ?? 0);
-      setMyComment(page.userReview?.description ?? "");
     } catch (err) {
       console.error("Erro ao carregar avaliações:", err);
       setError(true);
@@ -80,6 +80,8 @@ export default function Reviews({
         rating: myRating,
         description: myComment,
       });
+      setMyRating(0);
+      setMyComment("");
       await loadReviews();
     } catch (err) {
       console.error("Erro ao enviar avaliação:", err);
@@ -88,8 +90,15 @@ export default function Reviews({
     }
   };
 
-  const communityReviews = data?.reviews ?? [];
-  const totalReviewsCount = communityReviews.length + (data?.userReview ? 1 : 0);
+  const handleEditReview = (review: ReviewDTO) => {
+    setMyRating(Math.round(review.rating ?? 0));
+    setMyComment(review.description ?? "");
+    scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+  };
+
+  const allReviews = data?.userReview
+    ? [data.userReview, ...(data.reviews ?? [])]
+    : (data?.reviews ?? []);
   const filledGameStars = Math.round(data?.average ?? 0);
 
   return (
@@ -121,7 +130,7 @@ export default function Reviews({
               ))}
             </View>
             <Text style={styles.gameBarRatingCount}>
-              {totalReviewsCount} avaliações
+              {allReviews.length} avaliações
             </Text>
           </View>
         </View>
@@ -139,6 +148,7 @@ export default function Reviews({
         </View>
       ) : (
         <ScrollView
+          ref={scrollViewRef}
           style={styles.container}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
@@ -214,11 +224,11 @@ export default function Reviews({
                 </Text>
               </View>
               <Text style={styles.sectionCount}>
-                ({communityReviews.length})
+                ({allReviews.length})
               </Text>
             </View>
 
-            {communityReviews.length === 0 ? (
+            {allReviews.length === 0 ? (
               <View style={styles.emptyContainer}>
                 <Ionicons name="chatbubble-outline" size={28} color="#6B7280" />
                 <Text style={styles.emptyText}>
@@ -226,8 +236,9 @@ export default function Reviews({
                 </Text>
               </View>
             ) : (
-              communityReviews.map((review, index) => {
+              allReviews.map((review, index) => {
                 const reviewStars = Math.round(review.rating ?? 0);
+                const isOwnReview = review.userId === userId;
                 return (
                   <View key={review.id ?? index} style={styles.reviewCard}>
                     <View style={styles.reviewHeader}>
@@ -236,9 +247,16 @@ export default function Reviews({
                         colorIndex={index}
                       />
                       <View style={styles.reviewHeaderInfo}>
-                        <Text style={styles.reviewUsername}>
-                          {review.userName}
-                        </Text>
+                        <View style={styles.reviewUsernameRow}>
+                          <Text style={styles.reviewUsername}>
+                            {review.userName}
+                          </Text>
+                          {isOwnReview && (
+                            <View style={styles.ownBadge}>
+                              <Text style={styles.ownBadgeText}>VOCÊ</Text>
+                            </View>
+                          )}
+                        </View>
                         <View style={styles.reviewStars}>
                           {[1, 2, 3, 4, 5].map((position) => (
                             <Ionicons
@@ -255,6 +273,17 @@ export default function Reviews({
                       <Text style={styles.reviewDate}>
                         {formatDate(review.createdAt)}
                       </Text>
+                      {isOwnReview && (
+                        <TouchableOpacity
+                          accessibilityLabel="Editar sua avaliação"
+                          accessibilityRole="button"
+                          style={styles.editReviewButton}
+                          onPress={() => handleEditReview(review)}
+                          hitSlop={6}
+                        >
+                          <Ionicons name="create-outline" size={16} color="#00E5FF" />
+                        </TouchableOpacity>
+                      )}
                     </View>
                     {review.description ? (
                       <Text style={styles.reviewText}>

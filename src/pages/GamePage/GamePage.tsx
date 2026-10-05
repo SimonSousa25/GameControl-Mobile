@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useEffect, useState } from 'react';
+import { useFocusEffect } from 'expo-router';
+import { useCallback, useRef, useState } from 'react';
 import { ActivityIndicator, Image, TouchableOpacity, View } from 'react-native';
 import { Text } from '@/components/Themed';
 import gameService, { GameDTO, GenreDTO } from '@/services/gameService';
@@ -19,14 +20,19 @@ export default function GamePage({ gameId, onReviewsPress }: GamePageProps) {
   const [reviewsCount, setReviewsCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const hasLoadedOnceRef = useRef(false);
 
-  useEffect(() => {
-    loadGame();
-  }, [gameId]);
+  useFocusEffect(
+    useCallback(() => {
+      loadGame();
+    }, [gameId]),
+  );
 
   const loadGame = async () => {
     try {
-      setLoading(true);
+      if (!hasLoadedOnceRef.current) {
+        setLoading(true);
+      }
       setError(false);
       const [gameData, genresData, reviewsPage] = await Promise.all([
         gameService.buscarJogoPorId(gameId),
@@ -46,6 +52,7 @@ export default function GamePage({ gameId, onReviewsPress }: GamePageProps) {
       setGenres(genresData);
       setReviewsAverage(reviewsPage?.average ?? 0);
       setReviewsCount(reviewsPage?.reviews.length ?? 0);
+      hasLoadedOnceRef.current = true;
     } catch (err) {
       console.error('Erro ao carregar detalhes do jogo:', err);
       setError(true);
