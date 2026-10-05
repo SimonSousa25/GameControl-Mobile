@@ -139,4 +139,14 @@ export const styles = StyleSheet.create({
     color: '#F5F7FF',
     fontFamily: 'OrbitronBold',
   },
+  playlistFeedback: {
+    marginTop: 10,
+    fontSize: 11,
+    textAlign: 'center',
+    color: '#00E5FF',
+    fontFamily: 'OrbitronMedium',
+  },
+  playlistFeedbackError: {
+    color: '#FF4D5E',
+  },
 });

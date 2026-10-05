@@ -188,7 +188,7 @@ export default function Settings({
         <View style={styles.titleRow}>
           <BackButton onPress={onBackPress} />
 
-          <View>
+          <View style={styles.titleText}>
             <Text style={styles.title}>Configurações do Perfil</Text>
             <Text style={styles.subtitle}>
               Gerencie suas informações no GameControl
