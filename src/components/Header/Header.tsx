@@ -1,8 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { TextInput, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, View } from '@/components/Themed';
+import { useAuth } from '@/src/contexts/AuthContext';
+import { useNotifications } from '@/src/contexts/NotificationsContext';
 import { styles } from './styles';
 import LogoIcon from './utils/LogoIcon'; //eu importei essa logo nova porque o react nao estava conseguindo mexer com a logo svg na tag de imagem
 
@@ -26,6 +28,9 @@ export default function Header({
   autoFocusSearch,
 }: HeaderProps) {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
+  const { user } = useAuth();
+  const { unreadCount } = useNotifications();
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + 6 }]}>
@@ -71,13 +76,37 @@ export default function Header({
           </TouchableOpacity>
         </View>
       ) : (
-        <TouchableOpacity
-          style={styles.searchButton}
-          onPress={onSearchPress}
-          activeOpacity={0.7}
-        >
-          <Ionicons name="search" size={18} color="#F52E8F" />
-        </TouchableOpacity>
+        <View style={styles.actions}>
+          {user ? (
+            <TouchableOpacity
+              accessibilityLabel={
+                unreadCount > 0
+                  ? `Notificações, ${unreadCount} não lidas`
+                  : 'Notificações'
+              }
+              accessibilityRole="button"
+              style={styles.searchButton}
+              onPress={() => router.push('/notifications')}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="notifications-outline" size={18} color="#F52E8F" />
+              {unreadCount > 0 ? (
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </Text>
+                </View>
+              ) : null}
+            </TouchableOpacity>
+          ) : null}
+          <TouchableOpacity
+            style={styles.searchButton}
+            onPress={onSearchPress}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="search" size={18} color="#F52E8F" />
+          </TouchableOpacity>
+        </View>
       )}
     </View>
   );

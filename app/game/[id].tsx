@@ -6,10 +6,12 @@ import GamePage from "@/pages/GamePage/GamePage";
 import Header from "@/components/Header/Header";
 import NavBottom from "@/components/NavBottom/NavBottom";
 import { View } from "@/components/Themed";
+import { useAuth } from "@/src/contexts/AuthContext";
 
 export default function GameDetailsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const { user } = useAuth();
 
   const handleTabPress = (tabId: string) => {
     if (tabId === "home") {
@@ -59,6 +61,8 @@ export default function GameDetailsScreen() {
         {id ? (
           <GamePage
             gameId={id}
+            userId={user?.id}
+            onLoginRequired={() => router.push("/login")}
             onReviewsPress={() => router.push(`/game/${id}/reviews`)}
           />
         ) : null}

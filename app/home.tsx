@@ -45,7 +45,7 @@ export default function HomeScreen() {
         router.push(`/user/${userId}`);
       }}
       onViewAllPlayersPress={() => {
-        console.log("View all players pressed");
+        router.push("/players");
       }}
       onTabPress={handleTabPress}
     />

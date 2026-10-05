@@ -14,6 +14,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { useColorScheme } from "@/components/useColorScheme";
 import { AuthProvider, useAuth } from "@/src/contexts/AuthContext";
+import { NotificationsProvider } from "@/src/contexts/NotificationsContext";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -77,7 +78,9 @@ function RootLayoutContent() {
 
   return (
     <View onLayout={handleRootLayout} style={styles.root}>
-      <RootLayoutNav />
+      <NotificationsProvider>
+        <RootLayoutNav />
+      </NotificationsProvider>
     </View>
   );
 }
@@ -105,6 +108,8 @@ function RootLayoutNav() {
         <Stack.Screen name="user/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="playlists" options={{ headerShown: false }} />
         <Stack.Screen name="settings" options={{ headerShown: false }} />
+        <Stack.Screen name="notifications" options={{ headerShown: false }} />
+        <Stack.Screen name="players" options={{ headerShown: false }} />
       </Stack>
     </ThemeProvider>
   );

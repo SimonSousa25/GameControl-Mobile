@@ -1,32 +1,144 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useEffect, useState } from 'react';
+import { useFocusEffect } from 'expo-router';
+import { useCallback, useRef, useState } from 'react';
 import { ActivityIndicator, Image, TouchableOpacity, View } from 'react-native';
 import { Text } from '@/components/Themed';
+import PlaylistFormModal, {
+  PlaylistFormValues,
+} from '@/components/modals/PlaylistFormModal/PlaylistFormModal';
+import PlaylistPickerModal from '@/components/modals/PlaylistPickerModal/PlaylistPickerModal';
 import gameService, { GameDTO, GenreDTO } from '@/services/gameService';
+import playlistService, { PlaylistDTO } from '@/services/playlistService';
 import reviewService from '@/services/reviewService';
 import { styles } from './styles';
 
 interface GamePageProps {
   gameId: string;
+  userId?: string;
   onReviewsPress?: () => void;
+  onLoginRequired?: () => void;
 }
 
-export default function GamePage({ gameId, onReviewsPress }: GamePageProps) {
+interface PlaylistFeedback {
+  message: string;
+  error?: boolean;
+}
+
+export default function GamePage({
+  gameId,
+  userId,
+  onReviewsPress,
+  onLoginRequired,
+}: GamePageProps) {
   const [game, setGame] = useState<GameDTO | null>(null);
   const [genres, setGenres] = useState<GenreDTO[]>([]);
   const [reviewsAverage, setReviewsAverage] = useState(0);
   const [reviewsCount, setReviewsCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const hasLoadedOnceRef = useRef(false);
 
-  useEffect(() => {
-    loadGame();
-  }, [gameId]);
+  const [playlists, setPlaylists] = useState<PlaylistDTO[]>([]);
+  const [pickerVisible, setPickerVisible] = useState(false);
+  const [loadingPlaylists, setLoadingPlaylists] = useState(false);
+  const [playlistsError, setPlaylistsError] = useState(false);
+  const [addingPlaylistId, setAddingPlaylistId] = useState<string | null>(null);
+  const [formModalVisible, setFormModalVisible] = useState(false);
+  const [submittingForm, setSubmittingForm] = useState(false);
+  const [playlistFeedback, setPlaylistFeedback] = useState<PlaylistFeedback | null>(null);
+
+  // Recarrega ao focar a tela: assim a nota média e a contagem de avaliações
+  // atualizam quando o usuário volta da tela de reviews.
+  useFocusEffect(
+    useCallback(() => {
+      loadGame();
+      setPlaylistFeedback(null);
+    }, [gameId]),
+  );
+
+  const openPlaylistPicker = async () => {
+    if (!userId) {
+      onLoginRequired?.();
+      return;
+    }
+    setPlaylistFeedback(null);
+    setPickerVisible(true);
+    try {
+      setLoadingPlaylists(true);
+      setPlaylistsError(false);
+      setPlaylists(await playlistService.listarPlaylistsDoUsuario(userId));
+    } catch (err) {
+      console.error('Erro ao carregar playlists do usuário:', err);
+      setPlaylistsError(true);
+    } finally {
+      setLoadingPlaylists(false);
+    }
+  };
+
+  const handleSelectPlaylist = async (playlist: PlaylistDTO) => {
+    try {
+      setAddingPlaylistId(playlist.id);
+      const updated = await playlistService.adicionarJogo(playlist.id, gameId);
+      setPlaylists((prev) =>
+        prev.map((item) => (item.id === updated.id ? updated : item)),
+      );
+      setPickerVisible(false);
+      setPlaylistFeedback({ message: `Jogo adicionado à playlist "${playlist.nome}".` });
+    } catch (err) {
+      console.error('Erro ao adicionar jogo à playlist:', err);
+      setPickerVisible(false);
+      setPlaylistFeedback({
+        message: 'Não foi possível adicionar o jogo. Tente novamente.',
+        error: true,
+      });
+    } finally {
+      setAddingPlaylistId(null);
+    }
+  };
+
+  const openCreateModal = () => {
+    setPickerVisible(false);
+    setFormModalVisible(true);
+  };
+
+  const closeFormModal = () => {
+    if (submittingForm) return;
+    setFormModalVisible(false);
+    setPickerVisible(true);
+  };
+
+  const handleCreatePlaylist = async (values: PlaylistFormValues) => {
+    if (!userId) return;
+    try {
+      setSubmittingForm(true);
+      const created = await playlistService.criarPlaylist(userId, {
+        nome: values.nome,
+        descricao: values.descricao || undefined,
+        jogosIds: [gameId],
+      });
+      setPlaylists((prev) => [...prev, created]);
+      setFormModalVisible(false);
+      setPlaylistFeedback({
+        message: `Playlist "${created.nome}" criada com este jogo.`,
+      });
+    } catch (err) {
+      console.error('Erro ao criar playlist:', err);
+      setFormModalVisible(false);
+      setPlaylistFeedback({
+        message: 'Não foi possível criar a playlist. Tente novamente.',
+        error: true,
+      });
+    } finally {
+      setSubmittingForm(false);
+    }
+  };
 
   const loadGame = async () => {
     try {
-      setLoading(true);
+      if (!hasLoadedOnceRef.current) {
+        setLoading(true);
+      }
       setError(false);
       const [gameData, genresData, reviewsPage] = await Promise.all([
         gameService.buscarJogoPorId(gameId),
@@ -46,6 +158,7 @@ export default function GamePage({ gameId, onReviewsPress }: GamePageProps) {
       setGenres(genresData);
       setReviewsAverage(reviewsPage?.average ?? 0);
       setReviewsCount(reviewsPage?.reviews.length ?? 0);
+      hasLoadedOnceRef.current = true;
     } catch (err) {
       console.error('Erro ao carregar detalhes do jogo:', err);
       setError(true);
@@ -159,13 +272,42 @@ export default function GamePage({ gameId, onReviewsPress }: GamePageProps) {
       <TouchableOpacity
         style={styles.playlistButton}
         activeOpacity={0.8}
-        onPress={() => {
-          console.log('Adicionar à playlist:', game.id);
-        }}
+        onPress={openPlaylistPicker}
       >
         <Ionicons name="add-circle-outline" size={20} color="#F5F7FF" />
         <Text style={styles.playlistButtonText}>Adicionar à playlist</Text>
       </TouchableOpacity>
+
+      {playlistFeedback ? (
+        <Text
+          style={[
+            styles.playlistFeedback,
+            playlistFeedback.error && styles.playlistFeedbackError,
+          ]}
+        >
+          {playlistFeedback.message}
+        </Text>
+      ) : null}
+
+      <PlaylistPickerModal
+        visible={pickerVisible}
+        gameId={gameId}
+        playlists={playlists}
+        loading={loadingPlaylists}
+        error={playlistsError}
+        addingPlaylistId={addingPlaylistId}
+        onClose={() => setPickerVisible(false)}
+        onSelect={handleSelectPlaylist}
+        onCreatePress={openCreateModal}
+      />
+
+      <PlaylistFormModal
+        visible={formModalVisible}
+        mode="create"
+        submitting={submittingForm}
+        onClose={closeFormModal}
+        onSubmit={handleCreatePlaylist}
+      />
     </View>
   );
 }
