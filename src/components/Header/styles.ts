@@ -23,12 +23,12 @@ export const styles = StyleSheet.create({
   },
   logoText: {
     fontSize: 16,
-    fontWeight: '700',
     color: '#F5F7FF',
     fontFamily: 'OrbitronBold',
   },
   logoTextAccent: {
     color: '#F52E8F',
+    fontFamily: 'OrbitronBold',
   },
   searchButton: {
     width: 32,
@@ -55,5 +55,6 @@ export const styles = StyleSheet.create({
     flex: 1,
     fontSize: 13,
     color: '#F5F7FF',
+    fontFamily: 'OrbitronMedium',
   },
 });

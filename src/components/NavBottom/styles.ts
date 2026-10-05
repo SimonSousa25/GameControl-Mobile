@@ -50,9 +50,8 @@ export const styles = StyleSheet.create({
   },
   label: {
     fontSize: 10,
-    fontWeight: '600',
     color: '#A0A0A0',
-    fontFamily: 'Orbitron',
+    fontFamily: 'OrbitronMedium',
   },
   labelActive: {
     color: '#F52E8F',

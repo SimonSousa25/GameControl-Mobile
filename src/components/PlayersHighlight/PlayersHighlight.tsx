@@ -3,10 +3,10 @@ import userService, { UserDTO } from "@/services/userService";
 import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Image,
-    ScrollView,
-    TouchableOpacity,
+  ActivityIndicator,
+  Image,
+  ScrollView,
+  TouchableOpacity,
 } from "react-native";
 import AvatarGradient from "./AvatarGradient";
 import { styles } from "./styles";
@@ -46,11 +46,23 @@ export default function PlayersHighlight({
 
   if (loading) {
     return (
-      <View style={styles.container} lightColor="transparent" darkColor="transparent">
-        <View style={styles.header} lightColor="transparent" darkColor="transparent">
+      <View
+        style={styles.container}
+        lightColor="transparent"
+        darkColor="transparent"
+      >
+        <View
+          style={styles.header}
+          lightColor="transparent"
+          darkColor="transparent"
+        >
           <Text style={styles.title}>Jogadores em Destaque</Text>
         </View>
-        <View style={styles.loadingContainer} lightColor="transparent" darkColor="transparent">
+        <View
+          style={styles.loadingContainer}
+          lightColor="transparent"
+          darkColor="transparent"
+        >
           <ActivityIndicator size="large" color="#007AFF" />
         </View>
       </View>
@@ -62,8 +74,16 @@ export default function PlayersHighlight({
   }
 
   return (
-    <View style={styles.container} lightColor="transparent" darkColor="transparent">
-      <View style={styles.header} lightColor="transparent" darkColor="transparent">
+    <View
+      style={styles.container}
+      lightColor="transparent"
+      darkColor="transparent"
+    >
+      <View
+        style={styles.header}
+        lightColor="transparent"
+        darkColor="transparent"
+      >
         <LinearGradient
           colors={["#0559AB", "#F22E8F"]}
           start={{ x: 0, y: 0 }}
@@ -71,9 +91,6 @@ export default function PlayersHighlight({
           style={styles.titleGradientBar}
         />
         <Text style={styles.title}>Jogadores em Destaque</Text>
-        <TouchableOpacity onPress={onViewAllPress}>
-          <Text style={styles.viewAll}>Ver tudo →</Text>
-        </TouchableOpacity>
       </View>
 
       <ScrollView

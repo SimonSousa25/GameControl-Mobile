@@ -19,16 +19,14 @@ export const styles = StyleSheet.create({
   },
   title: {
     fontSize: 12,
-    fontWeight: "700",
     color: "#F5F7FF",
-    fontFamily: "Orbitron",
+    fontFamily: "OrbitronBold",
     flex: 1,
   },
   viewAll: {
     fontSize: 7,
     color: "#F52E8F",
-    fontWeight: "700",
-    fontFamily: "Orbitron",
+    fontFamily: "OrbitronBold",
     paddingRight: 20,
   },
   carouselContainer: {
@@ -65,9 +63,8 @@ export const styles = StyleSheet.create({
   },
   userInitial: {
     fontSize: 14,
-    fontWeight: "700",
     color: "#F5F7FF",
-    fontFamily: "Orbitron",
+    fontFamily: "OrbitronBold",
   },
   avatarGradientContainer: {
     width: 36,
@@ -79,16 +76,14 @@ export const styles = StyleSheet.create({
   },
   userInitialOnGradient: {
     fontSize: 14,
-    fontWeight: "700",
     color: "#F5F7FF",
-    fontFamily: "Orbitron",
+    fontFamily: "OrbitronBold",
     position: "absolute",
   },
   username: {
     fontSize: 6,
-    fontWeight: "600",
     color: "#F5F7FF",
-    fontFamily: "Orbitron",
+    fontFamily: "OrbitronMedium",
     textAlign: "center",
     maxWidth: 56,
     minHeight: 16,
@@ -104,9 +99,8 @@ export const styles = StyleSheet.create({
   },
   followButtonText: {
     fontSize: 6,
-    fontWeight: "700",
     color: "#fff",
-    fontFamily: "Orbitron",
+    fontFamily: "OrbitronBold",
   },
   loadingContainer: {
     paddingVertical: 40,
