@@ -10,6 +10,13 @@ interface GameOfWeekProps {
   onGamePress?: (gameId: string) => void;
 }
 
+const SILKSONG_SLUG = 'hollow-knight-silksong';
+
+const isSilksong = (game: GameDTO) => {
+  const identification = `${game.slug} ${game.title}`.toLowerCase();
+  return identification.includes('hollow') && identification.includes('silksong');
+};
+
 export default function GameOfWeek({ onGamePress }: GameOfWeekProps) {
   const [game, setGame] = useState<GameDTO | null>(null);
   const [loading, setLoading] = useState(true);
@@ -21,12 +28,18 @@ export default function GameOfWeek({ onGamePress }: GameOfWeekProps) {
   const loadGame = async () => {
     try {
       setLoading(true);
-      const data = await gameService.buscarJogoDaSemana();
-      if (data) {
-        setGame(data);
+      let silksong = await gameService.buscarJogoPorSlug(SILKSONG_SLUG);
+
+      // Caso o slug cadastrado seja diferente, procura também pelo título.
+      if (!silksong) {
+        const games = await gameService.listarTodosJogos();
+        silksong = games.find(isSilksong) ?? null;
       }
+
+      setGame(silksong);
     } catch (error) {
-      console.error('Erro ao carregar jogo da semana:', error);
+      console.error('Erro ao carregar Hollow Knight: Silksong:', error);
+      setGame(null);
     } finally {
       setLoading(false);
     }
@@ -82,7 +95,7 @@ export default function GameOfWeek({ onGamePress }: GameOfWeekProps) {
           >
             <View style={styles.imageContainer}>
               <Image
-                source={{ uri: game.coverImageUrl }}
+                source={{ uri: game.coverImageUrl || game.capa }}
                 style={styles.gameImage}
                 resizeMode="cover"
               />

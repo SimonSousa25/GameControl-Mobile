@@ -19,16 +19,14 @@ export const styles = StyleSheet.create({
   },
   title: {
     fontSize: 12,
-    fontWeight: '700',
     color: '#F5F7FF',
-    fontFamily: 'Orbitron',
+    fontFamily: 'OrbitronBold',
     flex: 1,
   },
   viewAll: {
     fontSize: 7,
     color: '#F52E8F',
-    fontWeight: '700',
-    fontFamily: 'Orbitron',
+    fontFamily: 'OrbitronBold',
     paddingRight: 20,
   },
   carouselContainer: {
@@ -47,7 +45,7 @@ export const styles = StyleSheet.create({
   },
   gameTitle: {
     fontSize: 12,
-    fontWeight: '500',
+    fontFamily: 'OrbitronMedium',
     lineHeight: 16,
   },
   loadingContainer: {

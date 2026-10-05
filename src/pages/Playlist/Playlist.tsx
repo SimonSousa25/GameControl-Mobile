@@ -71,9 +71,9 @@ export function Playlist({
       const data = await playlistService.listarPlaylistsDoUsuario(userId, true);
       setPlaylists(data);
       const initialIndex = initialPlaylistId
-       ? data.findIndex((playlist) => playlist.id === initialPlaylistId)
-       : -1;
-      setCurrentIndex(initialIndex >= 0 ? initialIndex : 0);  
+        ? data.findIndex((playlist) => playlist.id === initialPlaylistId)
+        : -1;
+      setCurrentIndex(initialIndex >= 0 ? initialIndex : 0);
     } catch (error) {
       console.error("Erro ao carregar playlists:", error);
       setPlaylists([]);
@@ -105,7 +105,8 @@ export function Playlist({
     gamesPage * GAMES_PAGE_SIZE + GAMES_PAGE_SIZE,
   );
   const canGoPrevGamesPage = gamesPage > 0;
-  const canGoNextGamesPage = (gamesPage + 1) * GAMES_PAGE_SIZE < currentGames.length;
+  const canGoNextGamesPage =
+    (gamesPage + 1) * GAMES_PAGE_SIZE < currentGames.length;
 
   const canGoPrev = currentIndex > 0;
   const canGoNext = currentIndex < playlists.length - 1;
@@ -185,8 +186,12 @@ export function Playlist({
       setDeletingPlaylist(true);
       await playlistService.deletarPlaylist(currentPlaylist.id);
       setPlaylists((prev) => {
-        const next = prev.filter((playlist) => playlist.id !== currentPlaylist.id);
-        setCurrentIndex((index) => Math.min(index, Math.max(0, next.length - 1)));
+        const next = prev.filter(
+          (playlist) => playlist.id !== currentPlaylist.id,
+        );
+        setCurrentIndex((index) =>
+          Math.min(index, Math.max(0, next.length - 1)),
+        );
         return next;
       });
       setDeleteModalVisible(false);
@@ -325,49 +330,44 @@ export function Playlist({
                 </Text>
               </View>
               {!readOnly ? (
-              <View
-                style={styles.playlistActionsRow}
-                lightColor="transparent"
-                darkColor="transparent"
-              >
-                <TouchableOpacity
-                  accessibilityLabel="Editar playlist"
-                  accessibilityRole="button"
-                  style={styles.editButton}
-                  onPress={openEditModal}
+                <View
+                  style={styles.playlistActionsRow}
+                  lightColor="transparent"
+                  darkColor="transparent"
                 >
-                  <Svg
-                    width={16}
-                    height={16}
-                    viewBox="0 0 24 24"
-                    fill="none"
+                  <TouchableOpacity
+                    accessibilityLabel="Editar playlist"
+                    accessibilityRole="button"
+                    style={styles.editButton}
+                    onPress={openEditModal}
                   >
-                    <Path
-                      d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
-                      stroke="#0688A8"
-                      strokeWidth={2}
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <Path
-                      d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"
-                      stroke="#0688A8"
-                      strokeWidth={2}
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </Svg>
-                </TouchableOpacity>
+                    <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
+                      <Path
+                        d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+                        stroke="#0688A8"
+                        strokeWidth={2}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      <Path
+                        d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"
+                        stroke="#0688A8"
+                        strokeWidth={2}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </Svg>
+                  </TouchableOpacity>
 
-                <TouchableOpacity
-                  accessibilityLabel="Excluir playlist"
-                  accessibilityRole="button"
-                  style={styles.deleteButton}
-                  onPress={openDeleteModal}
-                >
-                  <Ionicons name="trash-outline" size={16} color="#FF4D5E" />
-                </TouchableOpacity>
-              </View>
+                  <TouchableOpacity
+                    accessibilityLabel="Excluir playlist"
+                    accessibilityRole="button"
+                    style={styles.deleteButton}
+                    onPress={openDeleteModal}
+                  >
+                    <Ionicons name="trash-outline" size={16} color="#FF4D5E" />
+                  </TouchableOpacity>
+                </View>
               ) : null}
             </View>
 
@@ -390,21 +390,24 @@ export function Playlist({
             <View style={styles.playlistDivider} />
 
             <View
-              style={[styles.pagerRow, readOnly && { justifyContent: "center" }]}
+              style={[
+                styles.pagerRow,
+                readOnly && { justifyContent: "center" },
+              ]}
               lightColor="transparent"
               darkColor="transparent"
             >
               {!readOnly ? (
-              <TouchableOpacity
-                accessibilityLabel="Adicionar jogo"
-                accessibilityRole="button"
-                style={styles.addGameButton}
-                activeOpacity={0.8}
-                onPress={() => setGamePickerVisible(true)}
-              >
-                <Ionicons name="add" size={14} color="#F5F7FF" />
-                <Text style={styles.addGameButtonText}>Adicionar jogo</Text>
-              </TouchableOpacity>
+                <TouchableOpacity
+                  accessibilityLabel="Adicionar jogo"
+                  accessibilityRole="button"
+                  style={styles.addGameButton}
+                  activeOpacity={0.8}
+                  onPress={() => setGamePickerVisible(true)}
+                >
+                  <Ionicons name="add" size={14} color="#F5F7FF" />
+                  <Text style={styles.addGameButtonText}>Adicionar jogo</Text>
+                </TouchableOpacity>
               ) : null}
 
               <View
@@ -474,7 +477,11 @@ export function Playlist({
               lightColor="transparent"
               darkColor="transparent"
             >
-              <Ionicons name="game-controller-outline" size={32} color="#6B7280" />
+              <Ionicons
+                name="game-controller-outline"
+                size={32}
+                color="#6B7280"
+              />
               <Text style={styles.emptySubtitle}>
                 Nenhum jogo nessa playlist ainda.
               </Text>
@@ -487,42 +494,11 @@ export function Playlist({
                 darkColor="transparent"
               >
                 {paginatedGames.map((item) => {
-                const coverUrl = getCoverUrl(item);
-                return (
-                  <View
-                    key={item.id}
-                    style={styles.card}
-                    lightColor="transparent"
-                    darkColor="transparent"
-                  >
-                    <TouchableOpacity
-                      activeOpacity={0.8}
-                      onPress={() => onGamePress?.(item.id)}
-                    >
-                      <View style={styles.cardCover}>
-                        {coverUrl ? (
-                          <Image
-                            source={{ uri: coverUrl }}
-                            style={styles.cardImage}
-                            resizeMode="cover"
-                          />
-                        ) : (
-                          <View
-                            style={styles.cardImagePlaceholder}
-                            lightColor="#0A0E15"
-                            darkColor="#0A0E15"
-                          >
-                            <Ionicons
-                              name="game-controller-outline"
-                              size={22}
-                              color="#334056"
-                            />
-                          </View>
-                        )}
-                      </View>
-                    </TouchableOpacity>
+                  const coverUrl = getCoverUrl(item);
+                  return (
                     <View
-                      style={styles.cardBody}
+                      key={item.id}
+                      style={styles.card}
                       lightColor="transparent"
                       darkColor="transparent"
                     >
@@ -530,23 +506,58 @@ export function Playlist({
                         activeOpacity={0.8}
                         onPress={() => onGamePress?.(item.id)}
                       >
-                        <Text style={styles.cardTitle} numberOfLines={1}>
-                          {item.title}
-                        </Text>
+                        <View style={styles.cardCover}>
+                          {coverUrl ? (
+                            <Image
+                              source={{ uri: coverUrl }}
+                              style={styles.cardImage}
+                              resizeMode="cover"
+                            />
+                          ) : (
+                            <View
+                              style={styles.cardImagePlaceholder}
+                              lightColor="#0A0E15"
+                              darkColor="#0A0E15"
+                            >
+                              <Ionicons
+                                name="game-controller-outline"
+                                size={22}
+                                color="#334056"
+                              />
+                            </View>
+                          )}
+                        </View>
                       </TouchableOpacity>
-                      {!readOnly ? (
-                      <TouchableOpacity
-                        style={styles.removeButton}
-                        activeOpacity={0.8}
-                        onPress={() => handleRemoveGame(item.id)}
+                      <View
+                        style={styles.cardBody}
+                        lightColor="transparent"
+                        darkColor="transparent"
                       >
-                        <Ionicons name="trash-outline" size={14} color="#FF4D5E" />
-                        <Text style={styles.removeButtonText}>Remover</Text>
-                      </TouchableOpacity>
-                      ) : null}
+                        <TouchableOpacity
+                          activeOpacity={0.8}
+                          onPress={() => onGamePress?.(item.id)}
+                        >
+                          <Text style={styles.cardTitle} numberOfLines={1}>
+                            {item.title}
+                          </Text>
+                        </TouchableOpacity>
+                        {!readOnly ? (
+                          <TouchableOpacity
+                            style={styles.removeButton}
+                            activeOpacity={0.8}
+                            onPress={() => handleRemoveGame(item.id)}
+                          >
+                            <Ionicons
+                              name="trash-outline"
+                              size={14}
+                              color="#FF4D5E"
+                            />
+                            <Text style={styles.removeButtonText}>Remover</Text>
+                          </TouchableOpacity>
+                        ) : null}
+                      </View>
                     </View>
-                  </View>
-                );
+                  );
                 })}
               </View>
 
@@ -583,7 +594,11 @@ export function Playlist({
                       !canGoNextGamesPage && styles.pagerButtonDisabled,
                     ]}
                   >
-                    <Ionicons name="chevron-forward" size={16} color="#00E5FF" />
+                    <Ionicons
+                      name="chevron-forward"
+                      size={16}
+                      color="#00E5FF"
+                    />
                   </TouchableOpacity>
                 </View>
               ) : null}
@@ -592,7 +607,21 @@ export function Playlist({
         </ScrollView>
       )}
 
-      <NavBottom activeTab="profile" onTabPress={onTabPress} />
+      {/**
+       * Playlist de outro usuário: 
+       *  - readOnly  = true
+       *  - activeTab = null
+       *  - nenhum botão selecionado na NavBottom
+       * 
+       * Minha playlist:
+       *  - readOnly  = false
+       *  - activeTab = "profile"
+       *  - botão perfil selecionado na NavBottom
+       */}
+      <NavBottom
+        activeTab={readOnly ? null : "profile"}
+        onTabPress={onTabPress}
+      />
 
       <PlaylistFormModal
         visible={formModalVisible}

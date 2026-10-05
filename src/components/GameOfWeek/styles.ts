@@ -18,14 +18,13 @@ export const styles = StyleSheet.create({
   },
   title: {
     fontSize: 12,
-    fontWeight: '700',
     color: '#F5F7FF',
-    fontFamily: 'Orbitron',
+    fontFamily: 'OrbitronBold',
   },
   cardGradient: {
     padding: 1,
     borderRadius: 12,
-    marginLeft: 20,
+    marginHorizontal: 20,
   },
   card: {
     borderRadius: 11,
@@ -67,21 +66,20 @@ export const styles = StyleSheet.create({
   },
   gameLabel: {
     fontSize: 11,
-    fontWeight: '700',
     color: '#F52E8F',
-    fontFamily: 'Orbitron',
+    fontFamily: 'OrbitronBold',
     marginBottom: 4,
   },
   gameName: {
     fontSize: 16,
-    fontWeight: '700',
     color: '#F5F7FF',
-    fontFamily: 'Orbitron',
+    fontFamily: 'OrbitronBold',
     marginBottom: 8,
   },
   gameDescription: {
     fontSize: 8,
     color: '#A0A0A0',
+    fontFamily: 'OrbitronMedium',
     lineHeight: 16,
     marginBottom: 12,
   },
@@ -93,9 +91,8 @@ export const styles = StyleSheet.create({
   },
   rating: {
     fontSize: 8,
-    fontWeight: '700',
     color: '#FFD700',
-    fontFamily: 'Orbitron',
+    fontFamily: 'OrbitronBold',
   },
   nextButton: {
     width: 36,

@@ -3,10 +3,10 @@ import gameService, { GameDTO } from "@/services/gameService";
 import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Image,
-    ScrollView,
-    TouchableOpacity,
+  ActivityIndicator,
+  Image,
+  ScrollView,
+  TouchableOpacity,
 } from "react-native";
 import { styles } from "./styles";
 
@@ -49,11 +49,23 @@ export default function GameCarousel({
 
   if (loading) {
     return (
-      <View style={styles.container} lightColor="transparent" darkColor="transparent">
-        <View style={styles.header} lightColor="transparent" darkColor="transparent">
+      <View
+        style={styles.container}
+        lightColor="transparent"
+        darkColor="transparent"
+      >
+        <View
+          style={styles.header}
+          lightColor="transparent"
+          darkColor="transparent"
+        >
           <Text style={styles.title}>{title}</Text>
         </View>
-        <View style={styles.loadingContainer} lightColor="transparent" darkColor="transparent">
+        <View
+          style={styles.loadingContainer}
+          lightColor="transparent"
+          darkColor="transparent"
+        >
           <ActivityIndicator size="large" color="#007AFF" />
         </View>
       </View>
@@ -65,8 +77,16 @@ export default function GameCarousel({
   }
 
   return (
-    <View style={styles.container} lightColor="transparent" darkColor="transparent">
-      <View style={styles.header} lightColor="transparent" darkColor="transparent">
+    <View
+      style={styles.container}
+      lightColor="transparent"
+      darkColor="transparent"
+    >
+      <View
+        style={styles.header}
+        lightColor="transparent"
+        darkColor="transparent"
+      >
         <LinearGradient
           colors={["#0559AB", "#F22E8F"]}
           start={{ x: 0, y: 0 }}
@@ -74,9 +94,6 @@ export default function GameCarousel({
           style={styles.titleGradientBar}
         />
         <Text style={styles.title}>{title}</Text>
-        <TouchableOpacity onPress={onViewAllPress}>
-          <Text style={styles.viewAll}>Ver tudo →</Text>
-        </TouchableOpacity>
       </View>
 
       <ScrollView

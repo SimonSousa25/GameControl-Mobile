@@ -10,43 +10,121 @@ import {
   TouchableOpacity,
   useWindowDimensions,
 } from "react-native";
+import type { ImageSourcePropType } from "react-native";
 
 import { Text, View } from "@/components/Themed";
 import gameService, { GameDTO } from "@/services/gameService";
 import { styles } from "./styles";
 
 const MAX_CONTENT_WIDTH = 402;
-
-// TODO: Galera, aqui eu acho interessante fazermos uma rota no backend para pegarmos 4 jogos específicos e deixarmos sempre eles mostrando nesse componente de banner principal;
+const SLIDE_INTERVAL = 7000;
+const BANNER_ASPECT_RATIO = 960 / 800;
 
 interface HeroBannerProps {
   games?: GameDTO[];
   onGamePress?: (gameId: string) => void;
+  onExplorePress?: () => void;
 }
+
+type BannerItem = GameDTO & {
+  localImage?: ImageSourcePropType;
+  isPresentation?: boolean;
+  titleWhite?: string;
+  ctaLabel?: string;
+};
+
+const localBanner: BannerItem = {
+  id: "gamecontrol-banner",
+  slug: "gamecontrol-banner",
+  title: "MUNDOS GAMER",
+  titleWhite: "DESCUBRA NOVOS",
+  description:
+    "Veja jogos, avaliações, playlists e perfis de outros jogadores.",
+  ctaLabel: "Ver Todos os Jogos",
+  localImage: require("../../../assets/images/img-arcade-960x800.png"),
+  isPresentation: true,
+};
+
+const HERO_GAMES = [
+  {
+    slug: "phasmophobia",
+    title: "Phasmophobia",
+    description:
+      "Investigue locais assombrados com seus amigos. Você tem coragem?",
+    image: require("../../../assets/images/img-phasmophobia-960x800.png"),
+  },
+  {
+    slug: "elden-ring",
+    title: "Elden Ring",
+    description:
+      "Um mundo aberto épico criado por Hidetaka Miyazaki e George R.R. Martin.",
+    image: require("../../../assets/images/img-elden-ring-960x800.png"),
+  },
+  {
+    slug: "the-isle",
+    title: "The Isle",
+    description:
+      "Sobreviva em uma ilha selvagem dominada por dinossauros. Você será caçador ou presa?",
+    image: require("../../../assets/images/img-the-isle-960x800.png"),
+  },
+] as const;
+
+const normalizeGameName = (value: string) => value.trim().toLowerCase();
+
+const selectHeroGames = (availableGames: GameDTO[]): BannerItem[] =>
+  HERO_GAMES.reduce<BannerItem[]>((selectedGames, heroGame) => {
+    const game = availableGames.find(
+      (candidate) =>
+        normalizeGameName(candidate.slug) === heroGame.slug ||
+        normalizeGameName(candidate.title) ===
+          normalizeGameName(heroGame.title),
+    );
+
+    if (game) {
+      selectedGames.push({
+        ...game,
+        // O texto do banner é curto e não depende da descrição da API.
+        description: heroGame.description,
+        localImage: heroGame.image,
+      });
+    }
+
+    return selectedGames;
+  }, []);
 
 export default function HeroBanner({
   games: initialGames,
   onGamePress,
+  onExplorePress,
 }: HeroBannerProps) {
-  const [games, setGames] = useState<GameDTO[]>(initialGames || []);
+  const [games, setGames] = useState<BannerItem[]>(
+    initialGames ? selectHeroGames(initialGames) : [],
+  );
   const [loading, setLoading] = useState(!initialGames);
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollRef = useRef<ScrollView>(null);
 
   const { width: windowWidth } = useWindowDimensions();
   const slideWidth = Math.min(windowWidth, MAX_CONTENT_WIDTH);
+  const slideHeight = slideWidth / BANNER_ASPECT_RATIO;
+
+  const gameSlides: BannerItem[] = [localBanner, ...games];
 
   useEffect(() => {
-    if (!initialGames) {
-      loadGames();
+    if (initialGames) {
+      setGames(selectHeroGames(initialGames));
+      setLoading(false);
+      return;
     }
+
+    loadGames();
   }, [initialGames]);
 
   const loadGames = async () => {
     try {
       setLoading(true);
-      const data = await gameService.listarJogosEmDestaque(4);
-      setGames(data);
+      const data = await gameService.listarTodosJogos();
+      setGames(selectHeroGames(data));
     } catch (error) {
       console.error("Erro ao carregar banner principal:", error);
       setGames([]);
@@ -56,7 +134,11 @@ export default function HeroBanner({
   };
 
   const goToSlide = (index: number) => {
-    const clampedIndex = Math.max(0, Math.min(index, games.length - 1));
+    if (gameSlides.length === 0) return;
+
+    // Mantém o carrossel circular, como na versão web.
+    const clampedIndex =
+      (index + gameSlides.length) % gameSlides.length;
     setActiveIndex(clampedIndex);
     scrollRef.current?.scrollTo({
       x: clampedIndex * slideWidth,
@@ -66,25 +148,58 @@ export default function HeroBanner({
 
   const handleScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const index = Math.round(event.nativeEvent.contentOffset.x / slideWidth);
-    setActiveIndex(index);
+    const clampedIndex = Math.max(
+      0,
+      Math.min(index, gameSlides.length - 1),
+    );
+    setActiveIndex(clampedIndex);
+  };
+
+  // Reinicia a contagem sempre que o usuário muda de slide manualmente.
+  useEffect(() => {
+    if (loading || gameSlides.length <= 1) return;
+
+    const timeoutId = setTimeout(() => {
+      const nextIndex = (activeIndex + 1) % gameSlides.length;
+      setActiveIndex(nextIndex);
+      scrollRef.current?.scrollTo({
+        x: nextIndex * slideWidth,
+        animated: true,
+      });
+    }, SLIDE_INTERVAL);
+
+    return () => clearTimeout(timeoutId);
+  }, [activeIndex, gameSlides.length, loading, slideWidth]);
+
+  const handleBannerPress = (game: BannerItem) => {
+    if (game.isPresentation) {
+      onExplorePress?.();
+      return;
+    }
+
+    onGamePress?.(game.id);
   };
 
   if (loading) {
     return (
-      <View style={styles.container} lightColor="transparent" darkColor="transparent">
-        <View style={styles.loadingContainer}>
+      <View
+        style={styles.container}
+        lightColor="transparent"
+        darkColor="transparent"
+      >
+        <View style={[styles.loadingContainer, { height: slideHeight }]}>
           <ActivityIndicator size="large" color="#F52E8F" />
         </View>
       </View>
     );
   }
 
-  if (games.length === 0) {
-    return null;
-  }
-
   return (
-    <View style={styles.container} lightColor="transparent" darkColor="transparent">
+    <View
+      style={styles.container}
+      lightColor="transparent"
+      darkColor="transparent"
+    >
       <View style={styles.wrapper}>
         <ScrollView
           ref={scrollRef}
@@ -94,26 +209,54 @@ export default function HeroBanner({
           decelerationRate="fast"
           onMomentumScrollEnd={handleScrollEnd}
         >
-          {games.map((game) => (
-            <View key={game.id} style={[styles.slide, { width: slideWidth }]}>
+          {gameSlides.map((game) => (
+            <View
+              key={game.id}
+              style={[
+                styles.slide,
+                { width: slideWidth, height: slideHeight },
+              ]}
+            >
               <View style={styles.cardShadow}>
                 <TouchableOpacity
                   style={styles.card}
                   activeOpacity={0.95}
-                  onPress={() => onGamePress?.(game.id)}
+                  onPress={() => handleBannerPress(game)}
                 >
                   <ImageBackground
-                    source={{ uri: game.coverImageUrl || game.capa }}
+                    source={
+                      game.localImage
+                        ? game.localImage
+                        : { uri: game.coverImageUrl || game.capa }
+                    }
                     style={styles.image}
+                    imageStyle={styles.backgroundImage}
                     resizeMode="cover"
                   >
                     <LinearGradient
-                      colors={[
-                        "transparent",
-                        "rgba(3, 7, 13, 0.55)",
-                        "rgba(3, 7, 13, 0.95)",
-                      ]}
-                      locations={[0, 0.5, 1]}
+                      colors={
+                        game.isPresentation
+                          ? [
+                              "rgba(75, 8, 45, 0.82)",
+                              "rgba(3, 7, 13, 0.62)",
+                              "rgba(0, 67, 80, 0.48)",
+                            ]
+                          : [
+                              "rgba(3, 7, 13, 0.88)",
+                              "rgba(3, 7, 13, 0.5)",
+                              "rgba(3, 7, 13, 0.12)",
+                            ]
+                      }
+                      locations={[0, 0.58, 1]}
+                      start={{ x: 0, y: 0.5 }}
+                      end={{ x: 1, y: 0.5 }}
+                      style={styles.overlay}
+                    />
+
+                    <LinearGradient
+                      colors={["transparent", "rgba(3, 7, 13, 0.7)"]}
+                      start={{ x: 0.5, y: 0 }}
+                      end={{ x: 0.5, y: 1 }}
                       style={styles.overlay}
                     />
 
@@ -122,16 +265,45 @@ export default function HeroBanner({
                       lightColor="transparent"
                       darkColor="transparent"
                     >
-                      <View
-                        style={styles.badge}
-                        lightColor="transparent"
-                        darkColor="transparent"
-                      >
-                        <AntDesign name="star" size={12} color="#FFD700" />
-                        <Text style={styles.badgeText}>Bem avaliado</Text>
-                      </View>
+                      {!game.isPresentation ? (
+                        <View
+                          style={styles.badge}
+                          lightColor="transparent"
+                          darkColor="transparent"
+                        >
+                          <AntDesign name="star" size={12} color="#FFD700" />
+                          <Text style={styles.badgeText}>Bem avaliado</Text>
+                        </View>
+                      ) : null}
 
-                      <Text style={styles.gameTitle}>{game.title}</Text>
+                      {game.titleWhite ? (
+                        <>
+                          <Text
+                            adjustsFontSizeToFit
+                            minimumFontScale={0.72}
+                            numberOfLines={1}
+                            style={[
+                              styles.gameTitle,
+                              styles.gameTitleWhite,
+                              styles.gameTitleFirstLine,
+                            ]}
+                          >
+                            {game.titleWhite}
+                          </Text>
+                          <Text
+                            adjustsFontSizeToFit
+                            minimumFontScale={0.72}
+                            numberOfLines={1}
+                            style={styles.gameTitle}
+                          >
+                            {game.title}
+                          </Text>
+                        </>
+                      ) : (
+                        <Text style={styles.gameTitle} numberOfLines={2}>
+                          {game.title}
+                        </Text>
+                      )}
 
                       <Text style={styles.description} numberOfLines={4}>
                         {game.description || "Confira este jogo incrível."}
@@ -139,15 +311,17 @@ export default function HeroBanner({
 
                       <TouchableOpacity
                         style={styles.ctaButton}
-                        onPress={() => onGamePress?.(game.id)}
+                        onPress={() => handleBannerPress(game)}
                       >
                         <LinearGradient
-                          colors={["#F52E8F", "#A3186A"]}
+                          colors={["#F52E8F", "#D92A86"]}
                           start={{ x: 0, y: 0 }}
                           end={{ x: 1, y: 0 }}
                           style={styles.ctaGradient}
                         >
-                          <Text style={styles.ctaText}>Conheça o Jogo</Text>
+                          <Text style={styles.ctaText}>
+                            {game.ctaLabel || "Conheça o Jogo"}
+                          </Text>
                         </LinearGradient>
                       </TouchableOpacity>
                     </View>
@@ -158,20 +332,20 @@ export default function HeroBanner({
           ))}
         </ScrollView>
 
-        {games.length > 1 && (
+        {gameSlides.length > 1 && (
           <>
             <TouchableOpacity
+              accessibilityLabel="Slide anterior"
               style={[styles.navButton, styles.prevButton]}
               onPress={() => goToSlide(activeIndex - 1)}
-              disabled={activeIndex === 0}
             >
               <Ionicons name="chevron-back" size={18} color="#F5F7FF" />
             </TouchableOpacity>
 
             <TouchableOpacity
+              accessibilityLabel="Próximo slide"
               style={[styles.navButton, styles.nextButton]}
               onPress={() => goToSlide(activeIndex + 1)}
-              disabled={activeIndex === games.length - 1}
             >
               <Ionicons name="chevron-forward" size={18} color="#F5F7FF" />
             </TouchableOpacity>
@@ -181,10 +355,17 @@ export default function HeroBanner({
               lightColor="transparent"
               darkColor="transparent"
             >
-              {games.map((game, index) => (
-                <View
+              {gameSlides.map((game, index) => (
+                <TouchableOpacity
                   key={game.id}
-                  style={[styles.dot, index === activeIndex && styles.dotActive]}
+                  accessibilityLabel={`Ir para o slide ${index + 1}`}
+                  accessibilityRole="button"
+                  hitSlop={8}
+                  onPress={() => goToSlide(index)}
+                  style={[
+                    styles.dot,
+                    index === activeIndex && styles.dotActive,
+                  ]}
                 />
               ))}
             </View>

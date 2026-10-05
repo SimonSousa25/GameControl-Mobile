@@ -33,13 +33,13 @@ export default function HomeScreen() {
     <Home
       onSearchSubmit={handleSearchSubmit}
       onFeaturedGamePress={(gameId) => {
-        console.log("Game pressed:", gameId);
+        router.push(`/game/${gameId}`);
       }}
       onGamePress={(gameId) => {
         router.push(`/game/${gameId}`);
       }}
       onViewAllFeaturedPress={() => {
-        console.log("View all pressed");
+        router.push("/catalog");
       }}
       onUserPress={(userId) => {
         router.push(`/user/${userId}`);
