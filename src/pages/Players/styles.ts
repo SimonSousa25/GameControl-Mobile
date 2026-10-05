@@ -22,28 +22,8 @@ export const styles = StyleSheet.create({
     width: "100%",
     backgroundColor: "#03070D",
   },
-
-  // Loading
-  loadingContainer: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#03070D",
-    gap: 16,
-  },
-  spinner: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    borderWidth: 3,
-    borderColor: "rgba(0, 229, 255, 0.25)",
-    borderTopColor: "#F52E8F",
-  },
-  loadingText: {
-    color: "#00E5FF",
-    fontFamily: "Orbitron",
-    fontSize: 12,
-    letterSpacing: 2,
+  transparent: {
+    backgroundColor: "transparent",
   },
 
   // Título / paginação compacta
@@ -62,6 +42,7 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     gap: 10,
     flexShrink: 1,
+    backgroundColor: "transparent",
   },
   titleBar: {
     width: 4,
@@ -86,6 +67,7 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
+    backgroundColor: "transparent",
   },
   pagerButton: {
     width: 28,
@@ -112,39 +94,6 @@ export const styles = StyleSheet.create({
     color: "#6B7280",
   },
 
-  // Empty state
-  emptyContainer: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 12,
-    paddingHorizontal: 40,
-    paddingBottom: 120,
-    backgroundColor: "transparent",
-  },
-  emptyIconWrap: {
-    width: 64,
-    height: 64,
-    borderRadius: 16,
-    backgroundColor: "#0A0E15",
-    borderWidth: 1,
-    borderColor: "rgba(0, 229, 255, 0.1)",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  emptyTitle: {
-    color: "#F5F7FF",
-    fontFamily: "OrbitronBold",
-    fontSize: 16,
-    fontWeight: "700",
-  },
-  emptySubtitle: {
-    color: "#6B7280",
-    fontFamily: "OrbitronMedium",
-    fontSize: 13,
-    textAlign: "center",
-  },
-
   // Grid
   gridContent: {
     paddingHorizontal: 20,
@@ -154,56 +103,34 @@ export const styles = StyleSheet.create({
     gap: GRID_GAP,
     marginBottom: GRID_GAP,
   },
-  card: {
-    flex: 1 / 3,
-  },
-  cardCover: {
-    position: "relative",
-    width: "100%",
-    aspectRatio: 2 / 3,
-    borderRadius: 12,
-    overflow: "hidden",
-    borderWidth: 1,
-    borderColor: "rgba(0, 229, 255, 0.1)",
-    backgroundColor: "#0A0E15",
-  },
-  cardImage: {
-    width: "100%",
-    height: "100%",
-  },
-  cardImagePlaceholder: {
-    width: "100%",
-    height: "100%",
+
+  // Estados
+  stateContainer: {
+    flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    gap: 12,
+    paddingHorizontal: 40,
+    paddingBottom: 120,
+    backgroundColor: "transparent",
   },
-  cardGradient: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    bottom: 0,
-    top: "45%",
+  stateText: {
+    color: "#6B7280",
+    fontFamily: "OrbitronMedium",
+    fontSize: 13,
+    textAlign: "center",
   },
-  cardCaption: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    bottom: 0,
-    padding: 8,
+  retryButton: {
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#F52E8F",
   },
-  cardAccentLine: {
-    height: 2,
-    width: "40%",
-    borderRadius: 2,
-    backgroundColor: "#F52E8F",
-    marginBottom: 6,
-  },
-  cardTitle: {
-    color: "#F5F7FF",
+  retryButtonText: {
+    color: "#F52E8F",
     fontFamily: "OrbitronBold",
-    fontSize: 10,
-    fontWeight: "700",
-    lineHeight: 12,
+    fontSize: 12,
   },
 
   // Paginação inferior
@@ -213,6 +140,7 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 14,
     paddingVertical: 20,
+    backgroundColor: "transparent",
   },
   footerNavButton: {
     flexDirection: "row",
@@ -238,6 +166,7 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
+    backgroundColor: "transparent",
   },
   dot: {
     width: 6,

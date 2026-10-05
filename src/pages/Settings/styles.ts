@@ -9,6 +9,7 @@ export const styles = StyleSheet.create({
     width: "100%",
     maxWidth: 402,
     alignSelf: "center",
+    backgroundColor: "#03070D",
   },
   scrollContent: {
     width: "100%",
@@ -25,6 +26,9 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     gap: 14,
     backgroundColor: "#03070D"
+  },
+  titleText: {
+    backgroundColor: "transparent",
   },
   title: {
     color: "#FF2DA1",
