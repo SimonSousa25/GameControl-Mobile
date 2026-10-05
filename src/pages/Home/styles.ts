@@ -4,7 +4,7 @@ export const styles = StyleSheet.create({
   screenContainer: {
     flex: 1,
     backgroundColor: "#03070D",
-    paddingBottom: 62
+    paddingBottom: 50
   },
   // TODO: Apenas um questionamento, não seria melhor trabalharmos com 360?
 
@@ -24,7 +24,6 @@ export const styles = StyleSheet.create({
     backgroundColor: "#03070D",
   },
   contentContainer: {
-    paddingTop: 16,
     paddingBottom: 70,
   },
 });

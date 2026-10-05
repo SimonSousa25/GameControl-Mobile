@@ -24,7 +24,7 @@ export const styles = StyleSheet.create({
   cardGradient: {
     padding: 1,
     borderRadius: 12,
-    marginLeft: 20,
+    marginHorizontal: 20,
   },
   card: {
     borderRadius: 11,
