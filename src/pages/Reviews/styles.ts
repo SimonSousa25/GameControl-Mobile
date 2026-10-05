@@ -193,11 +193,37 @@ export const styles = StyleSheet.create({
     flex: 1,
     gap: 4,
   },
+  reviewUsernameRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
   reviewUsername: {
     fontSize: 13,
     fontWeight: "700",
     fontFamily: "OrbitronBold",
     color: "#00E5FF",
+  },
+  ownBadge: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+    backgroundColor: "rgba(245, 46, 143, 0.15)",
+  },
+  ownBadgeText: {
+    fontSize: 9,
+    fontWeight: "700",
+    fontFamily: "OrbitronBold",
+    color: "#F52E8F",
+    letterSpacing: 0.5,
+  },
+  editReviewButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(0, 229, 255, 0.1)",
   },
   reviewStars: {
     flexDirection: "row",
