@@ -13,7 +13,8 @@
     "android": {
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.gamecontrolmobile"
+      "package": "com.gamecontrol.app",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "bundler": "metro",

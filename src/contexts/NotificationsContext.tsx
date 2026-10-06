@@ -37,6 +37,20 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
   // Token registrado nesta sessão, para removê-lo no logout.
   const deviceTokenRef = useRef<string | null>(null);
 
+  /** Decide para onde ir ao tocar em um push (a tela de post ainda não existe). */
+  const abrirNotificacao = useCallback(
+    (data: Record<string, unknown>) => {
+      if (data.type === "NEW_FOLLOWER" && typeof data.actorId === "string") {
+        router.push(`/user/${data.actorId}`);
+        return;
+      }
+      // POST_LIKED / POST_COMMENTED: quando existir a tela do post, navegar
+      // para ela usando data.postId.
+      router.push("/notifications");
+    },
+    [router],
+  );
+
   const refreshUnreadCount = useCallback(async () => {
     if (!userId) {
       setUnreadCount(0);
@@ -60,18 +74,43 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!userId) return;
     let cancelled = false;
+
+    const registrar = async (token: string) => {
+      await notificationService.registrarTokenDoAparelho(userId, token, Platform.OS);
+      if (cancelled) {
+        // O usuário saiu enquanto registrávamos: desfaz para não deixar o
+        // aparelho recebendo pushes da conta antiga.
+        notificationService.removerTokenDoAparelho(token).catch(() => {});
+        return;
+      }
+      deviceTokenRef.current = token;
+    };
+
     (async () => {
       try {
         const token = await pushNotificationService.obterTokenDoAparelho();
         if (!token || cancelled) return;
-        await notificationService.registrarTokenDoAparelho(userId, token, Platform.OS);
-        deviceTokenRef.current = token;
+        await registrar(token);
       } catch (error) {
         console.error("Erro ao configurar notificações push:", error);
       }
     })();
+
+    // O FCM pode renovar o token; sem isso o aparelho deixa de receber pushes.
+    const pararTrocaDeToken = pushNotificationService.aoTrocarToken((novoToken) => {
+      const antigo = deviceTokenRef.current;
+      registrar(novoToken)
+        .then(() => {
+          if (antigo && antigo !== novoToken) {
+            notificationService.removerTokenDoAparelho(antigo).catch(() => {});
+          }
+        })
+        .catch((error) => console.warn("Erro ao registrar novo token:", String(error)));
+    });
+
     return () => {
       cancelled = true;
+      pararTrocaDeToken();
       const token = deviceTokenRef.current;
       deviceTokenRef.current = null;
       if (token) {
@@ -84,18 +123,23 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
     const pararRecebimento = pushNotificationService.aoReceber(() => {
       void refreshUnreadCount();
     });
-    const pararToque = pushNotificationService.aoTocar((data) => {
-      if (data.type === "NEW_FOLLOWER" && typeof data.actorId === "string") {
-        router.push(`/user/${data.actorId}`);
-        return;
-      }
-      router.push("/notifications");
-    });
+    const pararToque = pushNotificationService.aoTocar(abrirNotificacao);
     return () => {
       pararRecebimento();
       pararToque();
     };
-  }, [router, refreshUnreadCount]);
+  }, [abrirNotificacao, refreshUnreadCount]);
+
+  // Push tocado com o app fechado. Só depois de a sessão carregar (userId),
+  // senão a tela de notificações redirecionaria para o login.
+  const toqueInicialTratado = useRef<string | null>(null);
+  useEffect(() => {
+    if (!userId) return;
+    const toque = pushNotificationService.obterToqueDeAppFechado();
+    if (!toque || toqueInicialTratado.current === toque.id) return;
+    toqueInicialTratado.current = toque.id;
+    abrirNotificacao(toque.data);
+  }, [userId, abrirNotificacao]);
 
   const value = useMemo<NotificationsContextValue>(
     () => ({ unreadCount, refreshUnreadCount, setUnreadCount }),

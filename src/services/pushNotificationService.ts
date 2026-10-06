@@ -82,10 +82,39 @@ function aoTocar(callback: (data: Record<string, unknown>) => void): () => void 
   return () => subscription.remove();
 }
 
+/**
+ * O FCM pode trocar o token do aparelho a qualquer momento. Retorna a função
+ * para cancelar.
+ */
+function aoTrocarToken(callback: (token: string) => void): () => void {
+  if (!isPushSupported()) return () => {};
+  const subscription = getNotifications().addPushTokenListener((token) => {
+    if (typeof token.data === "string") callback(token.data);
+  });
+  return () => subscription.remove();
+}
+
+/**
+ * Push tocado com o app fechado: o listener de toque ainda não existia, então
+ * o Android guarda a resposta. Devolve o id e os dados uma única vez.
+ */
+function obterToqueDeAppFechado(): { id: string; data: Record<string, unknown> } | null {
+  if (!isPushSupported()) return null;
+  const resposta = getNotifications().getLastNotificationResponse();
+  if (!resposta) return null;
+  getNotifications().clearLastNotificationResponse();
+  return {
+    id: resposta.notification.request.identifier,
+    data: resposta.notification.request.content.data ?? {},
+  };
+}
+
 export default {
   isPushSupported,
   configurarExibicao,
   obterTokenDoAparelho,
   aoReceber,
   aoTocar,
+  aoTrocarToken,
+  obterToqueDeAppFechado,
 };

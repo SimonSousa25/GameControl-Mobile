@@ -29,6 +29,8 @@ interface NotificationsProps {
 
 const ICONS: Record<NotificationType, keyof typeof Ionicons.glyphMap> = {
   NEW_FOLLOWER: "person-add-outline",
+  POST_LIKED: "heart-outline",
+  POST_COMMENTED: "chatbubble-outline",
 };
 
 function formatarTempo(createdAt: string): string {
