@@ -19,7 +19,7 @@ const sessionService = {
       if (!raw) return null;
       const parsed = JSON.parse(raw) as AuthResponse;
       // Sessão corrompida ou de versão antiga do app: ignora.
-      if (!parsed?.user?.id || !parsed?.token) return null;
+      if (!parsed?.user?.id || !parsed?.token || !parsed?.refreshToken) return null;
       return parsed;
     } catch {
       return null;

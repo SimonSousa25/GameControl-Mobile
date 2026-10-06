@@ -9,6 +9,7 @@ import {
   useState,
 } from "react";
 
+import { definirOuvinteSessao } from "@/services/api";
 import sessionService from "@/services/sessionService";
 import type { AuthResponse, UserDTO } from "@/services/userService";
 
@@ -36,6 +37,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     sessionRef.current = next;
     setSession(next);
   }, []);
+
+  useEffect(() => {
+    definirOuvinteSessao(applySession);
+    return () => definirOuvinteSessao(null);
+  }, [applySession]);
 
   useEffect(() => {
     let cancelled = false;

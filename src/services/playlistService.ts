@@ -1,6 +1,5 @@
+import { apiFetch } from "@/services/api";
 import { GameDTO } from "./gameService";
-
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || "http://localhost:8080/api";
 
 export interface PlaylistDTO {
   id: string;
@@ -24,8 +23,8 @@ class PlaylistService {
     dados: CreatePlaylistRequest,
   ): Promise<PlaylistDTO> {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/usuario-playlists?usuarioId=${encodeURIComponent(usuarioId)}`,
+      const response = await apiFetch(
+        `/usuario-playlists?usuarioId=${encodeURIComponent(usuarioId)}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -48,7 +47,7 @@ class PlaylistService {
   ): Promise<PlaylistDTO> {
     try {
       const { jogos, ...corpo } = dados;
-      const response = await fetch(`${API_BASE_URL}/usuario-playlists/${id}`, {
+      const response = await apiFetch(`/usuario-playlists/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(corpo),
@@ -65,7 +64,7 @@ class PlaylistService {
 
   async deletarPlaylist(id: string): Promise<void> {
     try {
-      const response = await fetch(`${API_BASE_URL}/usuario-playlists/${id}`, {
+      const response = await apiFetch(`/usuario-playlists/${id}`, {
         method: "DELETE",
       });
       if (!response.ok) {
@@ -82,8 +81,8 @@ class PlaylistService {
     incluirJogos = false,
   ): Promise<PlaylistDTO[]> {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/usuario-playlists/usuario/${usuarioId}?incluirJogos=${incluirJogos}`,
+      const response = await apiFetch(
+        `/usuario-playlists/usuario/${usuarioId}?incluirJogos=${incluirJogos}`,
       );
       if (!response.ok) {
         throw new Error(`Erro ao listar playlists: ${response.statusText}`);
@@ -97,7 +96,7 @@ class PlaylistService {
 
   async buscarPlaylistPorId(id: string): Promise<PlaylistDTO | null> {
     try {
-      const response = await fetch(`${API_BASE_URL}/usuario-playlists/${id}`);
+      const response = await apiFetch(`/usuario-playlists/${id}`);
       if (!response.ok) {
         if (response.status === 404) {
           return null;
@@ -113,8 +112,8 @@ class PlaylistService {
 
   async adicionarJogo(playlistId: string, jogoId: string): Promise<PlaylistDTO> {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/usuario-playlists/${playlistId}/jogos/${jogoId}`,
+      const response = await apiFetch(
+        `/usuario-playlists/${playlistId}/jogos/${jogoId}`,
         { method: "POST" },
       );
       if (!response.ok) {
@@ -134,8 +133,8 @@ class PlaylistService {
     jogoId: string,
   ): Promise<PlaylistDTO> {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/usuario-playlists/${playlistId}/jogos/${jogoId}`,
+      const response = await apiFetch(
+        `/usuario-playlists/${playlistId}/jogos/${jogoId}`,
         { method: "DELETE" },
       );
       if (!response.ok) {

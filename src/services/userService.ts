@@ -1,3 +1,5 @@
+import { API_BASE_URL, apiFetch } from "@/services/api";
+
 export interface UserDTO {
   id: string;
   username: string;
@@ -26,16 +28,15 @@ interface LoginRequest {
 
 export interface AuthResponse {
   token: string;
+  refreshToken: string;
+  expiresIn: number;
   user: UserDTO;
 }
-
-const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_URL || "http://localhost:8080/api";
 
 const userService = {
   async listarUsuarios(): Promise<UserDTO[]> {
     try {
-      const response = await fetch(`${API_BASE_URL}/users`, {
+      const response = await apiFetch(`/users`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -56,7 +57,7 @@ const userService = {
   // TODO: Testar quando tivermos profile page
   async buscarUsuarioPorId(id: string): Promise<UserDTO> {
     try {
-      const response = await fetch(`${API_BASE_URL}/users/${id}`, {
+      const response = await apiFetch(`/users/${id}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -124,7 +125,7 @@ const userService = {
     dados: Partial<UserDTO>,
   ): Promise<UserDTO> {
     try {
-      const response = await fetch(`${API_BASE_URL}/users/${id}`, {
+      const response = await apiFetch(`/users/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -145,8 +146,8 @@ const userService = {
 
   async atualizarFotoPerfil(id: string, base64Image: string): Promise<UserDTO> {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/users/${id}/profile-picture`,
+      const response = await apiFetch(
+        `/users/${id}/profile-picture`,
         {
           method: "PUT",
           headers: {
@@ -170,8 +171,8 @@ const userService = {
   // TODO: Testar quando tivermos profile page
   async seguirUsuario(userId: string, targetUserId: string): Promise<void> {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/users/${userId}/follow/${targetUserId}`,
+      const response = await apiFetch(
+        `/users/${userId}/follow/${targetUserId}`,
         {
           method: "POST",
           headers: {
@@ -194,8 +195,8 @@ const userService = {
     targetUserId: string,
   ): Promise<void> {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/users/${userId}/follow/${targetUserId}`,
+      const response = await apiFetch(
+        `/users/${userId}/follow/${targetUserId}`,
         {
           method: "DELETE",
           headers: {
