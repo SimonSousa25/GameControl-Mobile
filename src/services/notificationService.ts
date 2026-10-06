@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || "http://localhost:8080/api";
+import { apiFetch } from "@/services/api";
 
 export type NotificationType = "NEW_FOLLOWER";
 
@@ -16,7 +16,7 @@ export interface NotificationDTO {
 class NotificationService {
   async listarDoUsuario(userId: string): Promise<NotificationDTO[]> {
     try {
-      const response = await fetch(`${API_BASE_URL}/notifications/user/${userId}`);
+      const response = await apiFetch(`/notifications/user/${userId}`);
       if (!response.ok) {
         throw new Error(`Erro ao listar notificações: ${response.statusText}`);
       }
@@ -32,8 +32,8 @@ class NotificationService {
    * erro a cada ciclo quando a API está fora do ar. Quem chama trata a falha.
    */
   async contarNaoLidas(userId: string): Promise<number> {
-    const response = await fetch(
-      `${API_BASE_URL}/notifications/user/${userId}/unread-count`,
+    const response = await apiFetch(
+      `/notifications/user/${userId}/unread-count`,
     );
     if (!response.ok) {
       throw new Error(
@@ -46,7 +46,7 @@ class NotificationService {
 
   async marcarComoLida(id: string): Promise<void> {
     try {
-      const response = await fetch(`${API_BASE_URL}/notifications/${id}/read`, {
+      const response = await apiFetch(`/notifications/${id}/read`, {
         method: "PATCH",
       });
       if (!response.ok) {
@@ -60,8 +60,8 @@ class NotificationService {
 
   async marcarTodasComoLidas(userId: string): Promise<void> {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/notifications/user/${userId}/read-all`,
+      const response = await apiFetch(
+        `/notifications/user/${userId}/read-all`,
         { method: "PATCH" },
       );
       if (!response.ok) {
@@ -79,7 +79,7 @@ class NotificationService {
     platform: string,
   ): Promise<void> {
     try {
-      const response = await fetch(`${API_BASE_URL}/notifications/device-tokens`, {
+      const response = await apiFetch(`/notifications/device-tokens`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId, token, platform }),
@@ -95,8 +95,8 @@ class NotificationService {
 
   async removerTokenDoAparelho(token: string): Promise<void> {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/notifications/device-tokens?token=${encodeURIComponent(token)}`,
+      const response = await apiFetch(
+        `/notifications/device-tokens?token=${encodeURIComponent(token)}`,
         { method: "DELETE" },
       );
       if (!response.ok) {

@@ -1,7 +1,5 @@
+import { apiFetch } from "@/services/api";
 import { GameDTO } from "./gameService";
-
-const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_URL || "http://localhost:8080/api";
 
 export interface ReviewDTO {
   id?: string;
@@ -36,8 +34,8 @@ class ReviewService {
   ): Promise<GameReviewsPageDTO> {
     try {
       const query = userId ? `?userId=${encodeURIComponent(userId)}` : "";
-      const response = await fetch(
-        `${API_BASE_URL}/reviews/${gameId}/reviews-page${query}`,
+      const response = await apiFetch(
+        `/reviews/${gameId}/reviews-page${query}`,
       );
       if (!response.ok) {
         throw new Error(`Erro ao buscar avaliações: ${response.statusText}`);
@@ -54,8 +52,8 @@ class ReviewService {
     dados: CreateReviewRequest,
   ): Promise<ReviewDTO> {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/reviews?userId=${encodeURIComponent(userId)}`,
+      const response = await apiFetch(
+        `/reviews?userId=${encodeURIComponent(userId)}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -74,8 +72,8 @@ class ReviewService {
 
   async deletarAvaliacao(id: string, userId: string): Promise<void> {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/reviews/${id}?userId=${encodeURIComponent(userId)}`,
+      const response = await apiFetch(
+        `/reviews/${id}?userId=${encodeURIComponent(userId)}`,
         { method: "DELETE" },
       );
       if (!response.ok) {
