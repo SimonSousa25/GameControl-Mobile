@@ -43,6 +43,7 @@ export default function ProfileScreen() {
         router.push({ pathname: "/playlists", params: { playlistId } })
       }
       onTabPress={handleTabPress}
+      onUserPress={(pressedUserId) => router.push(`/user/${pressedUserId}`)}
     />
   );
 }
