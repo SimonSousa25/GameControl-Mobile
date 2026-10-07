@@ -5,6 +5,7 @@ import { Alert, ScrollView } from "react-native";
 import BackButton from "@/components/BackButton/BackButton";
 import FollowButton from "@/components/FollowButton/FollowButton";
 import Header from "@/components/Header/Header";
+import FollowListModal from "@/components/modals/FollowListModal/FollowListModal";
 import NavBottom from "@/components/NavBottom/NavBottom";
 import PlaylistsSection from "@/components/PlaylistsSection/PlaylistsSection";
 import ProfileHeaderCard from "@/components/ProfileHeaderCard/ProfileHeaderCard";
@@ -26,6 +27,7 @@ export interface UserProfileProps {
   onPlaylistPress?: (playlistId: string) => void;
   onTabPress?: (tabId: string) => void;
   onSearchSubmit?: (searchTerm: string) => void;
+  onUserPress?: (userId: string) => void;
 }
 
 
@@ -36,12 +38,22 @@ export function UserProfile({
   onPlaylistPress,
   onTabPress,
   onSearchSubmit,
+  onUserPress,
 }: UserProfileProps) {
   const [user, setUser] = useState<UserDTO | undefined>();
   const [playlists, setPlaylists] = useState<PlaylistDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [followingLoading, setFollowingLoading] = useState(false);
+  const [followModalVisible, setFollowModalVisible] = useState(false);
+  const [followModalMode, setFollowModalMode] = useState<"followers" | "following">(
+    "followers",
+  );
+
+  const openFollowModal = (mode: "followers" | "following") => {
+    setFollowModalMode(mode);
+    setFollowModalVisible(true);
+  };
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -165,6 +177,8 @@ export function UserProfile({
                 onPress={handleToggleFollow}
               />
             }
+            onFollowersPress={() => openFollowModal("followers")}
+            onFollowingPress={() => openFollowModal("following")}
           />
 
           <SectionTabs tabs={TABS} activeIndex={activePage} onTabPress={goToPage} />
@@ -211,6 +225,18 @@ export function UserProfile({
       )}
 
       <NavBottom activeTab={null} onTabPress={onTabPress} />
+
+      <FollowListModal
+        visible={followModalVisible}
+        mode={followModalMode}
+        userIds={
+          followModalMode === "following"
+            ? user?.following ?? []
+            : user?.followers ?? []
+        }
+        onClose={() => setFollowModalVisible(false)}
+        onUserPress={(pressedUserId) => onUserPress?.(pressedUserId)}
+      />
     </View>
   );
 }

@@ -58,6 +58,7 @@ export default function UserProfileScreen() {
         })
       }
       onTabPress={handleTabPress}
+      onUserPress={(pressedUserId) => router.push(`/user/${pressedUserId}`)}
     />
   );
 }

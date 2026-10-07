@@ -13,6 +13,8 @@ export interface ProfileHeaderCardProps {
   playlistsCount: number;
   onSettingsPress?: () => void;
   followAction?: ReactNode;
+  onFollowersPress?: () => void;
+  onFollowingPress?: () => void;
 }
 
 export function ProfileHeaderCard({
@@ -20,6 +22,8 @@ export function ProfileHeaderCard({
   playlistsCount,
   onSettingsPress,
   followAction,
+  onFollowersPress,
+  onFollowingPress,
 }: ProfileHeaderCardProps) {
   const avatarUrl = getAvatarUrl(user?.profilePictureUrl);
   const username = user?.username ?? "Jogador";
@@ -29,9 +33,9 @@ export function ProfileHeaderCard({
   const following = user?.followingCount ?? user?.following?.length ?? 0;
 
   const stats = [
-    { label: "Seguidores", value: followers },
-    { label: "Seguindo", value: following },
-    { label: "Playlists", value: playlistsCount },
+    { label: "Seguidores", value: followers, onPress: onFollowersPress },
+    { label: "Seguindo", value: following, onPress: onFollowingPress },
+    { label: "Playlists", value: playlistsCount, onPress: undefined },
   ];
 
   return (
@@ -91,15 +95,16 @@ export function ProfileHeaderCard({
 
       <View style={styles.statsRow} lightColor="transparent" darkColor="transparent">
         {stats.map((stat, index) => (
-          <View
+          <TouchableOpacity
             key={stat.label}
             style={[styles.statItem, index > 0 && styles.statItemDivider]}
-            lightColor="transparent"
-            darkColor="transparent"
+            activeOpacity={stat.onPress ? 0.7 : 1}
+            disabled={!stat.onPress}
+            onPress={stat.onPress}
           >
             <Text style={styles.statValue}>{stat.value}</Text>
             <Text style={styles.statLabel}>{stat.label}</Text>
-          </View>
+          </TouchableOpacity>
         ))}
       </View>
     </View>
