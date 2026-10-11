@@ -4,6 +4,7 @@ import { Alert, ScrollView } from "react-native";
 
 import Header from "@/components/Header/Header";
 import ConfirmModal from "@/components/modals/ConfirmModal/ConfirmModal";
+import FollowListModal from "@/components/modals/FollowListModal/FollowListModal";
 import PlaylistFormModal, {
   PlaylistFormValues,
 } from "@/components/modals/PlaylistFormModal/PlaylistFormModal";
@@ -30,6 +31,7 @@ export interface ProfileProps {
   onPlaylistPress?: (playlistId: string) => void;
   onTabPress?: (tabId: string) => void;
   onSearchSubmit?: (searchTerm: string) => void;
+  onUserPress?: (userId: string) => void;
 }
 
 export function Profile({
@@ -41,6 +43,7 @@ export function Profile({
   onFeedPress,
   onPlaylistPress,
   onTabPress,
+  onUserPress,
 }: ProfileProps) {
   const [user, setUser] = useState<UserDTO | undefined>(initialUser);
   const [playlists, setPlaylists] = useState<PlaylistDTO[]>([]);
@@ -66,6 +69,16 @@ export function Profile({
     null,
   );
   const [deletingPlaylist, setDeletingPlaylist] = useState(false);
+
+  const [followModalVisible, setFollowModalVisible] = useState(false);
+  const [followModalMode, setFollowModalMode] = useState<"followers" | "following">(
+    "followers",
+  );
+
+  const openFollowModal = (mode: "followers" | "following") => {
+    setFollowModalMode(mode);
+    setFollowModalVisible(true);
+  };
 
   const { pagerRef, pagerSize, activePage, onPagerLayout, onPagerScroll, goToPage } =
     useSectionPager();
@@ -178,6 +191,8 @@ export function Profile({
           user={user}
           playlistsCount={playlists.length}
           onSettingsPress={onSettingsPress}
+          onFollowersPress={() => openFollowModal("followers")}
+          onFollowingPress={() => openFollowModal("following")}
         />
 
         <SectionTabs tabs={TABS} activeIndex={activePage} onTabPress={goToPage} />
@@ -243,6 +258,18 @@ export function Profile({
         submitting={deletingPlaylist}
         onConfirm={handleConfirmDelete}
         onCancel={closeDeleteModal}
+      />
+
+      <FollowListModal
+        visible={followModalVisible}
+        mode={followModalMode}
+        userIds={
+          followModalMode === "following"
+            ? user?.following ?? []
+            : user?.followers ?? []
+        }
+        onClose={() => setFollowModalVisible(false)}
+        onUserPress={(pressedUserId) => onUserPress?.(pressedUserId)}
       />
     </View>
   );
