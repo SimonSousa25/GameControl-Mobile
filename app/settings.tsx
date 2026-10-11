@@ -16,6 +16,7 @@ export default function SettingsScreen() {
       username: values.username,
       bio: values.bio,
       country: values.country,
+      notificationPreferences: values.notificationPreferences,
     });
 
     // Mantém os dados atualizados na sessão do aplicativo.

@@ -1,5 +1,12 @@
 import { API_BASE_URL, apiFetch } from "@/services/api";
 
+/** Quais notificações o usuário quer receber (o backend filtra o envio). */
+export interface NotificationPreferences {
+  likes: boolean;
+  comments: boolean;
+  followers: boolean;
+}
+
 export interface UserDTO {
   id: string;
   username: string;
@@ -10,6 +17,8 @@ export interface UserDTO {
   /** Ids de quem segue / quem é seguido (arrays do Firestore). */
   followers?: string[];
   following?: string[];
+  /** Sempre preenchido pela API; ausente = tudo ativo. */
+  notificationPreferences?: NotificationPreferences;
   followersCount?: number;
   followingCount?: number;
   createdAt?: string;

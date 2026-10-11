@@ -12,7 +12,7 @@ import {
 } from "react-native";
 
 import { Text, View } from "@/components/Themed";
-import type { UserDTO } from "@/services/userService";
+import type { NotificationPreferences, UserDTO } from "@/services/userService";
 import { getAvatarUrl } from "@/utils/avatar";
 
 import AccountPrivacySection from "@/components/AccountPrivacySection/AccountPrivacySection";
@@ -27,6 +27,7 @@ export interface SettingsFormValues {
   username: string;
   bio: string;
   country: string;
+  notificationPreferences: NotificationPreferences;
 }
 
 interface SettingsProps {
@@ -57,10 +58,17 @@ export default function Settings({
   const [bio, setBio] = useState(user.bio ?? "");
   const [country, setCountry] = useState(user.country ?? "");
 
-  // Essas preferências ainda são somente locais.
-  const [likesEnabled, setLikesEnabled] = useState(false);
-  const [commentsEnabled, setCommentsEnabled] = useState(false);
-  const [followersEnabled, setFollowersEnabled] = useState(false);
+  // Preferências de notificação: salvas na conta e respeitadas pelo backend,
+  // que não grava nem envia o tipo desligado. Sem valor salvo, tudo ativo.
+  const [likesEnabled, setLikesEnabled] = useState(
+    user.notificationPreferences?.likes ?? true,
+  );
+  const [commentsEnabled, setCommentsEnabled] = useState(
+    user.notificationPreferences?.comments ?? true,
+  );
+  const [followersEnabled, setFollowersEnabled] = useState(
+    user.notificationPreferences?.followers ?? true,
+  );
 
   // Estado visual da privacidade. A persistência dependerá de suporte na API.
   const [isPrivateAccount, setIsPrivateAccount] = useState(false);
@@ -153,6 +161,11 @@ export default function Settings({
         username: username.trim(),
         bio: bio.trim(),
         country: country.trim(),
+        notificationPreferences: {
+          likes: likesEnabled,
+          comments: commentsEnabled,
+          followers: followersEnabled,
+        },
       });
 
       Alert.alert("Tudo certo", "As alterações foram salvas.");
