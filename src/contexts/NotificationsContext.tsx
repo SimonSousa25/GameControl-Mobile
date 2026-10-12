@@ -11,6 +11,7 @@ import {
 } from "react";
 import { Platform } from "react-native";
 
+import { definirAntesDeSair } from "@/services/api";
 import notificationService from "@/services/notificationService";
 import pushNotificationService from "@/services/pushNotificationService";
 import { useAuth } from "@/src/contexts/AuthContext";
@@ -86,6 +87,16 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
       deviceTokenRef.current = token;
     };
 
+    // No logout, remove o token enquanto o login ainda é válido (depois do
+    // signOut do Firebase a API não aceitaria mais a requisição).
+    definirAntesDeSair(async () => {
+      const token = deviceTokenRef.current;
+      deviceTokenRef.current = null;
+      if (token) {
+        await notificationService.removerTokenDoAparelho(token).catch(() => {});
+      }
+    });
+
     (async () => {
       try {
         const token = await pushNotificationService.obterTokenDoAparelho();
@@ -111,6 +122,7 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
       pararTrocaDeToken();
+      definirAntesDeSair(null);
       const token = deviceTokenRef.current;
       deviceTokenRef.current = null;
       if (token) {

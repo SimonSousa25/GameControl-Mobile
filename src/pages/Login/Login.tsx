@@ -15,6 +15,7 @@ import type { StyleProp, ViewStyle } from "react-native";
 import { styles } from "./styles";
 
 import FormField from "@/components/FormField/FormField";
+import { mensagemDeErroAuth } from "@/services/authService";
 import userService, { AuthResponse } from "@/services/userService";
 import PresentationTransition from "@/animations/PresentationTransition";
 
@@ -58,10 +59,13 @@ export function Login({
         password,
       });
       onSuccess?.(auth);
-    } catch {
+    } catch (error) {
       Alert.alert(
         "Não foi possível entrar",
-        "Verifique seu e-mail e senha e tente novamente.",
+        mensagemDeErroAuth(
+          error,
+          "Verifique seu e-mail e senha e tente novamente.",
+        ),
       );
     } finally {
       setIsSubmitting(false);

@@ -9,7 +9,8 @@ import {
   useState,
 } from "react";
 
-import { definirOuvinteSessao } from "@/services/api";
+import { definirOuvinteSessao, executarAntesDeSair } from "@/services/api";
+import authService from "@/services/authService";
 import sessionService from "@/services/sessionService";
 import type { AuthResponse, UserDTO } from "@/services/userService";
 
@@ -61,8 +62,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [applySession]);
 
   const signOut = useCallback(async () => {
+    // Antes de encerrar o login, deixa o app limpar o que ainda exige
+    // autenticação (ex.: remover o token de push deste aparelho).
+    await executarAntesDeSair();
     await sessionService.limpar();
     applySession(null);
+    await authService.sair().catch(() => {});
   }, [applySession]);
 
   const updateUser = useCallback(
