@@ -16,6 +16,7 @@ import {
 import type { StyleProp, TextInputProps, ViewStyle } from "react-native";
 
 import PresentationLogo from "@/components/PresentationLogo";
+import { mensagemDeErroAuth } from "@/services/authService";
 import userService, { AuthResponse } from "@/services/userService";
 
 import { styles } from "./styles";
@@ -116,10 +117,13 @@ export function Register({
         email: normalizedEmail,
         password,
       });
-    } catch {
+    } catch (error) {
       Alert.alert(
         "Não foi possível criar a conta",
-        "Verifique os dados informados e tente novamente.",
+        mensagemDeErroAuth(
+          error,
+          "Verifique os dados informados e tente novamente.",
+        ),
       );
       setIsSubmitting(false);
       return;

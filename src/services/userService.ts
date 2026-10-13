@@ -1,4 +1,12 @@
-import { API_BASE_URL, apiFetch } from "@/services/api";
+import { apiFetch } from "@/services/api";
+import authService from "@/services/authService";
+
+/** Quais notificações o usuário quer receber (o backend filtra o envio). */
+export interface NotificationPreferences {
+  likes: boolean;
+  comments: boolean;
+  followers: boolean;
+}
 
 export interface UserDTO {
   id: string;
@@ -10,6 +18,8 @@ export interface UserDTO {
   /** Ids de quem segue / quem é seguido (arrays do Firestore). */
   followers?: string[];
   following?: string[];
+  /** Sempre preenchido pela API; ausente = tudo ativo. */
+  notificationPreferences?: NotificationPreferences;
   followersCount?: number;
   followingCount?: number;
   createdAt?: string;
@@ -19,6 +29,10 @@ interface CreateUserRequest {
   username: string;
   email: string;
   password: string;
+  bio?: string;
+  country?: string;
+  /** Formato AAAA-MM-DD. */
+  birthDate?: string;
 }
 
 interface LoginRequest {
@@ -75,46 +89,61 @@ const userService = {
     }
   },
 
-  // TODO: Testar quando tivermos cadastro
+  /**
+   * Cadastro em duas etapas: a conta (e-mail e senha) é criada no Firebase
+   * Authentication e só o perfil vai para o backend, que identifica o usuário
+   * pelo ID token (nenhum e-mail, senha ou papel é enviado no corpo).
+   */
   async cadastrarUsuario(dados: CreateUserRequest): Promise<UserDTO> {
+    await authService.criarConta(dados.email, dados.password);
+
     try {
-      const response = await fetch(`${API_BASE_URL}/users`, {
+      const response = await apiFetch(`/users`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(dados),
+        body: JSON.stringify({
+          username: dados.username,
+          bio: dados.bio,
+          country: dados.country,
+          birthDate: dados.birthDate,
+        }),
       });
 
       if (!response.ok) {
-        throw new Error(`Erro ao cadastrar usuário: ${response.statusText}`);
+        throw new Error(
+          `Erro ao criar perfil: HTTP ${response.status} ${response.statusText}`,
+        );
       }
 
       return await response.json();
     } catch (error) {
       console.error("Erro ao cadastrar usuário:", error);
+      // Sem perfil, a conta ficaria "órfã" e o e-mail não poderia ser reutilizado.
+      await authService.removerContaAtual().catch(() => {});
       throw error;
     }
   },
 
-  // TODO: Testar quando tivermos login
+  /**
+   * Login direto no Firebase Authentication; depois busca o perfil no backend
+   * usando o ID token. Mantém o formato AuthResponse usado pelo restante do app.
+   */
   async login(dados: LoginRequest): Promise<AuthResponse> {
+    const sessao = await authService.entrar(dados.email, dados.password);
+
     try {
-      const response = await fetch(`${API_BASE_URL}/users/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(dados),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Erro ao fazer login: ${response.statusText}`);
-      }
-
-      return await response.json();
+      const user = await userService.buscarUsuarioPorId(sessao.uid);
+      return {
+        user,
+        token: sessao.token,
+        refreshToken: sessao.refreshToken,
+        expiresIn: sessao.expiresIn,
+      };
     } catch (error) {
-      console.error("Erro ao fazer login:", error);
+      // Autenticou no Firebase mas não achou o perfil: não deixa meio logado.
+      await authService.sair().catch(() => {});
       throw error;
     }
   },

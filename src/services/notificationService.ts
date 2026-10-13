@@ -1,12 +1,14 @@
 import { apiFetch } from "@/services/api";
 
-export type NotificationType = "NEW_FOLLOWER";
+export type NotificationType = "NEW_FOLLOWER" | "POST_LIKED" | "POST_COMMENTED";
 
 export interface NotificationDTO {
   id: string;
   recipientId: string;
   actorId: string;
   actorUsername: string;
+  /** Post relacionado (curtida/comentário). Ausente em NEW_FOLLOWER. */
+  postId?: string;
   type: NotificationType;
   message: string;
   read: boolean;

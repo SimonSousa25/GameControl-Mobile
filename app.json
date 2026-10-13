@@ -13,7 +13,8 @@
     "android": {
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.gamecontrolmobile"
+      "package": "com.gamecontrol.app",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "bundler": "metro",
@@ -35,7 +36,9 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#03070D"
+          "backgroundColor": "#03070D",
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 200
         }
       ],
       [
