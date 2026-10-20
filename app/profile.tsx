@@ -19,6 +19,10 @@ export default function ProfileScreen() {
     if (tabId === "profile") {
       return;
     }
+    if (tabId === "feed") {
+      router.push("/feed");
+      return;
+    }
     console.log(`${tabId} pressed`);
   };
 
@@ -38,6 +42,7 @@ export default function ProfileScreen() {
       initialUser={user}
       onUserRefreshed={updateUser}
       onSettingsPress={() => router.push("/settings")}
+      onFeedPress={() => router.push("/feed")}
       onSearchSubmit={handleSearchSubmit}
       onPlaylistPress={(playlistId) =>
         router.push({ pathname: "/playlists", params: { playlistId } })

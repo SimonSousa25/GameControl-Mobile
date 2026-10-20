@@ -25,7 +25,10 @@ export default function HomeScreen() {
     if (tabId === "home") {
       return;
     }
-    // TODO: Criar rota de feed quando existir.
+    if (tabId === "feed") {
+      router.push("/feed");
+      return;
+    }
     console.log(`${tabId} pressed`);
   };
 

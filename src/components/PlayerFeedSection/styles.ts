@@ -50,6 +50,11 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  stateContainer: {
+    marginTop: 16,
+    alignItems: "center",
+    paddingVertical: 20,
+  },
   placeholderBox: {
     marginTop: 16,
     alignItems: "center",
