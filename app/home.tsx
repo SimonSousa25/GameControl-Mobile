@@ -1,9 +1,11 @@
 import { useRouter } from "expo-router";
 
+import { useAuth } from "@/src/contexts/AuthContext";
 import Home from "@/pages/Home/Home";
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { user } = useAuth();
 
   const handleSearchSubmit = (searchTerm: string) => {
     if (searchTerm) {
@@ -25,12 +27,16 @@ export default function HomeScreen() {
     if (tabId === "home") {
       return;
     }
-    // TODO: Criar rota de feed quando existir.
+    if (tabId === "feed") {
+      router.push("/feed");
+      return;
+    }
     console.log(`${tabId} pressed`);
   };
 
   return (
     <Home
+      userId={user?.id}
       onSearchSubmit={handleSearchSubmit}
       onFeaturedGamePress={(gameId) => {
         router.push(`/game/${gameId}`);
@@ -46,6 +52,9 @@ export default function HomeScreen() {
       }}
       onViewAllPlayersPress={() => {
         router.push("/players");
+      }}
+      onViewFeedPress={() => {
+        router.push("/feed");
       }}
       onTabPress={handleTabPress}
     />

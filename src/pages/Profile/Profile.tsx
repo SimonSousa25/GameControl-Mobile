@@ -186,7 +186,6 @@ export function Profile({
       </View>
 
       <View style={styles.content} lightColor="transparent" darkColor="transparent">
-        {/* Fixo: não rola nem acompanha o swipe */}
         <ProfileHeaderCard
           user={user}
           playlistsCount={playlists.length}
@@ -218,7 +217,11 @@ export function Profile({
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.pageContent}
               >
-                <PlayerFeedSection onExpandPress={onFeedPress} />
+                <PlayerFeedSection
+                  userId={userId}
+                  onExpandPress={onFeedPress}
+                  onUserPress={onUserPress}
+                />
               </ScrollView>
 
               <ScrollView

@@ -5,6 +5,7 @@ import GameCarousel from "@/components/GameCarousel/GameCarousel";
 import GameOfWeek from "@/components/GameOfWeek/GameOfWeek";
 import Header from "@/components/Header/Header";
 import HeroBanner from "@/components/HeroBanner/HeroBanner";
+import HomeFeedSection from "@/components/HomeFeedSection/HomeFeedSection";
 import NavBottom from "@/components/NavBottom/NavBottom";
 import PlayersHighlight from "@/components/PlayersHighlight/PlayersHighlight";
 import { View } from "@/components/Themed";
@@ -12,22 +13,26 @@ import { View } from "@/components/Themed";
 import { styles } from "./styles";
 
 export interface HomeProps {
+  userId?: string;
   onSearchSubmit?: (searchTerm: string) => void;
   onFeaturedGamePress?: (gameId: string) => void;
   onGamePress?: (gameId: string) => void;
   onViewAllFeaturedPress?: () => void;
   onUserPress?: (userId: string) => void;
   onViewAllPlayersPress?: () => void;
+  onViewFeedPress?: () => void;
   onTabPress?: (tabId: string) => void;
 }
 
 export function Home({
+  userId,
   onSearchSubmit,
   onFeaturedGamePress,
   onGamePress,
   onViewAllFeaturedPress,
   onUserPress,
   onViewAllPlayersPress,
+  onViewFeedPress,
   onTabPress,
 }: HomeProps) {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -78,6 +83,14 @@ export function Home({
           onUserPress={onUserPress}
           onViewAllPress={onViewAllPlayersPress}
         />
+
+        {userId ? (
+          <HomeFeedSection
+            userId={userId}
+            onUserPress={onUserPress}
+            onViewAllPress={onViewFeedPress}
+          />
+        ) : null}
       </ScrollView>
       <NavBottom activeTab="home" onTabPress={onTabPress} />
     </View>

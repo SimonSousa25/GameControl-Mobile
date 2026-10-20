@@ -110,6 +110,7 @@ function RootLayoutNav() {
         <Stack.Screen name="settings" options={{ headerShown: false }} />
         <Stack.Screen name="notifications" options={{ headerShown: false }} />
         <Stack.Screen name="players" options={{ headerShown: false }} />
+        <Stack.Screen name="feed" options={{ headerShown: false }} />
       </Stack>
     </ThemeProvider>
   );

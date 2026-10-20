@@ -37,6 +37,11 @@ export const styles = StyleSheet.create({
     fontFamily: "OrbitronMedium",
     fontSize: 9,
   },
+  stateContainer: {
+    marginTop: 16,
+    alignItems: "center",
+    paddingVertical: 20,
+  },
   placeholderBox: {
     marginTop: 16,
     alignItems: "center",

@@ -204,7 +204,7 @@ export function UserProfile({
                   showsVerticalScrollIndicator={false}
                   contentContainerStyle={styles.pageContent}
                 >
-                  <UserPostsSection />
+                  <UserPostsSection userId={userId} viewerId={viewerId} />
                 </ScrollView>
 
                 <ScrollView
