@@ -70,6 +70,7 @@ export default function SettingsScreen() {
       onTabPress={(tabId) => {
         if (tabId === "home") router.replace("/home");
         if (tabId === "catalog") router.push("/catalog");
+        if (tabId === "feed") router.push("/feed");
         if (tabId === "profile") router.replace("/profile");
       }}
     />
