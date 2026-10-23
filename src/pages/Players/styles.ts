@@ -1,6 +1,8 @@
-import { StyleSheet } from "react-native";
+import { Platform, StyleSheet } from "react-native";
 
-const GRID_GAP = 10;
+export const GRID_GAP = 10;
+export const GRID_PADDING = 20;
+export const CONTENT_MAX_WIDTH = 402;
 
 export const styles = StyleSheet.create({
   screenContainer: {
@@ -96,12 +98,33 @@ export const styles = StyleSheet.create({
 
   // Grid
   gridContent: {
-    paddingHorizontal: 20,
+    paddingHorizontal: GRID_PADDING,
     paddingBottom: 100,
   },
   gridRow: {
     gap: GRID_GAP,
     marginBottom: GRID_GAP,
+  },
+
+  searchBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginHorizontal: 20,
+    marginBottom: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#3E4E66",
+    backgroundColor: "#051124",
+  },
+  searchInput: {
+    flex: 1,
+    color: "#F5F7FF",
+    fontFamily: "Orbitron",
+    fontSize: 12,
+    ...(Platform.OS === "web" ? ({ outlineStyle: "none" } as object) : {}),
   },
 
   // Estados

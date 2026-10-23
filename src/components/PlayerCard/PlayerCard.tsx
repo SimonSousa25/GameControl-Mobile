@@ -9,13 +9,24 @@ import { styles } from "./styles";
 
 interface PlayerCardProps {
   user: UserDTO;
-  /** Define a cor do avatar gerado quando o usuário não tem foto. */
   colorIndex: number;
   onPress?: (userId: string) => void;
   style?: StyleProp<ViewStyle>;
+
+  size?: "default" | "large";
 }
 
-export default function PlayerCard({ user, colorIndex, onPress, style }: PlayerCardProps) {
+const LARGE_AVATAR_SIZE = 52;
+
+export default function PlayerCard({
+  user,
+  colorIndex,
+  onPress,
+  style,
+  size = "default",
+}: PlayerCardProps) {
+  const large = size === "large";
+
   return (
     <LinearGradient
       colors={["#33121F", "#060814"]}
@@ -24,25 +35,37 @@ export default function PlayerCard({ user, colorIndex, onPress, style }: PlayerC
       style={[styles.cardGradient, style]}
     >
       <TouchableOpacity
-        style={styles.userCard}
+        style={[styles.userCard, large && styles.userCardLarge]}
         onPress={() => onPress?.(user.id)}
         activeOpacity={0.8}
       >
-        <View style={styles.avatarContainer}>
+        <View style={[styles.avatarContainer, large && styles.avatarContainerLarge]}>
           {user.profilePictureUrl ? (
-            <Image source={{ uri: user.profilePictureUrl }} style={styles.avatar} />
+            <Image
+              source={{ uri: user.profilePictureUrl }}
+              style={[styles.avatar, large && styles.avatarLarge]}
+            />
           ) : (
             <AvatarGradient
               initial={user.username.charAt(0).toUpperCase()}
               colorIndex={colorIndex}
+              size={large ? LARGE_AVATAR_SIZE : undefined}
             />
           )}
         </View>
-        <Text style={styles.username} numberOfLines={2}>
+        <Text
+          style={[styles.username, large && styles.usernameLarge]}
+          numberOfLines={2}
+        >
           {user.username}
         </Text>
-        <TouchableOpacity style={styles.followButton} onPress={() => onPress?.(user.id)}>
-          <Text style={styles.followButtonText}>Seguir</Text>
+        <TouchableOpacity
+          style={[styles.followButton, large && styles.followButtonLarge]}
+          onPress={() => onPress?.(user.id)}
+        >
+          <Text style={[styles.followButtonText, large && styles.followButtonTextLarge]}>
+            Seguir
+          </Text>
         </TouchableOpacity>
       </TouchableOpacity>
     </LinearGradient>
