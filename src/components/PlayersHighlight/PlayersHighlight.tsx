@@ -83,6 +83,7 @@ export default function PlayersHighlight({
             user={user}
             colorIndex={index}
             onPress={onUserPress}
+            size="large"
             style={styles.cardSpacing}
           />
         ))}

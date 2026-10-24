@@ -4,7 +4,9 @@ import {
   ActivityIndicator,
   FlatList,
   Pressable,
+  TextInput,
   TouchableOpacity,
+  useWindowDimensions,
 } from "react-native";
 
 import BackButton from "@/components/BackButton/BackButton";
@@ -14,10 +16,10 @@ import PlayerCard from "@/components/PlayerCard/PlayerCard";
 import { Text, View } from "@/components/Themed";
 import userService, { UserDTO } from "@/services/userService";
 
-import { styles } from "./styles";
+import { CONTENT_MAX_WIDTH, GRID_GAP, GRID_PADDING, styles } from "./styles";
 
 const PAGE_SIZE = 40;
-const NUM_COLUMNS = 5;
+const NUM_COLUMNS = 4;
 const MAX_VISIBLE_DOTS = 6;
 
 export interface PlayersProps {
@@ -37,7 +39,15 @@ export default function Players({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [page, setPage] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
   const listRef = useRef<FlatList<UserDTO>>(null);
+
+  // Divide a largura útil da tela entre as colunas da grade.
+  const { width: windowWidth } = useWindowDimensions();
+  const contentWidth = Math.min(windowWidth, CONTENT_MAX_WIDTH) - GRID_PADDING * 2;
+  const cardWidth = Math.floor(
+    (contentWidth - GRID_GAP * (NUM_COLUMNS - 1)) / NUM_COLUMNS,
+  );
 
   const loadUsers = async () => {
     try {
@@ -57,10 +67,22 @@ export default function Players({
     loadUsers();
   }, []);
 
-  const totalPages = Math.max(1, Math.ceil(users.length / PAGE_SIZE));
+  const filteredUsers = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return users;
+    return users.filter((user) => user.username.toLowerCase().includes(term));
+  }, [users, searchTerm]);
+
+  // Volta para a primeira página sempre que a busca mudar.
+  useEffect(() => {
+    setPage(0);
+    listRef.current?.scrollToOffset({ offset: 0, animated: false });
+  }, [searchTerm]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredUsers.length / PAGE_SIZE));
   const pageUsers = useMemo(
-    () => users.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE),
-    [users, page],
+    () => filteredUsers.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE),
+    [filteredUsers, page],
   );
 
   const pageRange = useMemo(() => {
@@ -117,6 +139,16 @@ export default function Players({
       );
     }
 
+    if (filteredUsers.length === 0) {
+      return (
+        <View style={styles.stateContainer}>
+          <Text style={styles.stateText}>
+            Nenhum jogador encontrado para "{searchTerm.trim()}".
+          </Text>
+        </View>
+      );
+    }
+
     return (
       <FlatList
         ref={listRef}
@@ -131,6 +163,8 @@ export default function Players({
             user={item}
             colorIndex={page * PAGE_SIZE + index}
             onPress={onUserPress}
+            size="large"
+            style={{ width: cardWidth }}
           />
         )}
         ListFooterComponent={
@@ -188,7 +222,7 @@ export default function Players({
             <View style={styles.transparent}>
               <Text style={styles.titleText}>Jogadores</Text>
               <Text style={styles.subtitleText}>
-                {users.length} jogadores encontrados
+                {filteredUsers.length} jogadores encontrados
               </Text>
             </View>
           </View>
@@ -225,6 +259,30 @@ export default function Players({
                 <Ionicons name="chevron-forward" size={14} color="#00E5FF" />
               </TouchableOpacity>
             </View>
+          ) : null}
+        </View>
+
+        <View style={styles.searchBar}>
+          <Ionicons name="search" size={16} color="#5C6478" />
+          <TextInput
+            style={styles.searchInput}
+            value={searchTerm}
+            onChangeText={setSearchTerm}
+            placeholder="Buscar por um jogador"
+            placeholderTextColor="#5C6478"
+            autoCapitalize="none"
+            autoCorrect={false}
+            returnKeyType="search"
+          />
+          {searchTerm ? (
+            <TouchableOpacity
+              accessibilityLabel="Limpar busca"
+              accessibilityRole="button"
+              onPress={() => setSearchTerm("")}
+              hitSlop={8}
+            >
+              <Ionicons name="close-circle" size={16} color="#5C6478" />
+            </TouchableOpacity>
           ) : null}
         </View>
 

@@ -6,7 +6,10 @@ import { styles } from "./styles";
 interface AvatarGradientProps {
   initial: string;
   colorIndex: number;
+  size?: number;
 }
+
+const DEFAULT_SIZE = 36;
 
 const INNER_COLORS = ["#1473BD", "#8C2E94", "#1A8061", "#AD2957", "#4D33A8"];
 
@@ -15,14 +18,20 @@ const OUTER_COLOR = "#050814";
 export default function AvatarGradient({
   initial,
   colorIndex,
+  size = DEFAULT_SIZE,
 }: AvatarGradientProps) {
   const innerColor = INNER_COLORS[colorIndex % INNER_COLORS.length];
   const gradientId = `avatarGradient-${colorIndex}`;
+  const scale = size / DEFAULT_SIZE;
 
-  // TODO: achei que esse componente ficou mt pequeno, aumentar dps?
   return (
-    <View style={styles.avatarGradientContainer}>
-      <Svg width="36" height="36" viewBox="0 0 36 36">
+    <View
+      style={[
+        styles.avatarGradientContainer,
+        { width: size, height: size, borderRadius: size / 2 },
+      ]}
+    >
+      <Svg width={size} height={size} viewBox="0 0 36 36">
         <Defs>
           <RadialGradient id={gradientId} cx="50%" cy="50%" r="50%">
             <Stop offset="0%" stopColor={innerColor} />
@@ -31,7 +40,9 @@ export default function AvatarGradient({
         </Defs>
         <Circle cx="18" cy="18" r="18" fill={`url(#${gradientId})`} />
       </Svg>
-      <Text style={styles.userInitialOnGradient}>{initial}</Text>
+      <Text style={[styles.userInitialOnGradient, { fontSize: 14 * scale }]}>
+        {initial}
+      </Text>
     </View>
   );
 }

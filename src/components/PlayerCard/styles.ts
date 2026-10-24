@@ -53,4 +53,35 @@ export const styles = StyleSheet.create({
     color: "#fff",
     fontFamily: "Orbitron",
   },
+
+  userCardLarge: {
+    width: "100%",
+    paddingVertical: 12,
+    paddingHorizontal: 6,
+    gap: 7,
+  },
+  avatarContainerLarge: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+  },
+  avatarLarge: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+  },
+  usernameLarge: {
+    fontSize: 8,
+    maxWidth: "100%",
+    minHeight: 20,
+  },
+  followButtonLarge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 5,
+    minWidth: 56,
+  },
+  followButtonTextLarge: {
+    fontSize: 8,
+  },
 });
