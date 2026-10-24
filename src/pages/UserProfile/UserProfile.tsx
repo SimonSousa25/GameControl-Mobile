@@ -140,6 +140,22 @@ export function UserProfile({
 
   const pageStyle = { width: pagerSize.width, height: pagerSize.height };
 
+  const profileHeaderCard = user ? (
+    <ProfileHeaderCard
+      user={user}
+      playlistsCount={playlists.length}
+      followAction={
+        <FollowButton
+          following={isFollowing}
+          loading={followingLoading}
+          onPress={handleToggleFollow}
+        />
+      }
+      onFollowersPress={() => openFollowModal("followers")}
+      onFollowingPress={() => openFollowModal("following")}
+    />
+  ) : null;
+
   return (
     <View style={styles.screenContainer}>
       <View style={styles.headerContainer}>
@@ -167,22 +183,6 @@ export function UserProfile({
         </View>
       ) : (
         <View style={styles.content} lightColor="transparent" darkColor="transparent">
-          <ProfileHeaderCard
-            user={user}
-            playlistsCount={playlists.length}
-            followAction={
-              <FollowButton
-                following={isFollowing}
-                loading={followingLoading}
-                onPress={handleToggleFollow}
-              />
-            }
-            onFollowersPress={() => openFollowModal("followers")}
-            onFollowingPress={() => openFollowModal("following")}
-          />
-
-          <SectionTabs tabs={TABS} activeIndex={activePage} onTabPress={goToPage} />
-
           <View
             style={styles.pager}
             lightColor="transparent"
@@ -204,6 +204,8 @@ export function UserProfile({
                   showsVerticalScrollIndicator={false}
                   contentContainerStyle={styles.pageContent}
                 >
+                  {profileHeaderCard}
+                  <SectionTabs tabs={TABS} activeIndex={activePage} onTabPress={goToPage} />
                   <UserPostsSection userId={userId} viewerId={viewerId} />
                 </ScrollView>
 
@@ -212,6 +214,8 @@ export function UserProfile({
                   showsVerticalScrollIndicator={false}
                   contentContainerStyle={styles.pageContent}
                 >
+                  {profileHeaderCard}
+                  <SectionTabs tabs={TABS} activeIndex={activePage} onTabPress={goToPage} />
                   <PlaylistsSection
                     playlists={playlists}
                     readOnly

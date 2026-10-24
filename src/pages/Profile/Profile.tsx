@@ -171,6 +171,16 @@ export function Profile({
 
   const pageStyle = { width: pagerSize.width, height: pagerSize.height };
 
+  const profileHeaderCard = (
+    <ProfileHeaderCard
+      user={user}
+      playlistsCount={playlists.length}
+      onSettingsPress={onSettingsPress}
+      onFollowersPress={() => openFollowModal("followers")}
+      onFollowingPress={() => openFollowModal("following")}
+    />
+  );
+
   return (
     <View style={styles.screenContainer}>
       <View style={styles.headerContainer}>
@@ -186,16 +196,6 @@ export function Profile({
       </View>
 
       <View style={styles.content} lightColor="transparent" darkColor="transparent">
-        <ProfileHeaderCard
-          user={user}
-          playlistsCount={playlists.length}
-          onSettingsPress={onSettingsPress}
-          onFollowersPress={() => openFollowModal("followers")}
-          onFollowingPress={() => openFollowModal("following")}
-        />
-
-        <SectionTabs tabs={TABS} activeIndex={activePage} onTabPress={goToPage} />
-
         <View
           style={styles.pager}
           lightColor="transparent"
@@ -217,6 +217,8 @@ export function Profile({
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.pageContent}
               >
+                {profileHeaderCard}
+                <SectionTabs tabs={TABS} activeIndex={activePage} onTabPress={goToPage} />
                 <PlayerFeedSection
                   userId={userId}
                   onExpandPress={onFeedPress}
@@ -229,6 +231,8 @@ export function Profile({
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.pageContent}
               >
+                {profileHeaderCard}
+                <SectionTabs tabs={TABS} activeIndex={activePage} onTabPress={goToPage} />
                 <PlaylistsSection
                   playlists={playlists}
                   onCreatePress={() => setFormModalVisible(true)}
