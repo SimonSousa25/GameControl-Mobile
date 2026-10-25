@@ -41,6 +41,16 @@ export const styles = StyleSheet.create({
     fontSize: 9,
     marginTop: 4,
   },
+  section: {
+    gap: 10,
+    marginBottom: 6,
+    backgroundColor: "transparent",
+  },
+  sectionLabel: {
+    color: "#F52E8F",
+    fontFamily: "OrbitronBold",
+    fontSize: 11,
+  },
   item: {
     flexDirection: "row",
     alignItems: "center",

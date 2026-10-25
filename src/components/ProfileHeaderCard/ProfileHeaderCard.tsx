@@ -10,7 +10,8 @@ import { styles } from "./styles";
 
 export interface ProfileHeaderCardProps {
   user?: UserDTO;
-  playlistsCount: number;
+  /** undefined = oculto (perfil privado que o visualizador ainda não segue). */
+  playlistsCount?: number;
   onSettingsPress?: () => void;
   followAction?: ReactNode;
   onFollowersPress?: () => void;
@@ -35,7 +36,7 @@ export function ProfileHeaderCard({
   const stats = [
     { label: "Seguidores", value: followers, onPress: onFollowersPress },
     { label: "Seguindo", value: following, onPress: onFollowingPress },
-    { label: "Playlists", value: playlistsCount, onPress: undefined },
+    { label: "Playlists", value: playlistsCount ?? "—", onPress: undefined },
   ];
 
   return (
@@ -65,9 +66,19 @@ export function ProfileHeaderCard({
         )}
       </View>
 
-      <Text style={styles.username} numberOfLines={1}>
-        {username}
-      </Text>
+      <View style={styles.usernameRow} lightColor="transparent" darkColor="transparent">
+        <Text style={styles.username} numberOfLines={1}>
+          {username}
+        </Text>
+        {user?.isPrivate ? (
+          <Ionicons
+            accessibilityLabel="Conta privada"
+            name="lock-closed"
+            size={13}
+            color="#758096"
+          />
+        ) : null}
+      </View>
       {user?.username ? (
         <Text style={styles.handle} numberOfLines={1}>
           @{user.username.toLowerCase()}

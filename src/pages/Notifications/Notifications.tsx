@@ -2,19 +2,23 @@ import { Ionicons } from "@expo/vector-icons";
 import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   RefreshControl,
   ScrollView,
   TouchableOpacity,
 } from "react-native";
 
 import BackButton from "@/components/BackButton/BackButton";
+import FollowRequestItem from "@/components/FollowRequestItem/FollowRequestItem";
 import Header from "@/components/Header/Header";
 import NavBottom from "@/components/NavBottom/NavBottom";
 import { Text, View } from "@/components/Themed";
+import { isNotFoundError } from "@/services/apiError";
 import notificationService, {
   NotificationDTO,
   NotificationType,
 } from "@/services/notificationService";
+import userService, { FollowRequestDTO } from "@/services/userService";
 import { useNotifications } from "@/src/contexts/NotificationsContext";
 
 import { styles } from "./styles";
@@ -31,6 +35,8 @@ const ICONS: Record<NotificationType, keyof typeof Ionicons.glyphMap> = {
   NEW_FOLLOWER: "person-add-outline",
   POST_LIKED: "heart-outline",
   POST_COMMENTED: "chatbubble-outline",
+  FOLLOW_REQUEST: "person-add-outline",
+  FOLLOW_REQUEST_ACCEPTED: "checkmark-circle-outline",
 };
 
 function formatarTempo(createdAt: string): string {
@@ -55,6 +61,10 @@ export default function Notifications({
 }: NotificationsProps) {
   const { setUnreadCount } = useNotifications();
   const [notifications, setNotifications] = useState<NotificationDTO[]>([]);
+  // Pedidos para seguir pendentes (perfil privado), com Aceitar/Recusar.
+  const [requests, setRequests] = useState<FollowRequestDTO[]>([]);
+  // Quem tem um aceitar/recusar em andamento (evita toque duplo).
+  const [busyRequesters, setBusyRequesters] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(false);
@@ -62,8 +72,20 @@ export default function Notifications({
   const load = useCallback(async () => {
     try {
       setError(false);
-      const data = await notificationService.listarDoUsuario(userId);
+      // Os pedidos vêm direto da API de pedidos (fonte da verdade): assim
+      // aparecem mesmo se o usuário desligou a notificação de seguidores.
+      const [notificationsResult, requestsResult] = await Promise.allSettled([
+        notificationService.listarDoUsuario(userId),
+        userService.listarPedidosSeguir(userId),
+      ]);
+      if (notificationsResult.status === "rejected") {
+        throw notificationsResult.reason;
+      }
+      const data = notificationsResult.value;
       setNotifications(data);
+      if (requestsResult.status === "fulfilled") {
+        setRequests(requestsResult.value);
+      }
       // Abrir a tela conta como "ver" as notificações. A lista local mantém
       // o destaque das não lidas até a próxima vez que a tela for aberta.
       if (data.some((notification) => !notification.read)) {
@@ -83,6 +105,47 @@ export default function Notifications({
     setRefreshing(true);
     await load();
     setRefreshing(false);
+  };
+
+  const respondToRequest = async (
+    request: FollowRequestDTO,
+    action: "accept" | "reject",
+  ) => {
+    const requesterId = request.requesterId;
+    if (busyRequesters.includes(requesterId)) return;
+
+    const removeRequest = () =>
+      setRequests((prev) =>
+        prev.filter((item) => item.requesterId !== requesterId),
+      );
+
+    setBusyRequesters((prev) => [...prev, requesterId]);
+    try {
+      if (action === "accept") {
+        await userService.aceitarPedidoSeguir(userId, requesterId);
+      } else {
+        await userService.recusarPedidoSeguir(userId, requesterId);
+      }
+      removeRequest();
+    } catch (error) {
+      if (isNotFoundError(error)) {
+        // O pedido foi cancelado por quem enviou (ou já respondido).
+        removeRequest();
+        Alert.alert(
+          "Pedido indisponível",
+          "Este pedido foi cancelado ou já foi respondido.",
+        );
+      } else {
+        Alert.alert(
+          action === "accept"
+            ? "Não foi possível aceitar"
+            : "Não foi possível recusar",
+          "Tente novamente em instantes.",
+        );
+      }
+    } finally {
+      setBusyRequesters((prev) => prev.filter((id) => id !== requesterId));
+    }
   };
 
   const renderContent = () => {
@@ -107,7 +170,12 @@ export default function Notifications({
       );
     }
 
-    if (notifications.length === 0) {
+    // FOLLOW_REQUEST já aparece (com botões) na seção de pedidos.
+    const visibleNotifications = notifications.filter(
+      (notification) => notification.type !== "FOLLOW_REQUEST",
+    );
+
+    if (visibleNotifications.length === 0 && requests.length === 0) {
       return (
         <View style={styles.stateContainer}>
           <View style={styles.emptyIconWrap}>
@@ -118,7 +186,27 @@ export default function Notifications({
       );
     }
 
-    return notifications.map((notification) => (
+    const requestsSection =
+      requests.length > 0 ? (
+        <View style={styles.section}>
+          <Text style={styles.sectionLabel}>
+            Pedidos para seguir ({requests.length})
+          </Text>
+          {requests.map((request) => (
+            <FollowRequestItem
+              key={request.requesterId}
+              request={request}
+              timeLabel={formatarTempo(request.createdAt ?? "")}
+              busy={busyRequesters.includes(request.requesterId)}
+              onAccept={() => void respondToRequest(request, "accept")}
+              onReject={() => void respondToRequest(request, "reject")}
+              onProfilePress={() => onActorPress?.(request.requesterId)}
+            />
+          ))}
+        </View>
+      ) : null;
+
+    const notificationItems = visibleNotifications.map((notification) => (
       <TouchableOpacity
         key={notification.id}
         style={[styles.item, !notification.read && styles.itemUnread]}
@@ -151,6 +239,13 @@ export default function Notifications({
         {!notification.read ? <View style={styles.unreadDot} /> : null}
       </TouchableOpacity>
     ));
+
+    return (
+      <>
+        {requestsSection}
+        {notificationItems}
+      </>
+    );
   };
 
   return (

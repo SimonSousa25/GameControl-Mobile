@@ -1,4 +1,5 @@
 import { apiFetch } from "@/services/api";
+import { ApiError } from "@/services/apiError";
 import { GameDTO } from "./gameService";
 
 export interface PlaylistDTO {
@@ -85,11 +86,17 @@ class PlaylistService {
         `/usuario-playlists/usuario/${usuarioId}?incluirJogos=${incluirJogos}`,
       );
       if (!response.ok) {
-        throw new Error(`Erro ao listar playlists: ${response.statusText}`);
+        const mensagem = `Erro ao listar playlists: ${response.statusText}`;
+        throw response.status === 403
+          ? new ApiError(403, mensagem)
+          : new Error(mensagem);
       }
       return await response.json();
     } catch (error) {
-      console.error("Erro ao listar playlists do usuário:", error);
+      // 403 é esperado em perfil privado (a tela mostra o aviso).
+      if (!(error instanceof ApiError && error.status === 403)) {
+        console.error("Erro ao listar playlists do usuário:", error);
+      }
       throw error;
     }
   }

@@ -20,13 +20,17 @@ export const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 229, 255, 0.08)",
     borderColor: "rgba(0, 229, 255, 0.45)",
   },
+  buttonRequested: {
+    backgroundColor: "rgba(170, 178, 192, 0.08)",
+    borderColor: "rgba(170, 178, 192, 0.45)",
+  },
+  buttonCooldown: {
+    backgroundColor: "rgba(107, 114, 128, 0.08)",
+    borderColor: "rgba(107, 114, 128, 0.35)",
+  },
   label: {
-    color: "#F5F7FF",
     fontFamily: "OrbitronBold",
     fontSize: 11,
     fontWeight: "700",
-  },
-  labelFollowing: {
-    color: "#00E5FF",
   },
 });

@@ -28,6 +28,8 @@ export interface SettingsFormValues {
   bio: string;
   country: string;
   notificationPreferences: NotificationPreferences;
+  /** Conta privada: posts e playlists só para quem segue (com aprovação). */
+  isPrivate: boolean;
 }
 
 interface SettingsProps {
@@ -70,8 +72,10 @@ export default function Settings({
     user.notificationPreferences?.followers ?? true,
   );
 
-  // Estado visual da privacidade. A persistência dependerá de suporte na API.
-  const [isPrivateAccount, setIsPrivateAccount] = useState(false);
+  // Privacidade da conta: vem do perfil salvo e é gravada em "Salvar alterações".
+  const [isPrivateAccount, setIsPrivateAccount] = useState(
+    user.isPrivate ?? false,
+  );
 
   const [saving, setSaving] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -166,6 +170,7 @@ export default function Settings({
           comments: commentsEnabled,
           followers: followersEnabled,
         },
+        isPrivate: isPrivateAccount,
       });
 
       Alert.alert("Tudo certo", "As alterações foram salvas.");
