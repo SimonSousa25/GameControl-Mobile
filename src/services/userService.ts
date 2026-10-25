@@ -226,6 +226,26 @@ const userService = {
     }
   },
 
+  /**
+   * Exclui a conta de forma permanente: o backend remove o perfil, limpa as
+   * relações de seguir e apaga o login no Firebase Authentication.
+   */
+  async excluirUsuario(id: string): Promise<void> {
+    try {
+      const response = await apiFetch(`/users/${id}`, { method: "DELETE" });
+
+      if (!response.ok) {
+        throw new ApiError(
+          response.status,
+          `Erro ao excluir conta: ${response.statusText}`,
+        );
+      }
+    } catch (error) {
+      console.error("Erro ao excluir conta:", error);
+      throw error;
+    }
+  },
+
   async atualizarFotoPerfil(id: string, base64Image: string): Promise<UserDTO> {
     try {
       const response = await apiFetch(

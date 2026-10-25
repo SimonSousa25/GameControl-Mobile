@@ -13,9 +13,18 @@ export interface PostCardProps {
   colorIndex: number;
   likedByMe: boolean;
   isOwnPost?: boolean;
+  /** Versão menor para grades (ex.: feed da home): texto truncado e data curta. */
+  compact?: boolean;
   onLikePress?: () => void;
   onUserPress?: () => void;
   onCommentsPress?: () => void;
+}
+
+function formatShortDate(value?: string): string {
+  if (!value) return "";
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return "";
+  return parsed.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
 }
 
 function formatPostDate(value?: string): string {
@@ -35,6 +44,7 @@ export default function PostCard({
   colorIndex,
   likedByMe,
   isOwnPost,
+  compact = false,
   onLikePress,
   onUserPress,
   onCommentsPress,
@@ -44,7 +54,7 @@ export default function PostCard({
   const likesCount = post.likesCount ?? post.likedUserIds?.length ?? 0;
 
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, compact && styles.cardCompact]}>
       <TouchableOpacity
         style={styles.header}
         activeOpacity={onUserPress ? 0.7 : 1}
@@ -75,12 +85,19 @@ export default function PostCard({
             </View>
           )}
         </View>
-        <Text style={styles.date}>{formatPostDate(post.createdAt)}</Text>
+        {compact ? null : (
+          <Text style={styles.date}>{formatPostDate(post.createdAt)}</Text>
+        )}
       </TouchableOpacity>
 
-      <Text style={styles.content}>{post.text}</Text>
+      <Text
+        style={[styles.content, compact && styles.contentCompact]}
+        numberOfLines={compact ? 3 : undefined}
+      >
+        {post.text}
+      </Text>
 
-      <View style={styles.footer}>
+      <View style={[styles.footer, compact && styles.footerCompact]}>
         <TouchableOpacity
           accessibilityLabel="Ver comentários"
           accessibilityRole="button"
@@ -111,6 +128,11 @@ export default function PostCard({
             {likesCount}
           </Text>
         </TouchableOpacity>
+        {compact ? (
+          <Text style={[styles.date, styles.dateCompact]}>
+            {formatShortDate(post.createdAt)}
+          </Text>
+        ) : null}
       </View>
     </View>
   );

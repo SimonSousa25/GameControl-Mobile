@@ -1,9 +1,25 @@
 import { StyleSheet } from "react-native";
 
+/** Largura de cada coluna da grade e espaço entre elas. */
+export const COLUMN_WIDTH = 250;
+export const COLUMN_GAP = 12;
+
 export const styles = StyleSheet.create({
   container: {
     marginBottom: 30,
     paddingHorizontal: 20,
+  },
+  // Compensa o padding do container para a grade rolar até a borda da tela.
+  grid: {
+    marginHorizontal: -20,
+  },
+  gridContent: {
+    paddingHorizontal: 20,
+    gap: COLUMN_GAP,
+  },
+  column: {
+    width: COLUMN_WIDTH,
+    gap: 12,
   },
   header: {
     flexDirection: "row",

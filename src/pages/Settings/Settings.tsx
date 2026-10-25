@@ -19,6 +19,7 @@ import AccountPrivacySection from "@/components/AccountPrivacySection/AccountPri
 import BackButton from "@/components/BackButton/BackButton";
 import Header from "@/components/Header/Header";
 import NavBottom from "@/components/NavBottom/NavBottom";
+import ConfirmModal from "@/components/modals/ConfirmModal/ConfirmModal";
 import NotificationOption from "@/components/NotificationOption/NotificationOption";
 
 import { styles } from "./styles";
@@ -40,6 +41,8 @@ interface SettingsProps {
   onSearchSubmit?: (searchTerm: string) => void;
   onProfilePictureChange?: (base64Image: string) => Promise<void>;
   onSave?: (values: SettingsFormValues) => Promise<void>;
+  /** Exclui a conta de forma permanente (quem chama encerra a sessão depois). */
+  onDeleteAccount?: () => Promise<void>;
 }
 /**
  * TODO: implementar as opções de edição e configuração da conta
@@ -54,6 +57,7 @@ export default function Settings({
   onSearchSubmit,
   onProfilePictureChange,
   onSave,
+  onDeleteAccount,
 }: SettingsProps) {
   // Estados dos campos editáveis do perfil.
   const [username, setUsername] = useState(user.username);
@@ -78,6 +82,8 @@ export default function Settings({
   );
 
   const [saving, setSaving] = useState(false);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -181,6 +187,21 @@ export default function Settings({
       );
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleConfirmDeleteAccount = async () => {
+    try {
+      setDeletingAccount(true);
+      await onDeleteAccount?.();
+      // Em caso de sucesso a sessão é encerrada e a tela sai de cena.
+    } catch {
+      setDeletingAccount(false);
+      setDeleteModalVisible(false);
+      Alert.alert(
+        "Não foi possível excluir a conta",
+        "Verifique sua conexão e tente novamente.",
+      );
     }
   };
 
@@ -350,9 +371,55 @@ export default function Settings({
           <Ionicons name="log-out-outline" size={20} color="#FFFFFF" />
           <Text style={styles.logoutText}>Sair da conta</Text>
         </Pressable>
+
+        {/* Ações irreversíveis ficam separadas do restante das configurações. */}
+        <View style={styles.dangerCard}>
+          <View style={styles.dangerHeader}>
+            <View style={styles.dangerHeaderIcon}>
+              <Ionicons name="warning-outline" size={19} color="#F3444B" />
+            </View>
+
+            <View style={styles.dangerHeaderText}>
+              <Text style={styles.dangerTitle}>Zona de cuidado</Text>
+              <Text style={styles.dangerSubtitle}>
+                Ações que não podem ser desfeitas
+              </Text>
+            </View>
+          </View>
+
+          <Text style={styles.dangerDescription}>
+            Ao excluir sua conta, seu perfil e seu acesso ao GameControl são
+            removidos permanentemente.
+          </Text>
+
+          <Pressable
+            accessibilityLabel="Excluir conta"
+            accessibilityRole="button"
+            disabled={deletingAccount}
+            onPress={() => setDeleteModalVisible(true)}
+            style={[styles.deleteButton, deletingAccount && styles.disabledButton]}
+          >
+            <Ionicons name="trash-outline" size={20} color="#F3444B" />
+            <Text style={styles.deleteButtonText}>Excluir conta</Text>
+          </Pressable>
+        </View>
       </ScrollView>
 
       <NavBottom activeTab="profile" onTabPress={onTabPress} />
+
+      <ConfirmModal
+        visible={deleteModalVisible}
+        title="Excluir conta"
+        message="Tem certeza que deseja excluir sua conta?"
+        warning="Essa ação não poderá ser desfeita"
+        confirmLabel="Excluir conta"
+        destructive
+        submitting={deletingAccount}
+        onConfirm={handleConfirmDeleteAccount}
+        onCancel={() => {
+          if (!deletingAccount) setDeleteModalVisible(false);
+        }}
+      />
     </View>
   );
 }

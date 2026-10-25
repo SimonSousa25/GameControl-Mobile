@@ -12,6 +12,7 @@ import NavBottom from "@/components/NavBottom/NavBottom";
 import PlayerFeedSection from "@/components/PlayerFeedSection/PlayerFeedSection";
 import PlaylistsSection from "@/components/PlaylistsSection/PlaylistsSection";
 import ProfileHeaderCard from "@/components/ProfileHeaderCard/ProfileHeaderCard";
+import SectionPager from "@/components/SectionPager/SectionPager";
 import SectionTabs from "@/components/SectionTabs/SectionTabs";
 import { Text, View } from "@/components/Themed";
 import playlistService, { PlaylistDTO } from "@/services/playlistService";
@@ -80,8 +81,8 @@ export function Profile({
     setFollowModalVisible(true);
   };
 
-  const { pagerRef, pagerSize, activePage, onPagerLayout, onPagerScroll, goToPage } =
-    useSectionPager();
+  const pager = useSectionPager();
+  const { activePage, goToPage } = pager;
 
   const onUserRefreshedRef = useRef(onUserRefreshed);
   onUserRefreshedRef.current = onUserRefreshed;
@@ -169,8 +170,6 @@ export function Profile({
     );
   }
 
-  const pageStyle = { width: pagerSize.width, height: pagerSize.height };
-
   const profileHeaderCard = (
     <ProfileHeaderCard
       user={user}
@@ -195,55 +194,30 @@ export function Profile({
         />
       </View>
 
-      <View style={styles.content} lightColor="transparent" darkColor="transparent">
-        <View
-          style={styles.pager}
-          lightColor="transparent"
-          darkColor="transparent"
-          onLayout={onPagerLayout}
-        >
-          {pagerSize.width > 0 ? (
-            <ScrollView
-              ref={pagerRef}
-              horizontal
-              pagingEnabled
-              bounces={false}
-              showsHorizontalScrollIndicator={false}
-              scrollEventThrottle={16}
-              onScroll={onPagerScroll}
-            >
-              <ScrollView
-                style={pageStyle}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.pageContent}
-              >
-                {profileHeaderCard}
-                <SectionTabs tabs={TABS} activeIndex={activePage} onTabPress={goToPage} />
-                <PlayerFeedSection
-                  userId={userId}
-                  onExpandPress={onFeedPress}
-                  onUserPress={onUserPress}
-                />
-              </ScrollView>
+      <ScrollView
+        style={styles.content}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={styles.pageContent}
+      >
+        {/* Fora do pager: o cartão e as abas não deslizam junto com as páginas. */}
+        {profileHeaderCard}
+        <SectionTabs tabs={TABS} activeIndex={activePage} onTabPress={goToPage} />
 
-              <ScrollView
-                style={pageStyle}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.pageContent}
-              >
-                {profileHeaderCard}
-                <SectionTabs tabs={TABS} activeIndex={activePage} onTabPress={goToPage} />
-                <PlaylistsSection
-                  playlists={playlists}
-                  onCreatePress={() => setFormModalVisible(true)}
-                  onPlaylistPress={onPlaylistPress}
-                  onDeletePress={setPlaylistToDelete}
-                />
-              </ScrollView>
-            </ScrollView>
-          ) : null}
-        </View>
-      </View>
+        <SectionPager pager={pager}>
+          <PlayerFeedSection
+            userId={userId}
+            onExpandPress={onFeedPress}
+            onUserPress={onUserPress}
+          />
+          <PlaylistsSection
+            playlists={playlists}
+            onCreatePress={() => setFormModalVisible(true)}
+            onPlaylistPress={onPlaylistPress}
+            onDeletePress={setPlaylistToDelete}
+          />
+        </SectionPager>
+      </ScrollView>
 
       <NavBottom activeTab="profile" onTabPress={onTabPress} />
 

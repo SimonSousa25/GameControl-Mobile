@@ -37,6 +37,15 @@ export default function SettingsScreen() {
     await updateUser(updatedUser);
   };
 
+  const handleDeleteAccount = async () => {
+    await userService.excluirUsuario(user.id);
+
+    // A conta já não existe: encerra a sessão local e volta para o login.
+    await signOut();
+    if (router.canDismiss()) router.dismissAll();
+    router.replace("/login");
+  };
+
   const handleSearchSubmit = (searchTerm: string) => {
     const normalizedSearch = searchTerm.trim();
 
@@ -67,6 +76,7 @@ export default function SettingsScreen() {
       onProfilePictureChange={handleProfilePictureChange}
       onSearchSubmit={handleSearchSubmit}
       onSave={handleSave}
+      onDeleteAccount={handleDeleteAccount}
       onLogoutPress={handleLogout}
       onTabPress={(tabId) => {
         if (tabId === "home") router.replace("/home");

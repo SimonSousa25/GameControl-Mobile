@@ -10,6 +10,7 @@ import NavBottom from "@/components/NavBottom/NavBottom";
 import PlaylistsSection from "@/components/PlaylistsSection/PlaylistsSection";
 import PrivateProfileNotice from "@/components/PrivateProfileNotice/PrivateProfileNotice";
 import ProfileHeaderCard from "@/components/ProfileHeaderCard/ProfileHeaderCard";
+import SectionPager from "@/components/SectionPager/SectionPager";
 import SectionTabs from "@/components/SectionTabs/SectionTabs";
 import { Text, View } from "@/components/Themed";
 import UserPostsSection from "@/components/UserPostsSection/UserPostsSection";
@@ -65,8 +66,8 @@ export function UserProfile({
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const { pagerRef, pagerSize, activePage, onPagerLayout, onPagerScroll, goToPage } =
-    useSectionPager();
+  const pager = useSectionPager();
+  const { activePage, goToPage } = pager;
 
   const isFollowing = user?.followers?.includes(viewerId) ?? false;
   // Perfil privado: posts e playlists só aparecem para quem segue.
@@ -215,8 +216,6 @@ export function UserProfile({
     );
   }
 
-  const pageStyle = { width: pagerSize.width, height: pagerSize.height };
-
   const profileHeaderCard = user ? (
     <ProfileHeaderCard
       user={user}
@@ -278,50 +277,24 @@ export function UserProfile({
           </ScrollView>
         </View>
       ) : (
-        <View style={styles.content} lightColor="transparent" darkColor="transparent">
-          <View
-            style={styles.pager}
-            lightColor="transparent"
-            darkColor="transparent"
-            onLayout={onPagerLayout}
-          >
-            {pagerSize.width > 0 ? (
-              <ScrollView
-                ref={pagerRef}
-                horizontal
-                pagingEnabled
-                bounces={false}
-                showsHorizontalScrollIndicator={false}
-                scrollEventThrottle={16}
-                onScroll={onPagerScroll}
-              >
-                <ScrollView
-                  style={pageStyle}
-                  showsVerticalScrollIndicator={false}
-                  contentContainerStyle={styles.pageContent}
-                >
-                  {profileHeaderCard}
-                  <SectionTabs tabs={TABS} activeIndex={activePage} onTabPress={goToPage} />
-                  <UserPostsSection userId={userId} viewerId={viewerId} />
-                </ScrollView>
+        <ScrollView
+          style={styles.content}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.pageContent}
+        >
+          {/* Fora do pager: o cartão e as abas não deslizam junto com as páginas. */}
+          {profileHeaderCard}
+          <SectionTabs tabs={TABS} activeIndex={activePage} onTabPress={goToPage} />
 
-                <ScrollView
-                  style={pageStyle}
-                  showsVerticalScrollIndicator={false}
-                  contentContainerStyle={styles.pageContent}
-                >
-                  {profileHeaderCard}
-                  <SectionTabs tabs={TABS} activeIndex={activePage} onTabPress={goToPage} />
-                  <PlaylistsSection
-                    playlists={playlists}
-                    readOnly
-                    onPlaylistPress={onPlaylistPress}
-                  />
-                </ScrollView>
-              </ScrollView>
-            ) : null}
-          </View>
-        </View>
+          <SectionPager pager={pager}>
+            <UserPostsSection userId={userId} viewerId={viewerId} />
+            <PlaylistsSection
+              playlists={playlists}
+              readOnly
+              onPlaylistPress={onPlaylistPress}
+            />
+          </SectionPager>
+        </ScrollView>
       )}
 
       <NavBottom activeTab={null} onTabPress={onTabPress} />
