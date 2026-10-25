@@ -1,6 +1,6 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, TouchableOpacity } from "react-native";
+import { ActivityIndicator, ScrollView, TouchableOpacity } from "react-native";
 
 import PostCommentsModal from "@/components/modals/PostCommentsModal/PostCommentsModal";
 import PostCard from "@/components/PostCard/PostCard";
@@ -8,9 +8,11 @@ import { Text, View } from "@/components/Themed";
 import userPostService, { UserPostDTO } from "@/services/userPostService";
 import userService from "@/services/userService";
 
-import { styles } from "./styles";
+import { styles, COLUMN_WIDTH, COLUMN_GAP } from "./styles";
 
-const MAX_POSTS = 4;
+/** 3 colunas x 2 linhas. */
+const MAX_POSTS = 6;
+const POSTS_PER_COLUMN = 2;
 
 export interface HomeFeedSectionProps {
   userId: string;
@@ -49,13 +51,26 @@ export function HomeFeedSection({
     }
   };
 
+  // Só quem o usuário segue: os próprios posts ficam de fora (já estão no perfil).
   const feedPosts = useMemo(() => {
-    const visibleIds = new Set([...following, userId]);
+    const followedIds = new Set(following);
     return posts
-      .filter((post) => post.userId && visibleIds.has(post.userId))
+      .filter(
+        (post) =>
+          post.userId && post.userId !== userId && followedIds.has(post.userId),
+      )
       .sort((a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? ""))
       .slice(0, MAX_POSTS);
   }, [posts, following, userId]);
+
+  // Cada coluna empilha 2 posts; o scroll horizontal passa de coluna em coluna.
+  const columns = useMemo(() => {
+    const result: UserPostDTO[][] = [];
+    for (let i = 0; i < feedPosts.length; i += POSTS_PER_COLUMN) {
+      result.push(feedPosts.slice(i, i + POSTS_PER_COLUMN));
+    }
+    return result;
+  }, [feedPosts]);
 
   const handleToggleLike = async (post: UserPostDTO) => {
     if (!post.id) return;
@@ -120,18 +135,45 @@ export function HomeFeedSection({
           <ActivityIndicator size="large" color="#F52E8F" />
         </View>
       ) : (
-        feedPosts.map((post, index) => (
-          <PostCard
-            key={post.id ?? index}
-            post={post}
-            colorIndex={index}
-            likedByMe={post.likedUserIds?.includes(userId) ?? false}
-            isOwnPost={post.userId === userId}
-            onLikePress={() => handleToggleLike(post)}
-            onUserPress={post.userId ? () => onUserPress?.(post.userId!) : undefined}
-            onCommentsPress={post.id ? () => setCommentsPostId(post.id!) : undefined}
-          />
-        ))
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          decelerationRate="fast"
+          snapToInterval={COLUMN_WIDTH + COLUMN_GAP}
+          snapToAlignment="start"
+          // Sangra até a borda da tela, mantendo o alinhamento do título.
+          style={styles.grid}
+          contentContainerStyle={styles.gridContent}
+        >
+          {columns.map((column, columnIndex) => (
+            <View
+              key={columnIndex}
+              style={styles.column}
+              lightColor="transparent"
+              darkColor="transparent"
+            >
+              {column.map((post, rowIndex) => {
+                const index = columnIndex * POSTS_PER_COLUMN + rowIndex;
+                return (
+                  <PostCard
+                    key={post.id ?? index}
+                    post={post}
+                    colorIndex={index}
+                    compact
+                    likedByMe={post.likedUserIds?.includes(userId) ?? false}
+                    onLikePress={() => handleToggleLike(post)}
+                    onUserPress={
+                      post.userId ? () => onUserPress?.(post.userId!) : undefined
+                    }
+                    onCommentsPress={
+                      post.id ? () => setCommentsPostId(post.id!) : undefined
+                    }
+                  />
+                );
+              })}
+            </View>
+          ))}
+        </ScrollView>
       )}
 
       <PostCommentsModal

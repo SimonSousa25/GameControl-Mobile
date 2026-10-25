@@ -1,4 +1,5 @@
 import { apiFetch } from "@/services/api";
+import { ApiError } from "@/services/apiError";
 
 export interface UserPostDTO {
   id?: string;
@@ -31,17 +32,25 @@ class UserPostService {
     }
   }
 
+  /**
+   * Perfil privado visto por quem não segue: o backend responde 403 e este
+   * método lança um ApiError com status 403 (ver isPrivateProfileError).
+   */
   async listarPostsDoUsuario(userId: string): Promise<UserPostDTO[]> {
     try {
       const response = await apiFetch(`/posts/user/${userId}`);
       if (!response.ok) {
-        throw new Error(
-          `Erro ao listar posts do usuário: ${response.statusText}`,
-        );
+        const mensagem = `Erro ao listar posts do usuário: ${response.statusText}`;
+        throw response.status === 403
+          ? new ApiError(403, mensagem)
+          : new Error(mensagem);
       }
       return await response.json();
     } catch (error) {
-      console.error("Erro ao listar posts do usuário:", error);
+      // 403 é esperado em perfil privado (a tela mostra o aviso).
+      if (!(error instanceof ApiError && error.status === 403)) {
+        console.error("Erro ao listar posts do usuário:", error);
+      }
       throw error;
     }
   }

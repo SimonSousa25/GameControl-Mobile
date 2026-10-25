@@ -41,7 +41,16 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
   /** Decide para onde ir ao tocar em um push (a tela de post ainda não existe). */
   const abrirNotificacao = useCallback(
     (data: Record<string, unknown>) => {
-      if (data.type === "NEW_FOLLOWER" && typeof data.actorId === "string") {
+      // Pedido para seguir: abre a lista de notificações, onde ficam os
+      // botões Aceitar/Recusar.
+      if (data.type === "FOLLOW_REQUEST") {
+        router.push("/notifications");
+        return;
+      }
+      if (
+        (data.type === "NEW_FOLLOWER" || data.type === "FOLLOW_REQUEST_ACCEPTED") &&
+        typeof data.actorId === "string"
+      ) {
         router.push(`/user/${data.actorId}`);
         return;
       }

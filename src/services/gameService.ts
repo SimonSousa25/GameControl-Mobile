@@ -34,6 +34,14 @@ export interface GenreDTO {
   slug: string;
 }
 
+/** Jogo mais bem avaliado pelas reviews dos jogadores (GET /games/melhor-avaliado). */
+export interface TopRatedGameDTO {
+  game: GameDTO;
+  /** Média das notas (0 a 5), com uma casa decimal. */
+  averageRating: number;
+  reviewCount: number;
+}
+
 class GameService {
   async listarTodosJogos(): Promise<GameDTO[]> {
     try {
@@ -100,6 +108,28 @@ class GameService {
       return await response.json();
     } catch (error) {
       console.error("Erro ao listar catálogo:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Jogo mais bem avaliado segundo as reviews (média, com mínimo de avaliações
+   * e desempate por quantidade). 204 = ainda não há jogo que atenda às regras.
+   */
+  async buscarMelhorAvaliado(): Promise<TopRatedGameDTO | null> {
+    try {
+      const response = await apiFetch(`/games/melhor-avaliado`);
+      if (response.status === 204) {
+        return null;
+      }
+      if (!response.ok) {
+        throw new Error(
+          `Erro ao buscar jogo mais bem avaliado: ${response.statusText}`,
+        );
+      }
+      return await response.json();
+    } catch (error) {
+      console.error("Erro ao buscar jogo mais bem avaliado:", error);
       throw error;
     }
   }

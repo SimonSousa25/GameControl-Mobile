@@ -18,6 +18,9 @@ export function useSectionPager() {
   const pagerRef = useRef<ScrollView>(null);
   const [pagerSize, setPagerSize] = useState({ width: 0, height: 0 });
   const [activePage, setActivePage] = useState(0);
+  // Altura natural de cada página: o pager assume a da página ativa, assim o
+  // conteúdo rola junto com o resto da tela (card + abas ficam fora do pager).
+  const [pageHeights, setPageHeights] = useState<number[]>([]);
 
   const targetPage = useRef<number | null>(null);
   const fallbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -40,6 +43,19 @@ export function useSectionPager() {
         : { width, height },
     );
   }, []);
+
+  const onPageLayout = useCallback(
+    (index: number) => (event: LayoutChangeEvent) => {
+      const { height } = event.nativeEvent.layout;
+      setPageHeights((current) => {
+        if (current[index] === height) return current;
+        const next = [...current];
+        next[index] = height;
+        return next;
+      });
+    },
+    [],
+  );
 
   // Se a largura mudar (rotação/redimensionar), mantém a página atual.
   useEffect(() => {
@@ -82,5 +98,16 @@ export function useSectionPager() {
     [pagerSize.width, clearTarget],
   );
 
-  return { pagerRef, pagerSize, activePage, onPagerLayout, onPagerScroll, goToPage };
+  return {
+    pagerRef,
+    pagerSize,
+    activePage,
+    pageHeights,
+    onPagerLayout,
+    onPageLayout,
+    onPagerScroll,
+    goToPage,
+  };
 }
+
+export type SectionPagerState = ReturnType<typeof useSectionPager>;

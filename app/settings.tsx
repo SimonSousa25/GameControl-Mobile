@@ -17,6 +17,7 @@ export default function SettingsScreen() {
       bio: values.bio,
       country: values.country,
       notificationPreferences: values.notificationPreferences,
+      isPrivate: values.isPrivate,
     });
 
     // Mantém os dados atualizados na sessão do aplicativo.
@@ -34,6 +35,15 @@ export default function SettingsScreen() {
 
     // Atualiza imediatamente a foto exibida no perfil, header e navegação.
     await updateUser(updatedUser);
+  };
+
+  const handleDeleteAccount = async () => {
+    await userService.excluirUsuario(user.id);
+
+    // A conta já não existe: encerra a sessão local e volta para o login.
+    await signOut();
+    if (router.canDismiss()) router.dismissAll();
+    router.replace("/login");
   };
 
   const handleSearchSubmit = (searchTerm: string) => {
@@ -66,6 +76,7 @@ export default function SettingsScreen() {
       onProfilePictureChange={handleProfilePictureChange}
       onSearchSubmit={handleSearchSubmit}
       onSave={handleSave}
+      onDeleteAccount={handleDeleteAccount}
       onLogoutPress={handleLogout}
       onTabPress={(tabId) => {
         if (tabId === "home") router.replace("/home");

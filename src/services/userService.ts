@@ -1,4 +1,5 @@
 import { apiFetch } from "@/services/api";
+import { ApiError } from "@/services/apiError";
 import authService from "@/services/authService";
 
 /** Quais notificações o usuário quer receber (o backend filtra o envio). */
@@ -23,6 +24,32 @@ export interface UserDTO {
   followersCount?: number;
   followingCount?: number;
   createdAt?: string;
+  /**
+   * Perfil privado: posts e playlists só aparecem para quem segue.
+   * Ausente (contas antigas) = público.
+   */
+  isPrivate?: boolean;
+}
+
+/** Resultado de seguir: perfil público segue direto; privado fica pendente. */
+export type FollowResult = "FOLLOWING" | "REQUESTED";
+
+/** Relação de quem consulta com outro usuário (decide o botão de seguir). */
+export type FollowStatus = "FOLLOWING" | "REQUESTED" | "NONE";
+
+export interface FollowStatusDTO {
+  status: FollowStatus;
+  /** Após uma recusa, segundos até poder pedir de novo (0 = já pode). */
+  retryAfterSeconds: number;
+}
+
+/** Pedido de seguir pendente recebido por um perfil privado. */
+export interface FollowRequestDTO {
+  requesterId: string;
+  requesterUsername?: string;
+  requesterProfilePictureUrl?: string;
+  /** ISO-8601 (UTC). */
+  createdAt?: string;
 }
 
 interface CreateUserRequest {
@@ -45,6 +72,32 @@ export interface AuthResponse {
   refreshToken: string;
   expiresIn: number;
   user: UserDTO;
+}
+
+async function responderPedidoSeguir(
+  userId: string,
+  requesterId: string,
+  acao: "accept" | "reject",
+): Promise<void> {
+  try {
+    const response = await apiFetch(
+      `/users/${userId}/follow-requests/${requesterId}/${acao}`,
+      { method: "POST" },
+    );
+
+    if (!response.ok) {
+      throw new ApiError(
+        response.status,
+        `Erro ao responder pedido para seguir: ${response.statusText}`,
+      );
+    }
+  } catch (error) {
+    // 404 = o pedido já não existe (cancelado); a tela trata sem alarde.
+    if (!(error instanceof ApiError && error.status === 404)) {
+      console.error("Erro ao responder pedido para seguir:", error);
+    }
+    throw error;
+  }
 }
 
 const userService = {
@@ -173,6 +226,26 @@ const userService = {
     }
   },
 
+  /**
+   * Exclui a conta de forma permanente: o backend remove o perfil, limpa as
+   * relações de seguir e apaga o login no Firebase Authentication.
+   */
+  async excluirUsuario(id: string): Promise<void> {
+    try {
+      const response = await apiFetch(`/users/${id}`, { method: "DELETE" });
+
+      if (!response.ok) {
+        throw new ApiError(
+          response.status,
+          `Erro ao excluir conta: ${response.statusText}`,
+        );
+      }
+    } catch (error) {
+      console.error("Erro ao excluir conta:", error);
+      throw error;
+    }
+  },
+
   async atualizarFotoPerfil(id: string, base64Image: string): Promise<UserDTO> {
     try {
       const response = await apiFetch(
@@ -197,8 +270,14 @@ const userService = {
     }
   },
 
-  // TODO: Testar quando tivermos profile page
-  async seguirUsuario(userId: string, targetUserId: string): Promise<void> {
+  /**
+   * 201 = passou a seguir; 202 = o perfil é privado e ficou um pedido pendente
+   * de aprovação; 429 (ApiError) = pedido recusado há pouco, é preciso esperar.
+   */
+  async seguirUsuario(
+    userId: string,
+    targetUserId: string,
+  ): Promise<FollowResult> {
     try {
       const response = await apiFetch(
         `/users/${userId}/follow/${targetUserId}`,
@@ -210,15 +289,83 @@ const userService = {
         },
       );
 
+      if (response.status === 202) return "REQUESTED";
+
       if (!response.ok) {
-        throw new Error(`Erro ao seguir usuário: ${response.statusText}`);
+        throw new ApiError(
+          response.status,
+          `Erro ao seguir usuário: ${response.statusText}`,
+        );
       }
+      return "FOLLOWING";
     } catch (error) {
-      console.error("Erro ao seguir usuário:", error);
+      // 429 é esperado (tratado na tela); não precisa poluir o console.
+      if (!(error instanceof ApiError && error.status === 429)) {
+        console.error("Erro ao seguir usuário:", error);
+      }
       throw error;
     }
   },
 
+  /** Relação do usuário logado com outro: FOLLOWING, REQUESTED ou NONE. */
+  async buscarStatusSeguir(
+    userId: string,
+    targetUserId: string,
+  ): Promise<FollowStatusDTO> {
+    try {
+      const response = await apiFetch(
+        `/users/${userId}/follow-status/${targetUserId}`,
+      );
+
+      if (!response.ok) {
+        throw new ApiError(
+          response.status,
+          `Erro ao consultar status de seguir: ${response.statusText}`,
+        );
+      }
+      return await response.json();
+    } catch (error) {
+      console.error("Erro ao consultar status de seguir:", error);
+      throw error;
+    }
+  },
+
+  /** Pedidos para seguir pendentes recebidos pelo usuário (perfil privado). */
+  async listarPedidosSeguir(userId: string): Promise<FollowRequestDTO[]> {
+    try {
+      const response = await apiFetch(`/users/${userId}/follow-requests`);
+
+      if (!response.ok) {
+        throw new ApiError(
+          response.status,
+          `Erro ao listar pedidos para seguir: ${response.statusText}`,
+        );
+      }
+      return await response.json();
+    } catch (error) {
+      console.error("Erro ao listar pedidos para seguir:", error);
+      throw error;
+    }
+  },
+
+  async aceitarPedidoSeguir(
+    userId: string,
+    requesterId: string,
+  ): Promise<void> {
+    await responderPedidoSeguir(userId, requesterId, "accept");
+  },
+
+  async recusarPedidoSeguir(
+    userId: string,
+    requesterId: string,
+  ): Promise<void> {
+    await responderPedidoSeguir(userId, requesterId, "reject");
+  },
+
+  /**
+   * Também cancela um pedido pendente: o backend remove o pedido quando o
+   * solicitante "deixa de seguir" (toque em "Solicitado").
+   */
   async deixarDeSeguirUsuario(
     userId: string,
     targetUserId: string,

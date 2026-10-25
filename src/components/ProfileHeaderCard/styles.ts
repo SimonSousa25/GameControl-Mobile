@@ -45,9 +45,15 @@ export const styles = StyleSheet.create({
     marginTop: 12,
     alignItems: "center",
   },
-  username: {
+  usernameRow: {
     marginTop: 14,
     maxWidth: "80%",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  username: {
+    flexShrink: 1,
     color: "#F5F7FF",
     fontFamily: "OrbitronBold",
     fontSize: 18,

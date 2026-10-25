@@ -96,7 +96,7 @@ export default function AccountPrivacySection({
           <View style={styles.informationText}>
             <Text style={styles.description}>
               {isPrivate
-                ? "Somente jogadores que você aprovar poderão ver suas publicações e acompanhar suas atividades."
+                ? "Somente seus seguidores poderão ver suas publicações e playlists. Novos seguidores precisam da sua aprovação."
                 : "Seu perfil e suas publicações poderão ser vistos por todos os jogadores do GameControl."}
             </Text>
             <Text style={styles.note}>
@@ -116,13 +116,13 @@ export default function AccountPrivacySection({
         }
         message={
           requestingPrivateAccount
-            ? "Somente jogadores que você aprovar poderão acompanhar suas publicações e atividades."
-            : "Todos os jogadores poderão ver seu perfil, suas publicações e suas atividades."
+            ? "Somente quem já segue você e os jogadores que você aprovar poderão ver suas publicações e playlists."
+            : "Todos os jogadores poderão ver seu perfil, suas publicações e suas playlists."
         }
         warning={
           requestingPrivateAccount
-            ? "Novos seguidores precisarão da sua aprovação."
-            : "Conteúdos antes restritos ficarão visíveis para todos."
+            ? "Novos seguidores precisarão da sua aprovação. Quem já segue você continua seguindo."
+            : "Conteúdos antes restritos ficarão visíveis para todos e os pedidos pendentes serão aceitos."
         }
         confirmLabel={
           requestingPrivateAccount ? "Deixar privada" : "Deixar pública"

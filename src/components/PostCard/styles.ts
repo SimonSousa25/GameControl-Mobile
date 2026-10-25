@@ -9,6 +9,13 @@ export const styles = StyleSheet.create({
     borderColor: "rgba(0, 229, 255, 0.1)",
     padding: 14,
   },
+  // Versão para grades: altura fixa para as células ficarem alinhadas.
+  cardCompact: {
+    marginTop: 0,
+    height: 158,
+    padding: 12,
+    justifyContent: "space-between",
+  },
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -64,6 +71,18 @@ export const styles = StyleSheet.create({
     fontFamily: "Orbitron",
     fontSize: 12,
     lineHeight: 18,
+  },
+  contentCompact: {
+    marginTop: 8,
+    fontSize: 11,
+    lineHeight: 16,
+  },
+  dateCompact: {
+    marginLeft: "auto",
+  },
+  footerCompact: {
+    marginTop: 8,
+    paddingTop: 8,
   },
   footer: {
     flexDirection: "row",
