@@ -1,8 +1,20 @@
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
-  card: {
+  cardLayout: {
+    width: "100%",
     marginTop: 12,
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 6,
+  },
+  cardLayoutCompact: {
+    marginTop: 0,
+  },
+  card: {
+    flex: 1,
+    minWidth: 0,
+    position: "relative",
     backgroundColor: "#0A0E15",
     borderRadius: 12,
     borderWidth: 1,
@@ -11,15 +23,65 @@ export const styles = StyleSheet.create({
   },
   // Versão para grades: altura fixa para as células ficarem alinhadas.
   cardCompact: {
-    marginTop: 0,
     height: 158,
     padding: 12,
     justifyContent: "space-between",
   },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
   header: {
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
+  },
+  menuContainer: {
+    position: "relative",
+    zIndex: 30,
+  },
+  menuButton: {
+    width: 28,
+    height: 28,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  actionMenu: {
+    position: "absolute",
+    top: 48,
+    right: 10,
+    width: 84,
+    paddingTop: 4,
+    paddingBottom: 4,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "rgba(0, 229, 255, 0.1)",
+    backgroundColor: "#0A0E15",
+    zIndex: 40,
+    elevation: 24,
+  },
+  actionMenuItem: {
+    minHeight: 24,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    paddingHorizontal: 8,
+    borderRadius: 1,
+    backgroundColor: "#0A0E15",
+  },
+  actionMenuItemActive: {
+    backgroundColor: "#0568744d",
+  },
+  actionMenuText: {
+    color: "#CBD2DF",
+    fontFamily: "OrbitronMedium",
+    fontSize: 10,
+  },
+  actionMenuTextActive: {
+    color: "#FFD5DC",
   },
   avatar: {
     width: 36,
@@ -76,6 +138,9 @@ export const styles = StyleSheet.create({
     marginTop: 8,
     fontSize: 11,
     lineHeight: 16,
+  },
+  contentMenuOpen: {
+    paddingRight: 104,
   },
   dateCompact: {
     marginLeft: "auto",

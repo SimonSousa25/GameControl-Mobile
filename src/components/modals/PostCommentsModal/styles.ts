@@ -44,15 +44,25 @@ export const styles = StyleSheet.create({
   list: {
     maxHeight: 320,
   },
+  commentRowLayout: {
+    position: "relative",
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(0, 229, 255, 0.08)",
+  },
   row: {
     flexDirection: "row",
     gap: 10,
     paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(0, 229, 255, 0.08)",
+  },
+  rowMenuOpen: {
+    // O menu absoluto termina próximo de 80px; esta altura mantém uma folga abaixo dele.
+    minHeight: 88,
+    zIndex: 20,
+    elevation: 20,
   },
   rowTextWrap: {
     flex: 1,
+    minWidth: 0,
     gap: 2,
   },
   rowHeaderRow: {
@@ -79,6 +89,54 @@ export const styles = StyleSheet.create({
     fontFamily: "Orbitron",
     fontSize: 12,
     lineHeight: 17,
+  },
+  rowContentMenuOpen: {
+    paddingRight: 94,
+  },
+  commentMenuContainer: {
+    position: "relative",
+    zIndex: 30,
+  },
+  commentMenuButton: {
+    width: 28,
+    height: 28,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  commentActionMenu: {
+    position: "absolute",
+    top: 46,
+    right: 0,
+    width: 84,
+    paddingTop: 4,
+    paddingBottom: 4,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "rgba(0, 229, 255, 0.1)",
+    backgroundColor: "#0A0E15",
+    zIndex: 40,
+    elevation: 24,
+  },
+  commentActionMenuItem: {
+    minHeight: 24,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    paddingHorizontal: 8,
+    borderRadius: 1,
+    backgroundColor: "#0A0E15",
+  },
+  commentActionMenuItemActive: {
+    backgroundColor: "#0568744d",
+  },
+  commentActionMenuText: {
+    color: "#CBD2DF",
+    fontFamily: "OrbitronMedium",
+    fontSize: 10,
+  },
+  commentActionMenuTextActive: {
+    color: "#FFD5DC",
   },
   stateContainer: {
     paddingVertical: 24,

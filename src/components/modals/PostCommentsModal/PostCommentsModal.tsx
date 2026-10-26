@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Modal,
+  Pressable,
   ScrollView,
   TextInput,
   TouchableOpacity,
@@ -22,6 +23,7 @@ export interface PostCommentsModalProps {
   userId: string;
   onClose: () => void;
   onCommentAdded?: (commentId?: string) => void;
+  onCommentDeleted?: (commentId: string) => void;
 }
 
 function formatCommentDate(value?: string): string {
@@ -42,13 +44,22 @@ export function PostCommentsModal({
   userId,
   onClose,
   onCommentAdded,
+  onCommentDeleted,
 }: PostCommentsModalProps) {
   const [comments, setComments] = useState<PostCommentDTO[]>([]);
   const [loading, setLoading] = useState(false);
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
+  const [openMenuCommentId, setOpenMenuCommentId] = useState<string | null>(null);
+  const [deleteHoveredCommentId, setDeleteHoveredCommentId] = useState<
+    string | null
+  >(null);
 
   useEffect(() => {
+    // O modal permanece montado quando é fechado, então limpamos o menu manualmente.
+    setOpenMenuCommentId(null);
+    setDeleteHoveredCommentId(null);
+
     if (!visible || !postId) return;
     setText("");
     loadComments(postId);
@@ -89,6 +100,20 @@ export function PostCommentsModal({
     }
   };
 
+  const handleDeleteComment = async (comment: PostCommentDTO) => {
+    if (!comment.id || comment.userId !== userId) return;
+
+    try {
+      await postCommentService.deletarComentario(comment.id);
+      setComments((prev) => prev.filter((item) => item.id !== comment.id));
+      setOpenMenuCommentId(null);
+      setDeleteHoveredCommentId(null);
+      onCommentDeleted?.(comment.id);
+    } catch (error) {
+      console.error("Erro ao excluir comentário:", error);
+    }
+  };
+
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View
@@ -125,29 +150,120 @@ export function PostCommentsModal({
               {comments.map((comment, index) => (
                 <View
                   key={comment.id ?? index}
-                  style={styles.row}
+                  style={[
+                    styles.commentRowLayout,
+                    openMenuCommentId === comment.id && styles.rowMenuOpen,
+                  ]}
                   lightColor="transparent"
                   darkColor="transparent"
                 >
-                  <AvatarGradient
-                    initial={(comment.username || "?").charAt(0).toUpperCase()}
-                    colorIndex={index}
-                  />
-                  <View style={styles.rowTextWrap} lightColor="transparent" darkColor="transparent">
+                  <View
+                    style={styles.row}
+                    lightColor="transparent"
+                    darkColor="transparent"
+                  >
+                    <AvatarGradient
+                      initial={(comment.username || "?")
+                        .charAt(0)
+                        .toUpperCase()}
+                      colorIndex={index}
+                    />
                     <View
-                      style={styles.rowHeaderRow}
+                      style={styles.rowTextWrap}
                       lightColor="transparent"
                       darkColor="transparent"
                     >
-                      <Text style={styles.rowUsername} numberOfLines={1}>
-                        {comment.username}
-                      </Text>
-                      <Text style={styles.rowDate}>
-                        {formatCommentDate(comment.createdAt)}
+                      <View
+                        style={styles.rowHeaderRow}
+                        lightColor="transparent"
+                        darkColor="transparent"
+                      >
+                        <Text style={styles.rowUsername} numberOfLines={1}>
+                          {comment.username}
+                        </Text>
+                        <Text style={styles.rowDate}>
+                          {formatCommentDate(comment.createdAt)}
+                        </Text>
+                      </View>
+                      <Text
+                        style={[
+                          styles.rowContent,
+                          openMenuCommentId === comment.id &&
+                            styles.rowContentMenuOpen,
+                        ]}
+                      >
+                        {comment.content}
                       </Text>
                     </View>
-                    <Text style={styles.rowContent}>{comment.content}</Text>
+
+                    {comment.userId === userId && comment.id && (
+                      <View
+                        style={styles.commentMenuContainer}
+                        lightColor="transparent"
+                        darkColor="transparent"
+                      >
+                        <TouchableOpacity
+                          accessibilityLabel="Opções do comentário"
+                          accessibilityRole="button"
+                          style={styles.commentMenuButton}
+                          activeOpacity={0.7}
+                          onPress={() => {
+                            setDeleteHoveredCommentId(null);
+                            setOpenMenuCommentId((current) =>
+                              current === comment.id ? null : comment.id!,
+                            );
+                          }}
+                          hitSlop={6}
+                        >
+                          <Ionicons
+                            name="ellipsis-vertical"
+                            size={17}
+                            color="#A0A0A0"
+                          />
+                        </TouchableOpacity>
+                      </View>
+                    )}
                   </View>
+
+                  {comment.userId === userId &&
+                    comment.id &&
+                    openMenuCommentId === comment.id && (
+                      <View style={styles.commentActionMenu}>
+                        <Pressable
+                          accessibilityLabel="Excluir comentário"
+                          accessibilityRole="button"
+                          onHoverIn={() =>
+                            setDeleteHoveredCommentId(comment.id!)
+                          }
+                          onHoverOut={() => setDeleteHoveredCommentId(null)}
+                          style={({ pressed }) => [
+                            styles.commentActionMenuItem,
+                            (deleteHoveredCommentId === comment.id || pressed) &&
+                              styles.commentActionMenuItemActive,
+                          ]}
+                          onPress={() => handleDeleteComment(comment)}
+                        >
+                          <Ionicons
+                            name="trash-outline"
+                            size={15}
+                            color={
+                              deleteHoveredCommentId === comment.id
+                                ? "#FFD5DC"
+                                : "#CBD2DF"
+                            }
+                          />
+                          <Text
+                            style={[
+                              styles.commentActionMenuText,
+                              deleteHoveredCommentId === comment.id &&
+                                styles.commentActionMenuTextActive,
+                            ]}
+                          >
+                            Excluir
+                          </Text>
+                        </Pressable>
+                      </View>
+                    )}
                 </View>
               ))}
             </ScrollView>

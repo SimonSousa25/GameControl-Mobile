@@ -21,6 +21,7 @@ export interface FeedProps {
   onBackPress?: () => void;
   onTabPress?: (tabId: string) => void;
   onUserPress?: (userId: string) => void;
+  onDeletePress?: (userId: string) => void;
 }
 
 export function Feed({ userId, onBackPress, onTabPress, onUserPress }: FeedProps) {
@@ -111,6 +112,32 @@ export function Feed({ userId, onBackPress, onTabPress, onUserPress }: FeedProps
     );
   };
 
+  const handleCommentDeleted = (postId: string, commentId: string) => {
+    setPosts((prev) =>
+      prev.map((item) =>
+        item.id === postId
+          ? {
+              ...item,
+              commentIds: (item.commentIds ?? []).filter(
+                (id) => id !== commentId,
+              ),
+            }
+          : item,
+      ),
+    );
+  };
+
+  const handleDeletePost = async (post: UserPostDTO) => {
+    if (!post.id || post.userId !== userId) return;
+
+    try {
+      await userPostService.deletarPost(post.id);
+      setPosts((prev) => prev.filter((item) => item.id !== post.id));
+    } catch (error) {
+      console.error("Erro ao excluir post:", error);
+    }
+  };
+
   return (
     <View style={styles.screenContainer}>
       <View style={styles.headerContainer}>
@@ -183,6 +210,9 @@ export function Feed({ userId, onBackPress, onTabPress, onUserPress }: FeedProps
               onLikePress={() => handleToggleLike(post)}
               onUserPress={post.userId ? () => onUserPress?.(post.userId!) : undefined}
               onCommentsPress={post.id ? () => setCommentsPostId(post.id!) : undefined}
+              onDeletePress={
+                post.userId === userId ? () => handleDeletePost(post) : undefined
+              }
             />
           ))
         )}
@@ -197,6 +227,9 @@ export function Feed({ userId, onBackPress, onTabPress, onUserPress }: FeedProps
         onClose={() => setCommentsPostId(null)}
         onCommentAdded={(commentId) =>
           commentsPostId && handleCommentAdded(commentsPostId, commentId)
+        }
+        onCommentDeleted={(commentId) =>
+          commentsPostId && handleCommentDeleted(commentsPostId, commentId)
         }
       />
     </View>
