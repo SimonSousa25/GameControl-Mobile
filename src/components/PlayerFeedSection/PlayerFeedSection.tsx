@@ -90,6 +90,32 @@ export function PlayerFeedSection({
     );
   };
 
+  const handleCommentDeleted = (postId: string, commentId: string) => {
+    setPosts((prev) =>
+      prev.map((item) =>
+        item.id === postId
+          ? {
+              ...item,
+              commentIds: (item.commentIds ?? []).filter(
+                (id) => id !== commentId,
+              ),
+            }
+          : item,
+      ),
+    );
+  };
+
+  const handleDeletePost = async (post: UserPostDTO) => {
+    if (!post.id) return;
+
+    try {
+      await userPostService.deletarPost(post.id);
+      setPosts((prev) => prev.filter((item) => item.id !== post.id));
+    } catch (error) {
+      console.error("Erro ao excluir post:", error);
+    }
+  };
+
   return (
     <View style={styles.card}>
       <View style={styles.headerRow} lightColor="transparent" darkColor="transparent">
@@ -136,9 +162,11 @@ export function PlayerFeedSection({
             post={post}
             colorIndex={index}
             likedByMe={post.likedUserIds?.includes(userId) ?? false}
+            isOwnPost
             onLikePress={() => handleToggleLike(post)}
             onUserPress={post.userId ? () => onUserPress?.(post.userId!) : undefined}
             onCommentsPress={post.id ? () => setCommentsPostId(post.id!) : undefined}
+            onDeletePress={() => handleDeletePost(post)}
           />
         ))
       )}
@@ -150,6 +178,9 @@ export function PlayerFeedSection({
         onClose={() => setCommentsPostId(null)}
         onCommentAdded={(commentId) =>
           commentsPostId && handleCommentAdded(commentsPostId, commentId)
+        }
+        onCommentDeleted={(commentId) =>
+          commentsPostId && handleCommentDeleted(commentsPostId, commentId)
         }
       />
     </View>

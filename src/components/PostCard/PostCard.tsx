@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Image, TouchableOpacity, View } from "react-native";
+import { useState } from "react";
+import { Image, Pressable, TouchableOpacity, View } from "react-native";
 
 import AvatarGradient from "@/components/PlayersHighlight/AvatarGradient";
 import { Text } from "@/components/Themed";
@@ -18,13 +19,17 @@ export interface PostCardProps {
   onLikePress?: () => void;
   onUserPress?: () => void;
   onCommentsPress?: () => void;
+  onDeletePress?: () => void;
 }
 
 function formatShortDate(value?: string): string {
   if (!value) return "";
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) return "";
-  return parsed.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+  return parsed.toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+  });
 }
 
 function formatPostDate(value?: string): string {
@@ -48,91 +53,166 @@ export default function PostCard({
   onLikePress,
   onUserPress,
   onCommentsPress,
+  onDeletePress,
 }: PostCardProps) {
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [deleteHovered, setDeleteHovered] = useState(false);
   const avatarUrl = getAvatarUrl(post.profilePictureUrl);
   const commentsCount = post.commentIds?.length ?? 0;
   const likesCount = post.likesCount ?? post.likedUserIds?.length ?? 0;
 
+  const handleCardAction = (action?: () => void) => {
+    setMenuVisible(false);
+    setDeleteHovered(false);
+    action?.();
+  };
+
   return (
-    <View style={[styles.card, compact && styles.cardCompact]}>
-      <TouchableOpacity
-        style={styles.header}
-        activeOpacity={onUserPress ? 0.7 : 1}
-        disabled={!onUserPress}
-        onPress={onUserPress}
-      >
-        <View style={styles.avatar}>
-          {avatarUrl ? (
-            <Image
-              source={{ uri: avatarUrl }}
-              style={styles.avatarImage}
-              resizeMode="cover"
-            />
-          ) : (
-            <AvatarGradient
-              initial={(post.username || "?").charAt(0).toUpperCase()}
-              colorIndex={colorIndex}
-            />
-          )}
-        </View>
-        <View style={styles.usernameRow}>
-          <Text style={styles.username} numberOfLines={1}>
-            {post.username}
-          </Text>
-          {isOwnPost && (
-            <View style={styles.ownBadge}>
-              <Text style={styles.ownBadgeText}>VOCÊ</Text>
+    <View style={[styles.cardLayout, compact && styles.cardLayoutCompact]}>
+      <View style={[styles.card, compact && styles.cardCompact]}>
+        <View style={styles.headerRow}>
+          <TouchableOpacity
+            style={styles.header}
+            activeOpacity={onUserPress ? 0.7 : 1}
+            disabled={!onUserPress}
+            onPress={() => handleCardAction(onUserPress)}
+          >
+            <View style={styles.avatar}>
+              {avatarUrl ? (
+                <Image
+                  source={{ uri: avatarUrl }}
+                  style={styles.avatarImage}
+                  resizeMode="cover"
+                />
+              ) : (
+                <AvatarGradient
+                  initial={(post.username || "?").charAt(0).toUpperCase()}
+                  colorIndex={colorIndex}
+                />
+              )}
+            </View>
+            <View style={styles.usernameRow}>
+              <Text style={styles.username} numberOfLines={1}>
+                {post.username}
+              </Text>
+              {isOwnPost && (
+                <View style={styles.ownBadge}>
+                  <Text style={styles.ownBadgeText}>VOCÊ</Text>
+                </View>
+              )}
+            </View>
+            {compact ? null : (
+              <Text style={styles.date}>{formatPostDate(post.createdAt)}</Text>
+            )}
+          </TouchableOpacity>
+
+          {isOwnPost && onDeletePress && (
+            <View style={styles.menuContainer}>
+              <TouchableOpacity
+                accessibilityLabel="Opções do post"
+                accessibilityRole="button"
+                style={styles.menuButton}
+                activeOpacity={0.7}
+                onPress={() => {
+                  setDeleteHovered(false);
+                  setMenuVisible((current) => !current);
+                }}
+                hitSlop={6}
+              >
+                <Ionicons
+                  name="ellipsis-vertical"
+                  size={18}
+                  color="#A0A0A0"
+                />
+              </TouchableOpacity>
             </View>
           )}
         </View>
-        {compact ? null : (
-          <Text style={styles.date}>{formatPostDate(post.createdAt)}</Text>
+
+        {menuVisible && onDeletePress && (
+          <View style={styles.actionMenu}>
+            <Pressable
+              accessibilityLabel="Excluir post"
+              accessibilityRole="button"
+              onHoverIn={() => setDeleteHovered(true)}
+              onHoverOut={() => setDeleteHovered(false)}
+              onPress={() => {
+                setDeleteHovered(false);
+                setMenuVisible(false);
+                onDeletePress();
+              }}
+              style={({ pressed }) => [
+                styles.actionMenuItem,
+                (deleteHovered || pressed) && styles.actionMenuItemActive,
+              ]}
+            >
+              <Ionicons
+                name="trash-outline"
+                size={15}
+                color={deleteHovered ? "#FFD5DC" : "#CBD2DF"}
+              />
+              <Text
+                style={[
+                  styles.actionMenuText,
+                  deleteHovered && styles.actionMenuTextActive,
+                ]}
+              >
+                Excluir
+              </Text>
+            </Pressable>
+          </View>
         )}
-      </TouchableOpacity>
 
-      <Text
-        style={[styles.content, compact && styles.contentCompact]}
-        numberOfLines={compact ? 3 : undefined}
-      >
-        {post.text}
-      </Text>
+        <Text
+          style={[
+            styles.content,
+            compact && styles.contentCompact,
+            menuVisible && styles.contentMenuOpen,
+          ]}
+          numberOfLines={compact ? 3 : undefined}
+        >
+          {post.text}
+        </Text>
 
-      <View style={[styles.footer, compact && styles.footerCompact]}>
-        <TouchableOpacity
-          accessibilityLabel="Ver comentários"
-          accessibilityRole="button"
-          style={styles.footerItem}
-          activeOpacity={0.7}
-          onPress={onCommentsPress}
-          disabled={!onCommentsPress}
-          hitSlop={6}
-        >
-          <Ionicons name="chatbubble-outline" size={15} color="#6B7280" />
-          <Text style={styles.footerText}>{commentsCount}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          accessibilityLabel={likedByMe ? "Descurtir post" : "Curtir post"}
-          accessibilityRole="button"
-          style={styles.footerItem}
-          activeOpacity={0.7}
-          onPress={onLikePress}
-          disabled={!onLikePress}
-          hitSlop={6}
-        >
-          <Ionicons
-            name={likedByMe ? "heart" : "heart-outline"}
-            size={15}
-            color={likedByMe ? "#F52E8F" : "#6B7280"}
-          />
-          <Text style={[styles.footerText, likedByMe && styles.footerTextActive]}>
-            {likesCount}
-          </Text>
-        </TouchableOpacity>
-        {compact ? (
-          <Text style={[styles.date, styles.dateCompact]}>
-            {formatShortDate(post.createdAt)}
-          </Text>
-        ) : null}
+        <View style={[styles.footer, compact && styles.footerCompact]}>
+          <TouchableOpacity
+            accessibilityLabel="Ver comentários"
+            accessibilityRole="button"
+            style={styles.footerItem}
+            activeOpacity={0.7}
+            onPress={() => handleCardAction(onCommentsPress)}
+            disabled={!onCommentsPress}
+            hitSlop={6}
+          >
+            <Ionicons name="chatbubble-outline" size={15} color="#6B7280" />
+            <Text style={styles.footerText}>{commentsCount}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            accessibilityLabel={likedByMe ? "Descurtir post" : "Curtir post"}
+            accessibilityRole="button"
+            style={styles.footerItem}
+            activeOpacity={0.7}
+            onPress={() => handleCardAction(onLikePress)}
+            disabled={!onLikePress}
+            hitSlop={6}
+          >
+            <Ionicons
+              name={likedByMe ? "heart" : "heart-outline"}
+              size={15}
+              color={likedByMe ? "#F52E8F" : "#6B7280"}
+            />
+            <Text
+              style={[styles.footerText, likedByMe && styles.footerTextActive]}
+            >
+              {likesCount}
+            </Text>
+          </TouchableOpacity>
+          {compact ? (
+            <Text style={[styles.date, styles.dateCompact]}>
+              {formatShortDate(post.createdAt)}
+            </Text>
+          ) : null}
+        </View>
       </View>
     </View>
   );
