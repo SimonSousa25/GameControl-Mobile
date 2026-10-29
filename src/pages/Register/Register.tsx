@@ -1,17 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 import { useRef, useState } from "react";
-import {
-  ActivityIndicator,
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from "react-native";
+import { ScaledText as Text, ScaledTextInput as TextInput } from "@/components/ScaledText/ScaledText";
+import type { TextInput as RNTextInput } from "react-native";
 
 import type { StyleProp, TextInputProps, ViewStyle } from "react-native";
 
@@ -23,7 +15,7 @@ import { styles } from "./styles";
 
 interface FormFieldProps extends TextInputProps {
   icon: keyof typeof Ionicons.glyphMap;
-  inputRef?: React.RefObject<TextInput | null>;
+  inputRef?: React.RefObject<RNTextInput | null>;
   onToggleVisibility?: () => void;
   passwordVisible?: boolean;
 }
@@ -77,9 +69,9 @@ export function Register({
   style,
   testID = "register-screen",
 }: RegisterProps) {
-  const emailInputRef = useRef<TextInput>(null);
-  const passwordInputRef = useRef<TextInput>(null);
-  const confirmPasswordInputRef = useRef<TextInput>(null);
+  const emailInputRef = useRef<RNTextInput>(null);
+  const passwordInputRef = useRef<RNTextInput>(null);
+  const confirmPasswordInputRef = useRef<RNTextInput>(null);
 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");

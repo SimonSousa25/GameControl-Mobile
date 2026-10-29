@@ -1,12 +1,6 @@
 import { StatusBar } from "expo-status-bar";
-import {
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  Text,
-  View,
-} from "react-native";
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from "react-native";
+import { ScaledText as Text } from "@/components/ScaledText/ScaledText";
 
 import PresentationLogo from "@/components/PresentationLogo";
 

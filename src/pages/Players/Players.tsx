@@ -1,13 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  ActivityIndicator,
-  FlatList,
-  Pressable,
-  TextInput,
-  TouchableOpacity,
-  useWindowDimensions,
-} from "react-native";
+import { ActivityIndicator, FlatList, Pressable, TouchableOpacity, useWindowDimensions } from "react-native";
+import { ScaledTextInput as TextInput } from "@/components/ScaledText/ScaledText";
 
 import BackButton from "@/components/BackButton/BackButton";
 import Header from "@/components/Header/Header";

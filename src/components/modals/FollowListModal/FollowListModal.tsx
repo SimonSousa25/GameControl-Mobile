@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useMemo, useState } from "react";
-import { Image, Modal, ScrollView, TextInput, TouchableOpacity } from "react-native";
+import { Image, Modal, ScrollView, TouchableOpacity } from "react-native";
+import { ScaledTextInput as TextInput } from "@/components/ScaledText/ScaledText";
 
 import AvatarGradient from "@/components/PlayersHighlight/AvatarGradient";
 import { Text, View } from "@/components/Themed";

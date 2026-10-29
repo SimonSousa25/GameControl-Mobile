@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Switch, View, Text } from "react-native";
+import { Switch, View } from "react-native";
+import { ScaledText as Text } from "@/components/ScaledText/ScaledText";
 import { styles } from "./styles";
 
 interface NotificationOptionProps {

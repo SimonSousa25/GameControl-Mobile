@@ -2,14 +2,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { ImageManipulator, SaveFormat } from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
 import { useState } from "react";
-import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  Pressable,
-  ScrollView,
-  TextInput,
-} from "react-native";
+import { ActivityIndicator, Alert, Image, Pressable, ScrollView } from "react-native";
+import { ScaledTextInput as TextInput } from "@/components/ScaledText/ScaledText";
 
 import { Text, View } from "@/components/Themed";
 import type { NotificationPreferences, UserDTO } from "@/services/userService";
@@ -17,6 +11,7 @@ import { getAvatarUrl } from "@/utils/avatar";
 
 import AccountPrivacySection from "@/components/AccountPrivacySection/AccountPrivacySection";
 import BackButton from "@/components/BackButton/BackButton";
+import FontSizeSection from "@/components/FontSizeSection/FontSizeSection";
 import Header from "@/components/Header/Header";
 import NavBottom from "@/components/NavBottom/NavBottom";
 import ConfirmModal from "@/components/modals/ConfirmModal/ConfirmModal";
@@ -351,6 +346,9 @@ export default function Settings({
           isPrivate={isPrivateAccount}
           onValueChange={setIsPrivateAccount}
         />
+
+        {/* Acessibilidade: aplicada e salva na hora, sem precisar de "Salvar". */}
+        <FontSizeSection />
 
         <Pressable
           disabled={saving}
