@@ -59,7 +59,7 @@ export function UserPostsSection({ userId, viewerId }: UserPostsSectionProps) {
     );
 
     try {
-      await userPostService.alternarCurtida(post.id, viewerId);
+      await userPostService.alternarCurtida(post.id);
     } catch (error) {
       console.error("Erro ao curtir post:", error);
       loadPosts();

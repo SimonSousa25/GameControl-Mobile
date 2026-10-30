@@ -72,9 +72,10 @@ class UserPostService {
     }
   }
 
-  async alternarCurtida(postId: string, userId: string): Promise<void> {
+  /** Quem curte é o usuário do token; o backend não aceita um userId do cliente. */
+  async alternarCurtida(postId: string): Promise<void> {
     try {
-      const response = await apiFetch(`/posts/${postId}/like/${userId}`, {
+      const response = await apiFetch(`/posts/${postId}/like`, {
         method: "POST",
       });
       if (!response.ok) {
