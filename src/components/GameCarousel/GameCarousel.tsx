@@ -37,8 +37,8 @@ export default function GameCarousel({
   const loadGames = async () => {
     try {
       setLoading(true);
-      const data = await gameService.listarJogosEmDestaque(5);
-      setGames(data);
+      const data = await gameService.listarJogosEmDestaque(4);
+      setGames(data.slice(0, 4));
     } catch (error) {
       console.error("Erro ao carregar jogos:", error);
       setGames([]);
@@ -102,7 +102,7 @@ export default function GameCarousel({
         scrollEventThrottle={16}
         style={styles.carouselContainer}
       >
-        {games.map((game) => (
+        {games.slice(0, 4).map((game) => (
           <TouchableOpacity
             key={game.id}
             style={styles.gameCard}
