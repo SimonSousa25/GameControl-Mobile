@@ -1,5 +1,8 @@
 import { StyleSheet } from "react-native";
 
+/** Altura mínima do card compacto com a fonte no tamanho padrão. */
+export const COMPACT_MIN_HEIGHT = 158;
+
 export const styles = StyleSheet.create({
   cardLayout: {
     width: "100%",
@@ -21,9 +24,10 @@ export const styles = StyleSheet.create({
     borderColor: "rgba(0, 229, 255, 0.1)",
     padding: 14,
   },
-  // Versão para grades: altura fixa para as células ficarem alinhadas.
+  // Versão para grades. A altura mínima (COMPACT_MIN_HEIGHT x escala da fonte,
+  // definida no PostCard) mantém as células alinhadas, mas sem altura fixa:
+  // se o texto precisar de mais espaço, o card cresce em vez de cortar o rodapé.
   cardCompact: {
-    height: 158,
     padding: 12,
     justifyContent: "space-between",
   },

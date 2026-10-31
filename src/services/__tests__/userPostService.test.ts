@@ -55,13 +55,23 @@ describe("userPostService", () => {
     expect(result).toEqual(created);
   });
 
-  it("alterna curtida chamando POST /posts/:id/like/:userId", async () => {
+  it("alterna curtida chamando POST /posts/:id/like (sem userId na URL)", async () => {
     mockedApiFetch.mockResolvedValueOnce(mockResponse(true, null));
 
-    await userPostService.alternarCurtida("post1", "user1");
+    await userPostService.alternarCurtida("post1");
 
-    expect(mockedApiFetch).toHaveBeenCalledWith("/posts/post1/like/user1", {
+    expect(mockedApiFetch).toHaveBeenCalledWith("/posts/post1/like", {
       method: "POST",
+    });
+  });
+
+  it("exclui post chamando DELETE /posts/:id", async () => {
+    mockedApiFetch.mockResolvedValueOnce(mockResponse(true, null));
+
+    await userPostService.deletarPost("post1");
+
+    expect(mockedApiFetch).toHaveBeenCalledWith("/posts/post1", {
+      method: "DELETE",
     });
   });
 });

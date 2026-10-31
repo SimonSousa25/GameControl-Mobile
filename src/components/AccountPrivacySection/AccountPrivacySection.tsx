@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
-import { Switch, Text, View } from "react-native";
+import { Switch, View } from "react-native";
+import { ScaledText as Text } from "@/components/ScaledText/ScaledText";
 
 import ConfirmModal from "@/components/modals/ConfirmModal/ConfirmModal";
 

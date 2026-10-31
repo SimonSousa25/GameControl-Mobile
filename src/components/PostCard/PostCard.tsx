@@ -4,10 +4,11 @@ import { Image, Pressable, TouchableOpacity, View } from "react-native";
 
 import AvatarGradient from "@/components/PlayersHighlight/AvatarGradient";
 import { Text } from "@/components/Themed";
+import { useFontScale } from "@/src/contexts/FontScaleContext";
 import { UserPostDTO } from "@/services/userPostService";
 import { getAvatarUrl } from "@/utils/avatar";
 
-import { styles } from "./styles";
+import { COMPACT_MIN_HEIGHT, styles } from "./styles";
 
 export interface PostCardProps {
   post: UserPostDTO;
@@ -55,6 +56,7 @@ export default function PostCard({
   onCommentsPress,
   onDeletePress,
 }: PostCardProps) {
+  const { fontScale } = useFontScale();
   const [menuVisible, setMenuVisible] = useState(false);
   const [deleteHovered, setDeleteHovered] = useState(false);
   const avatarUrl = getAvatarUrl(post.profilePictureUrl);
@@ -69,7 +71,13 @@ export default function PostCard({
 
   return (
     <View style={[styles.cardLayout, compact && styles.cardLayoutCompact]}>
-      <View style={[styles.card, compact && styles.cardCompact]}>
+      <View
+        style={[
+          styles.card,
+          compact && styles.cardCompact,
+          compact && { minHeight: COMPACT_MIN_HEIGHT * fontScale },
+        ]}
+      >
         <View style={styles.headerRow}>
           <TouchableOpacity
             style={styles.header}

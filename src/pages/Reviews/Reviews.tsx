@@ -1,13 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useRef, useState } from "react";
-import {
-  ActivityIndicator,
-  ScrollView,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { ActivityIndicator, ScrollView, TouchableOpacity, View } from "react-native";
+import { ScaledTextInput as TextInput } from "@/components/ScaledText/ScaledText";
 
 import AvatarGradient from "@/components/PlayersHighlight/AvatarGradient";
 import BackButton from "@/components/BackButton/BackButton";

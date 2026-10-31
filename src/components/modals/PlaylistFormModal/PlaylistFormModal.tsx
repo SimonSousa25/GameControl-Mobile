@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
-import { Modal, TextInput, TouchableOpacity } from "react-native";
+import { Modal, TouchableOpacity } from "react-native";
+import { ScaledTextInput as TextInput } from "@/components/ScaledText/ScaledText";
 
 import { Text, View } from "@/components/Themed";
 

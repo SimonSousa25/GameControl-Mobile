@@ -1,16 +1,8 @@
 import { StatusBar } from "expo-status-bar";
 import { useRef, useState } from "react";
-import {
-  ActivityIndicator,
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from "react-native";
+import { ScaledText as Text, ScaledTextInput as TextInput } from "@/components/ScaledText/ScaledText";
+import type { TextInput as RNTextInput } from "react-native";
 import type { StyleProp, ViewStyle } from "react-native";
 import { styles } from "./styles";
 
@@ -34,7 +26,7 @@ export function Login({
   style,
   testID = "login-screen",
 }: LoginProps) {
-  const passwordInputRef = useRef<TextInput>(null);
+  const passwordInputRef = useRef<RNTextInput>(null);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

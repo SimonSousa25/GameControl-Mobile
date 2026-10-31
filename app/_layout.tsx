@@ -14,6 +14,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { useColorScheme } from "@/components/useColorScheme";
 import { AuthProvider, useAuth } from "@/src/contexts/AuthContext";
+import { FontScaleProvider, useFontScale } from "@/src/contexts/FontScaleContext";
 import { NotificationsProvider } from "@/src/contexts/NotificationsContext";
 
 export {
@@ -30,15 +31,19 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
-      <AuthProvider>
-        <RootLayoutContent />
-      </AuthProvider>
+      <FontScaleProvider>
+        <AuthProvider>
+          <RootLayoutContent />
+        </AuthProvider>
+      </FontScaleProvider>
     </SafeAreaProvider>
   );
 }
 
 function RootLayoutContent() {
   const { loading: authLoading } = useAuth();
+  // Espera a preferência de fonte para a primeira tela já aparecer no tamanho certo.
+  const { loading: fontScaleLoading } = useFontScale();
 
 
   const [loaded, error] = useFonts({
@@ -66,13 +71,13 @@ function RootLayoutContent() {
   }, [error]);
 
   const handleRootLayout = useCallback(() => {
-    if (loaded && !authLoading) {
+    if (loaded && !authLoading && !fontScaleLoading) {
       void SplashScreen.hideAsync();
     }
-  }, [loaded, authLoading]);
+  }, [loaded, authLoading, fontScaleLoading]);
 
 
-  if (!loaded || authLoading) {
+  if (!loaded || authLoading || fontScaleLoading) {
     return null;
   }
 

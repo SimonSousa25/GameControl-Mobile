@@ -1,9 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
-import {
-  Pressable,
-  TextInput,
-  View,
-} from "react-native";
+import { Pressable, View } from "react-native";
+import { ScaledTextInput as TextInput } from "@/components/ScaledText/ScaledText";
+import type { TextInput as RNTextInput } from "react-native";
 
 import type { TextInputProps } from "react-native";
 
@@ -11,7 +9,7 @@ import { styles } from "./styles";
 
 interface FormFieldProps extends TextInputProps {
   icon: keyof typeof Ionicons.glyphMap;
-  inputRef?: React.RefObject<TextInput | null>;
+  inputRef?: React.RefObject<RNTextInput | null>;
   onToggleVisibility?: () => void;
   passwordVisible?: boolean;
 }

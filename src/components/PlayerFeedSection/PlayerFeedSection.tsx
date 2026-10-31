@@ -70,7 +70,7 @@ export function PlayerFeedSection({
     );
 
     try {
-      await userPostService.alternarCurtida(post.id, userId);
+      await userPostService.alternarCurtida(post.id);
     } catch (error) {
       console.error("Erro ao curtir post:", error);
       loadPosts();
