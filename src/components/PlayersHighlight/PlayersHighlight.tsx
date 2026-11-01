@@ -1,11 +1,13 @@
 import { Text, View } from "@/components/Themed";
 import userService, { UserDTO } from "@/services/userService";
 import { LinearGradient } from "expo-linear-gradient";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
-    ActivityIndicator,
-    ScrollView,
-    TouchableOpacity,
+  ActivityIndicator,
+  PanResponder,
+  Platform,
+  ScrollView,
+  TouchableOpacity,
 } from "react-native";
 import PlayerCard from "@/components/PlayerCard/PlayerCard";
 import { styles } from "./styles";
@@ -21,6 +23,30 @@ export default function PlayersHighlight({
 }: PlayersHighlightProps) {
   const [users, setUsers] = useState<UserDTO[]>([]);
   const [loading, setLoading] = useState(true);
+  const carouselRef = useRef<ScrollView>(null);
+  const scrollOffset = useRef(0);
+  const dragStartOffset = useRef(0);
+  const dragStartX = useRef(0);
+
+  // Permite clicar e arrastar o carrossel com o mouse na versão web.
+  const webDragResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponderCapture: (_, gesture) =>
+        Math.abs(gesture.dx) > 5 &&
+        Math.abs(gesture.dx) > Math.abs(gesture.dy),
+      onPanResponderGrant: (_, gesture) => {
+        dragStartOffset.current = scrollOffset.current;
+        dragStartX.current = gesture.dx;
+      },
+      onPanResponderMove: (_, gesture) => {
+        const movement = gesture.dx - dragStartX.current;
+        carouselRef.current?.scrollTo({
+          x: Math.max(0, dragStartOffset.current - movement),
+          animated: false,
+        });
+      },
+    }),
+  ).current;
 
   useEffect(() => {
     loadUsers();
@@ -30,7 +56,7 @@ export default function PlayersHighlight({
     try {
       setLoading(true);
       const data = await userService.listarUsuarios();
-      setUsers(data.slice(0, 5)); // Limitar a 5 usuários
+      setUsers(data.slice(0, 8)); // Quatro jogadores visíveis e mais quatro no swipe
     } catch (error) {
       console.error("Erro ao carregar usuários:", error);
       setUsers([]);
@@ -72,12 +98,19 @@ export default function PlayersHighlight({
       </View>
 
       <ScrollView
+        ref={carouselRef}
         horizontal
+        nestedScrollEnabled
+        directionalLockEnabled
         showsHorizontalScrollIndicator={false}
         scrollEventThrottle={16}
+        onScroll={(event) => {
+          scrollOffset.current = event.nativeEvent.contentOffset.x;
+        }}
         style={styles.carouselContainer}
+        {...(Platform.OS === "web" ? webDragResponder.panHandlers : {})}
       >
-        {users.map((user, index) => (
+        {users.slice(0, 8).map((user, index) => (
           <PlayerCard
             key={user.id}
             user={user}

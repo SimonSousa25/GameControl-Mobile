@@ -34,11 +34,11 @@ export const styles = StyleSheet.create({
   },
   gameCard: {
     marginRight: 12,
-    width: 80,
+    width: 84,
   },
   gameImage: {
-    width: 80,
-    height: 132,
+    width: 84,
+    height: 139,
     borderRadius: 9,
     marginBottom: 8,
     backgroundColor: '#0A0E15',

@@ -1,10 +1,12 @@
 import { Text, View } from "@/components/Themed";
 import gameService, { GameDTO } from "@/services/gameService";
 import { LinearGradient } from "expo-linear-gradient";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Image,
+  PanResponder,
+  Platform,
   ScrollView,
   TouchableOpacity,
 } from "react-native";
@@ -27,6 +29,30 @@ export default function GameCarousel({
 }: GameCarouselProps) {
   const [games, setGames] = useState<GameDTO[]>(initialGames || []);
   const [loading, setLoading] = useState(!initialGames && fetchRecent);
+  const carouselRef = useRef<ScrollView>(null);
+  const scrollOffset = useRef(0);
+  const dragStartOffset = useRef(0);
+  const dragStartX = useRef(0);
+
+  // No navegador, o ScrollView não converte o arraste do mouse em rolagem.
+  const webDragResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponderCapture: (_, gesture) =>
+        Math.abs(gesture.dx) > 5 &&
+        Math.abs(gesture.dx) > Math.abs(gesture.dy),
+      onPanResponderGrant: (_, gesture) => {
+        dragStartOffset.current = scrollOffset.current;
+        dragStartX.current = gesture.dx;
+      },
+      onPanResponderMove: (_, gesture) => {
+        const movement = gesture.dx - dragStartX.current;
+        carouselRef.current?.scrollTo({
+          x: Math.max(0, dragStartOffset.current - movement),
+          animated: false,
+        });
+      },
+    }),
+  ).current;
 
   useEffect(() => {
     if (fetchRecent && !initialGames) {
@@ -37,8 +63,8 @@ export default function GameCarousel({
   const loadGames = async () => {
     try {
       setLoading(true);
-      const data = await gameService.listarJogosEmDestaque(4);
-      setGames(data.slice(0, 4));
+      const data = await gameService.listarJogosEmDestaque(16);
+      setGames(data.slice(0, 16));
     } catch (error) {
       console.error("Erro ao carregar jogos:", error);
       setGames([]);
@@ -97,17 +123,24 @@ export default function GameCarousel({
       </View>
 
       <ScrollView
+        ref={carouselRef}
         horizontal
+        nestedScrollEnabled
+        directionalLockEnabled
         showsHorizontalScrollIndicator={false}
         scrollEventThrottle={16}
+        onScroll={(event) => {
+          scrollOffset.current = event.nativeEvent.contentOffset.x;
+        }}
         style={styles.carouselContainer}
+        {...(Platform.OS === "web" ? webDragResponder.panHandlers : {})}
       >
-        {games.slice(0, 4).map((game) => (
+        {games.slice(0, 16).map((game) => (
           <TouchableOpacity
             key={game.id}
             style={styles.gameCard}
             onPress={() => onGamePress?.(game.id)}
-            activeOpacity={0.8}
+            activeOpacity={0.16}
           >
             <Image
               source={{ uri: game.coverImageUrl }}
