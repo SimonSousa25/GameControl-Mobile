@@ -30,11 +30,17 @@ export const styles = StyleSheet.create({
     paddingRight: 20,
   },
   carouselContainer: {
+  },
+  carouselContent: {
     paddingLeft: 20,
+    paddingRight: 20,
   },
   gameCard: {
     marginRight: 12,
     width: 84,
+  },
+  gameCardContent: {
+    width: '100%',
   },
   gameImage: {
     width: 84,
