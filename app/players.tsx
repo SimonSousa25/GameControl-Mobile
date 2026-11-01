@@ -26,6 +26,10 @@ export default function PlayersScreen() {
       router.push("/profile");
       return;
     }
+    if (tabId === "feed") {
+      router.push("/feed");
+      return;
+    }
     console.log(`${tabId} pressed`);
   };
 
