@@ -1,7 +1,7 @@
 import { Text, View } from "@/components/Themed";
 import gameService, { GameDTO } from "@/services/gameService";
 import { LinearGradient } from "expo-linear-gradient";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -13,12 +13,13 @@ import {
 import Animated, {
   cancelAnimation,
   Easing,
-  runOnJS,
   scrollTo,
   useAnimatedReaction,
   useAnimatedRef,
   useSharedValue,
   withDelay,
+  withRepeat,
+  withSequence,
   withTiming,
 } from "react-native-reanimated";
 import { styles } from "./styles";
@@ -39,142 +40,241 @@ const GAME_CARD_STEP = GAME_CARD_WIDTH + GAME_CARD_GAP;
 const AUTO_SCROLL_START_DELAY = 1000;
 const AUTO_SCROLL_END_DELAY = 200;
 const AUTO_SCROLL_MS_PER_PIXEL = 20;
+const AUTO_SCROLL_MIN_DURATION = 1200;
 const AUTO_SCROLL_RETURN_DURATION = 1800;
 const INTERACTION_RESUME_DELAY = 1200;
+const WEB_DRAG_THRESHOLD = 5;
 
+/** Anima do offset `from` até `to`, após o delay inicial. */
+const createForwardAnimation = (from: number, to: number) =>
+  withDelay(
+    AUTO_SCROLL_START_DELAY,
+    withTiming(to, {
+      duration: Math.max(
+        AUTO_SCROLL_MIN_DURATION,
+        (to - from) * AUTO_SCROLL_MS_PER_PIXEL,
+      ),
+      easing: Easing.linear,
+    }),
+  );
+
+/** Anima de volta ao início, após uma pequena pausa no fim. */
+const createReturnAnimation = () =>
+  withDelay(
+    AUTO_SCROLL_END_DELAY,
+    withTiming(0, {
+      duration: AUTO_SCROLL_RETURN_DURATION,
+      easing: Easing.inOut(Easing.cubic),
+    }),
+  );
+
+/**
+ * Container: cuida apenas de buscar/decidir o que exibir.
+ *
+ * Toda a lógica de animação vive em `GameCarouselList`, que só é montado
+ * quando existem jogos. Assim o `Animated.ScrollView` (e a ref usada pelo
+ * `scrollTo` do Reanimated) sempre existe enquanto os hooks de animação
+ * estão ativos.
+ */
 export default function GameCarousel({
   title,
   games: initialGames,
   onGamePress,
   fetchRecent = false,
 }: GameCarouselProps) {
-  const [games, setGames] = useState<GameDTO[]>(initialGames || []);
+  const [fetchedGames, setFetchedGames] = useState<GameDTO[]>([]);
   const [loading, setLoading] = useState(!initialGames && fetchRecent);
+
+  const games = (initialGames ?? fetchedGames).slice(0, MAX_GAMES);
+
+  useEffect(() => {
+    if (!fetchRecent || initialGames) return;
+
+    let cancelled = false;
+
+    const loadGames = async () => {
+      try {
+        setLoading(true);
+        const data = await gameService.listarJogosEmDestaque(MAX_GAMES);
+        if (!cancelled) setFetchedGames(data);
+      } catch (error) {
+        console.error("Erro ao carregar jogos:", error);
+        if (!cancelled) setFetchedGames([]);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    loadGames();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [fetchRecent, initialGames]);
+
+  if (loading) {
+    return (
+      <View
+        style={styles.container}
+        lightColor="transparent"
+        darkColor="transparent"
+      >
+        <View
+          style={styles.header}
+          lightColor="transparent"
+          darkColor="transparent"
+        >
+          <Text style={styles.title}>{title}</Text>
+        </View>
+        <View
+          style={styles.loadingContainer}
+          lightColor="transparent"
+          darkColor="transparent"
+        >
+          <ActivityIndicator size="large" color="#007AFF" />
+        </View>
+      </View>
+    );
+  }
+
+  if (games.length === 0) {
+    return null;
+  }
+
+  return <GameCarouselList title={title} games={games} onGamePress={onGamePress} />;
+}
+
+interface GameCarouselListProps {
+  title: string;
+  games: GameDTO[];
+  onGamePress?: (gameId: string) => void;
+}
+
+function GameCarouselList({ title, games, onGamePress }: GameCarouselListProps) {
   const carouselRef = useAnimatedRef<ScrollView>();
   const animatedOffset = useSharedValue(0);
+  const [isLayoutReady, setIsLayoutReady] = useState(false);
+
   const scrollOffset = useRef(0);
   const dragStartOffset = useRef(0);
   const dragStartX = useRef(0);
   const pointerDownX = useRef(0);
   const pointerDownY = useRef(0);
-  const gameCount = useRef(0);
-  const autoCycleStarted = useRef(false);
   const isUserInteracting = useRef(false);
   const isWebPointerActive = useRef(false);
   const didWebDrag = useRef(false);
   const interactionTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const webDragResetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  gameCount.current = Math.min(games.length, MAX_GAMES);
+  const finalOffset = Math.max(
+    0,
+    (games.length - VISIBLE_GAMES) * GAME_CARD_STEP,
+  );
 
+  // Aplica o offset animado ao ScrollView.
+  // - previous === null: primeira execução, só reflete o valor inicial (0).
+  // - carouselRef(): na UI thread devolve o shadow node da ref. A ref é enviada
+  //   do JS para a UI de forma assíncrona, então nos primeiros frames ela ainda
+  //   pode ser null. Nesse caso pulamos o frame (o próximo tenta de novo) em vez
+  //   de chamar scrollTo e gerar o warning do Reanimated.
   useAnimatedReaction(
     () => animatedOffset.value,
-    (offset) => {
+    (offset, previous) => {
+      if (previous === null || !carouselRef()) return;
       scrollTo(carouselRef, offset, 0, false);
     },
   );
 
-  const getFinalScrollOffset = () =>
-    Math.max(0, (gameCount.current - VISIBLE_GAMES) * GAME_CARD_STEP);
+  /**
+   * Ciclo infinito: vai até o fim, volta ao início e repete.
+   * Tudo é descrito com withSequence/withRepeat, então não há callbacks
+   * nem `runOnJS` recursivo (nada que seja recriado a cada render).
+   */
+  const startAutoScroll = useCallback(
+    (startOffset: number) => {
+      if (finalOffset <= 0) return;
 
-  function startReturnAnimation() {
-    animatedOffset.value = withDelay(
-      AUTO_SCROLL_END_DELAY,
-      withTiming(
-        0,
-        {
-          duration: AUTO_SCROLL_RETURN_DURATION,
-          easing: Easing.inOut(Easing.cubic),
-        },
-        (returned) => {
-          if (returned) {
-            runOnJS(startAutoScrollCycle)(0);
-          }
-        },
-      ),
-    );
-  }
+      const from = Math.min(Math.max(0, startOffset), finalOffset);
+      const loop = withRepeat(
+        withSequence(
+          createForwardAnimation(0, finalOffset),
+          createReturnAnimation(),
+        ),
+        -1,
+        false,
+      );
 
-  function startAutoScrollCycle(startOffset = 0) {
-    const finalOffset = getFinalScrollOffset();
-    if (finalOffset <= 0 || isUserInteracting.current) return;
+      animatedOffset.value = from;
 
-    const normalizedOffset = Math.min(Math.max(0, startOffset), finalOffset);
-    const remainingDistance = finalOffset - normalizedOffset;
+      // Se já estamos no fim, pula direto para o retorno.
+      animatedOffset.value =
+        finalOffset - from > 1
+          ? withSequence(
+              createForwardAnimation(from, finalOffset),
+              createReturnAnimation(),
+              loop,
+            )
+          : withSequence(createReturnAnimation(), loop);
+    },
+    [animatedOffset, finalOffset],
+  );
 
-    // Se já estamos no fim, não cria uma falsa animação do limite para ele mesmo.
-    if (remainingDistance <= 1) {
-      animatedOffset.value = normalizedOffset;
-      startReturnAnimation();
-      return;
-    }
-
-    const forwardDuration = Math.max(
-      1200,
-      remainingDistance * AUTO_SCROLL_MS_PER_PIXEL,
-    );
-
-    animatedOffset.value = normalizedOffset;
-    animatedOffset.value = withDelay(
-      AUTO_SCROLL_START_DELAY,
-      withTiming(
-        finalOffset,
-        {
-          duration: forwardDuration,
-          easing: Easing.linear,
-        },
-        (finished) => {
-          if (finished) {
-            runOnJS(startReturnAnimation)();
-          }
-        },
-      ),
-    );
-  }
-
-  const startAutoScrollWhenReady = () => {
-    if (autoCycleStarted.current || getFinalScrollOffset() <= 0) return;
-
-    autoCycleStarted.current = true;
-    startAutoScrollCycle(scrollOffset.current);
-  };
-
-  const pauseAutoScroll = () => {
-    isUserInteracting.current = true;
-    autoCycleStarted.current = false;
-    cancelAnimation(animatedOffset);
+  const clearInteractionTimer = useCallback(() => {
     if (interactionTimer.current) {
       clearTimeout(interactionTimer.current);
       interactionTimer.current = null;
     }
-  };
+  }, []);
 
-  const resumeAutoScroll = () => {
+  const pauseAutoScroll = useCallback(() => {
+    isUserInteracting.current = true;
+    cancelAnimation(animatedOffset);
+    clearInteractionTimer();
+  }, [animatedOffset, clearInteractionTimer]);
+
+  const resumeAutoScroll = useCallback(() => {
     if (!isUserInteracting.current) return;
 
-    if (interactionTimer.current) {
-      clearTimeout(interactionTimer.current);
-    }
-
+    clearInteractionTimer();
     interactionTimer.current = setTimeout(() => {
       isUserInteracting.current = false;
       interactionTimer.current = null;
-      autoCycleStarted.current = true;
-      startAutoScrollCycle(scrollOffset.current);
+      startAutoScroll(scrollOffset.current);
     }, INTERACTION_RESUME_DELAY);
-  };
+  }, [clearInteractionTimer, startAutoScroll]);
+
+  // Só avisa que está pronto quando o ScrollView já foi montado e medido.
+  const handleLayout = useCallback(() => setIsLayoutReady(true), []);
+
+  // Inicia (ou reinicia, se a quantidade de jogos mudar) o auto-scroll.
+  useEffect(() => {
+    if (!isLayoutReady || finalOffset <= 0) return;
+
+    if (!isUserInteracting.current) {
+      startAutoScroll(scrollOffset.current);
+    }
+
+    return () => cancelAnimation(animatedOffset);
+  }, [animatedOffset, finalOffset, isLayoutReady, startAutoScroll]);
+
+  // Limpa timers pendentes ao desmontar.
+  useEffect(
+    () => () => {
+      clearInteractionTimer();
+      if (webDragResetTimer.current) {
+        clearTimeout(webDragResetTimer.current);
+      }
+    },
+    [clearInteractionTimer],
+  );
 
   const handleMomentumScrollBegin = () => {
-    if (!isUserInteracting.current || !interactionTimer.current) return;
-
-    clearTimeout(interactionTimer.current);
-    interactionTimer.current = null;
+    // Enquanto há inércia, não retoma o auto-scroll.
+    if (isUserInteracting.current) clearInteractionTimer();
   };
 
   const handleMomentumScrollEnd = () => {
-    if (isUserInteracting.current) {
-      resumeAutoScroll();
-    }
+    resumeAutoScroll();
   };
 
   const handleWebPointerDown = (event: ReactNativePointerEvent) => {
@@ -194,6 +294,7 @@ export default function GameCarousel({
     pointerDownY.current = clientY;
   };
 
+  // Arrastar com o mouse na web.
   useEffect(() => {
     if (Platform.OS !== "web" || typeof window === "undefined") return;
 
@@ -204,7 +305,12 @@ export default function GameCarousel({
       const deltaY = event.clientY - pointerDownY.current;
 
       if (!didWebDrag.current) {
-        if (Math.abs(deltaX) <= 5 && Math.abs(deltaY) <= 5) return;
+        if (
+          Math.abs(deltaX) <= WEB_DRAG_THRESHOLD &&
+          Math.abs(deltaY) <= WEB_DRAG_THRESHOLD
+        ) {
+          return;
+        }
 
         if (Math.abs(deltaY) >= Math.abs(deltaX)) {
           isWebPointerActive.current = false;
@@ -220,7 +326,7 @@ export default function GameCarousel({
       event.preventDefault();
       const movement = event.clientX - dragStartX.current;
       const nextOffset = Math.min(
-        getFinalScrollOffset(),
+        finalOffset,
         Math.max(0, dragStartOffset.current - movement),
       );
 
@@ -254,68 +360,7 @@ export default function GameCarousel({
       window.removeEventListener("pointerup", finishWebPointerInteraction);
       window.removeEventListener("pointercancel", finishWebPointerInteraction);
     };
-  }, []);
-
-  useEffect(() => {
-    if (fetchRecent && !initialGames) {
-      loadGames();
-    }
-  }, [fetchRecent, initialGames]);
-
-  useEffect(
-    () => () => {
-      cancelAnimation(animatedOffset);
-      if (interactionTimer.current) {
-        clearTimeout(interactionTimer.current);
-      }
-      if (webDragResetTimer.current) {
-        clearTimeout(webDragResetTimer.current);
-      }
-    },
-    [],
-  );
-
-  const loadGames = async () => {
-    try {
-      setLoading(true);
-      const data = await gameService.listarJogosEmDestaque(MAX_GAMES);
-      setGames(data.slice(0, MAX_GAMES));
-    } catch (error) {
-      console.error("Erro ao carregar jogos:", error);
-      setGames([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (loading) {
-    return (
-      <View
-        style={styles.container}
-        lightColor="transparent"
-        darkColor="transparent"
-      >
-        <View
-          style={styles.header}
-          lightColor="transparent"
-          darkColor="transparent"
-        >
-          <Text style={styles.title}>{title}</Text>
-        </View>
-        <View
-          style={styles.loadingContainer}
-          lightColor="transparent"
-          darkColor="transparent"
-        >
-          <ActivityIndicator size="large" color="#007AFF" />
-        </View>
-      </View>
-    );
-  }
-
-  if (games.length === 0) {
-    return null;
-  }
+  }, [carouselRef, finalOffset, pauseAutoScroll, resumeAutoScroll]);
 
   return (
     <View
@@ -351,15 +396,14 @@ export default function GameCarousel({
         onScroll={(event) => {
           scrollOffset.current = event.nativeEvent.contentOffset.x;
         }}
-        onLayout={startAutoScrollWhenReady}
-        onContentSizeChange={startAutoScrollWhenReady}
+        onLayout={handleLayout}
         style={styles.carouselContainer}
         contentContainerStyle={styles.carouselContent}
         onPointerDown={
           Platform.OS === "web" ? handleWebPointerDown : undefined
         }
       >
-        {games.slice(0, MAX_GAMES).map((game) => (
+        {games.map((game) => (
           <TouchableOpacity
             key={game.id}
             style={styles.gameCard}
