@@ -93,34 +93,12 @@ export default function Settings({
     onSearchSubmit?.(searchTerm);
   };
 
-  const handleSelectAvatar = async () => {
+  const uploadAvatar = async (uri: string) => {
     try {
-      const permission =
-        await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-      if (!permission.granted) {
-        Alert.alert(
-          "Permissão necessária",
-          "Permita o acesso às suas fotos para escolher uma imagem de perfil.",
-        );
-        return;
-      }
-
-      const pickerResult = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ["images"],
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 1,
-      });
-
-      if (pickerResult.canceled || !pickerResult.assets[0]) return;
-
       setUploadingAvatar(true);
 
       // Reduz a foto antes do envio para não guardar uma imagem enorme no perfil.
-      const manipulationContext = ImageManipulator.manipulate(
-        pickerResult.assets[0].uri,
-      );
+      const manipulationContext = ImageManipulator.manipulate(uri);
       manipulationContext.resize({ width: 512, height: 512 });
 
       const renderedImage = await manipulationContext.renderAsync();
@@ -148,6 +126,80 @@ export default function Settings({
     } finally {
       setUploadingAvatar(false);
     }
+  };
+
+  const handlePickFromLibrary = async () => {
+    try {
+      const permission =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+      if (!permission.granted) {
+        Alert.alert(
+          "Permissão necessária",
+          "Permita o acesso às suas fotos para escolher uma imagem de perfil.",
+        );
+        return;
+      }
+
+      const pickerResult = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ["images"],
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 1,
+      });
+
+      if (pickerResult.canceled || !pickerResult.assets[0]) return;
+
+      await uploadAvatar(pickerResult.assets[0].uri);
+    } catch (error) {
+      console.error("Erro ao abrir a galeria:", error);
+      Alert.alert(
+        "Não foi possível abrir a galeria",
+        "Tente novamente em instantes.",
+      );
+    }
+  };
+
+  const handleTakePhoto = async () => {
+    try {
+      const permission = await ImagePicker.requestCameraPermissionsAsync();
+
+      if (!permission.granted) {
+        Alert.alert(
+          "Permissão necessária",
+          "Permita o acesso à câmera para tirar uma foto de perfil.",
+        );
+        return;
+      }
+
+      const cameraResult = await ImagePicker.launchCameraAsync({
+        mediaTypes: ["images"],
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 1,
+      });
+
+      if (cameraResult.canceled || !cameraResult.assets[0]) return;
+
+      await uploadAvatar(cameraResult.assets[0].uri);
+    } catch (error) {
+      console.error("Erro ao abrir a câmera:", error);
+      Alert.alert(
+        "Não foi possível abrir a câmera",
+        "Tente novamente em instantes.",
+      );
+    }
+  };
+
+  const handleSelectAvatar = () => {
+    Alert.alert("Foto de perfil", "De onde você quer pegar a foto?", [
+      { text: "Tirar foto", onPress: () => void handleTakePhoto() },
+      {
+        text: "Escolher da galeria",
+        onPress: () => void handlePickFromLibrary(),
+      },
+      { text: "Cancelar", style: "cancel" },
+    ]);
   };
 
   const handleSave = async () => {
@@ -234,7 +286,7 @@ export default function Settings({
           <Text style={styles.sectionTitle}>Foto de perfil</Text>
 
           <Pressable
-            accessibilityLabel="Escolher uma nova foto de perfil"
+            accessibilityLabel="Alterar foto de perfil (câmera ou galeria)"
             accessibilityRole="button"
             disabled={uploadingAvatar}
             onPress={handleSelectAvatar}
