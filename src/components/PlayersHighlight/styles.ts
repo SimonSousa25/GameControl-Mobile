@@ -35,8 +35,8 @@ export const styles = StyleSheet.create({
     paddingLeft: 20,
   },
   cardSpacing: {
-    width: 83, // mesma largura do card na página de Jogadores
-    marginRight: 10,
+    width: 84, // mesma largura dos cards do carrossel de jogos
+    marginRight: 12,
   },
   userInitial: {
     fontSize: 14,
