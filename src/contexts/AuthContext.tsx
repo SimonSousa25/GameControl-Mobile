@@ -12,6 +12,7 @@ import {
 import { definirOuvinteSessao, executarAntesDeSair } from "@/services/api";
 import authService from "@/services/authService";
 import sessionService from "@/services/sessionService";
+import { queryClient } from "@/src/queries/queryClient";
 import type { AuthResponse, UserDTO } from "@/services/userService";
 
 interface AuthContextValue {
@@ -67,6 +68,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await executarAntesDeSair();
     await sessionService.limpar();
     applySession(null);
+    // Descarta os dados em cache para que a próxima conta nunca veja os da anterior.
+    queryClient.clear();
     await authService.sair().catch(() => {});
   }, [applySession]);
 

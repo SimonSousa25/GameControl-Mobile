@@ -1,12 +1,15 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useQueryClient } from "@tanstack/react-query";
+import { Image } from "expo-image";
 import { useEffect, useMemo, useState } from "react";
-import { FlatList, Image, Pressable, TouchableOpacity } from "react-native";
+import { FlatList, Pressable, TouchableOpacity } from "react-native";
 
 import BackButton from "@/components/BackButton/BackButton";
 import Header from "@/components/Header/Header";
 import NavBottom from "@/components/NavBottom/NavBottom";
 import { Text, View } from "@/components/Themed";
-import gameService, { GameDTO } from "@/services/gameService";
+import type { GameDTO } from "@/services/gameService";
+import { catalogPageQuery, useCatalogPage } from "@/src/queries/gameQueries";
 
 import { styles } from "./styles";
 
@@ -40,10 +43,7 @@ export function Catalog({
   onGamePress,
   onTabPress,
 }: CatalogProps) {
-  const [games, setGames] = useState<GameDTO[]>([]);
-  const [totalItems, setTotalItems] = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState(initialSearch);
   const [debouncedSearch, setDebouncedSearch] = useState(initialSearch);
   const [page, setPage] = useState(0);
@@ -56,33 +56,24 @@ export function Catalog({
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
+  // Cada página/termo fica em cache: voltar a uma página já vista é instantâneo e
+  // a página atual permanece na tela enquanto a próxima carrega.
+  const { data, isPending } = useCatalogPage(debouncedSearch, page, PAGE_SIZE);
+  const loading = isPending;
+
+  // Em caso de erro `data` fica indefinido e a tela mostra "nenhum jogo encontrado".
+  const games: GameDTO[] = data?.itens ?? [];
+  const totalItems = data?.totalItens ?? 0;
+  const totalPages = Math.max(1, data?.totalPaginas ?? 1);
+
+  // Adianta a próxima página para a paginação responder sem espera.
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const data = await gameService.listarCatalogo(
-          debouncedSearch,
-          page,
-          PAGE_SIZE,
-        );
-        if (cancelled) return;
-        setGames(data.itens);
-        setTotalItems(data.totalItens);
-        setTotalPages(Math.max(1, data.totalPaginas));
-      } catch (error) {
-        console.error("Erro ao carregar jogos:", error);
-        if (cancelled) return;
-        setGames([]);
-        setTotalItems(0);
-        setTotalPages(1);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [debouncedSearch, page]);
+    if (page + 1 < totalPages) {
+      void queryClient.prefetchQuery(
+        catalogPageQuery(debouncedSearch, page + 1, PAGE_SIZE),
+      );
+    }
+  }, [queryClient, debouncedSearch, page, totalPages]);
 
   const pageRange = useMemo(() => {
     if (totalPages <= MAX_VISIBLE_DOTS) {
@@ -225,7 +216,8 @@ export function Catalog({
                       <Image
                         source={{ uri: coverUrl }}
                         style={styles.cardImage}
-                        resizeMode="cover"
+                        contentFit="cover"
+                        transition={150}
                       />
                     ) : (
                       <View

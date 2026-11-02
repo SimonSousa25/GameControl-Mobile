@@ -1,16 +1,19 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useQueryClient } from '@tanstack/react-query';
+import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
-import { ActivityIndicator, Image, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, TouchableOpacity, View } from 'react-native';
 import { Text } from '@/components/Themed';
 import PlaylistFormModal, {
   PlaylistFormValues,
 } from '@/components/modals/PlaylistFormModal/PlaylistFormModal';
 import PlaylistPickerModal from '@/components/modals/PlaylistPickerModal/PlaylistPickerModal';
-import gameService, { GameDTO, GenreDTO } from '@/services/gameService';
+import type { GameDTO, GenreDTO } from '@/services/gameService';
 import playlistService, { PlaylistDTO } from '@/services/playlistService';
 import reviewService from '@/services/reviewService';
+import { gameDetailQuery, genresQuery } from '@/src/queries/gameQueries';
 import { styles } from './styles';
 
 interface GamePageProps {
@@ -31,6 +34,7 @@ export default function GamePage({
   onReviewsPress,
   onLoginRequired,
 }: GamePageProps) {
+  const queryClient = useQueryClient();
   const [game, setGame] = useState<GameDTO | null>(null);
   const [genres, setGenres] = useState<GenreDTO[]>([]);
   const [reviewsAverage, setReviewsAverage] = useState(0);
@@ -140,9 +144,11 @@ export default function GamePage({
         setLoading(true);
       }
       setError(false);
+      // Jogo e gêneros mudam pouco: vêm do cache enquanto estiverem "frescos".
+      // As avaliações são sempre buscadas de novo (a nota média muda).
       const [gameData, genresData, reviewsPage] = await Promise.all([
-        gameService.buscarJogoPorId(gameId),
-        gameService.listarGeneros(),
+        queryClient.fetchQuery(gameDetailQuery(gameId)),
+        queryClient.fetchQuery(genresQuery()),
         reviewService.buscarPaginaDeAvaliacoes(gameId).catch((err) => {
           console.error('Erro ao carregar avaliações do jogo:', err);
           return null;
@@ -201,7 +207,8 @@ export default function GamePage({
         <Image
           source={{ uri: game.coverImageUrl }}
           style={styles.cover}
-          resizeMode="cover"
+          contentFit="cover"
+          transition={150}
         />
       </View>
 

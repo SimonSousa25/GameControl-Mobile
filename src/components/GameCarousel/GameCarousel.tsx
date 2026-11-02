@@ -1,10 +1,11 @@
 import { Text, View } from "@/components/Themed";
-import gameService, { GameDTO } from "@/services/gameService";
+import type { GameDTO } from "@/services/gameService";
+import { useFeaturedGames } from "@/src/queries/gameQueries";
+import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
-  Image,
   Platform,
   type PointerEvent as ReactNativePointerEvent,
   ScrollView,
@@ -82,35 +83,15 @@ export default function GameCarousel({
   onGamePress,
   fetchRecent = false,
 }: GameCarouselProps) {
-  const [fetchedGames, setFetchedGames] = useState<GameDTO[]>([]);
-  const [loading, setLoading] = useState(!initialGames && fetchRecent);
+  // Busca (com cache) só quando a tela pede e não recebeu os jogos prontos.
+  const shouldFetch = fetchRecent && !initialGames;
+  const { data: fetchedGames, isPending } = useFeaturedGames(
+    MAX_GAMES,
+    shouldFetch,
+  );
+  const loading = shouldFetch && isPending;
 
-  const games = (initialGames ?? fetchedGames).slice(0, MAX_GAMES);
-
-  useEffect(() => {
-    if (!fetchRecent || initialGames) return;
-
-    let cancelled = false;
-
-    const loadGames = async () => {
-      try {
-        setLoading(true);
-        const data = await gameService.listarJogosEmDestaque(MAX_GAMES);
-        if (!cancelled) setFetchedGames(data);
-      } catch (error) {
-        console.error("Erro ao carregar jogos:", error);
-        if (!cancelled) setFetchedGames([]);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    };
-
-    loadGames();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [fetchRecent, initialGames]);
+  const games = (initialGames ?? fetchedGames ?? []).slice(0, MAX_GAMES);
 
   if (loading) {
     return (
@@ -422,7 +403,8 @@ function GameCarouselList({ title, games, onGamePress }: GameCarouselListProps) 
               <Image
                 source={{ uri: game.coverImageUrl }}
                 style={styles.gameImage}
-                resizeMode="cover"
+                contentFit="cover"
+                transition={150}
               />
               <Text style={styles.gameTitle} numberOfLines={2}>
                 {game.nome}

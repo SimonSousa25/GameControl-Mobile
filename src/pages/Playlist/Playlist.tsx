@@ -1,7 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useState } from "react";
-import { Image, ScrollView, TouchableOpacity } from "react-native";
+import { Image } from "expo-image";
+import { ScrollView, TouchableOpacity } from "react-native";
 import Svg, { Path } from "react-native-svg";
 
 import BackButton from "@/components/BackButton/BackButton";
@@ -511,7 +512,8 @@ export function Playlist({
                             <Image
                               source={{ uri: coverUrl }}
                               style={styles.cardImage}
-                              resizeMode="cover"
+                              contentFit="cover"
+                              transition={150}
                             />
                           ) : (
                             <View

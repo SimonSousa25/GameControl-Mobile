@@ -11,11 +11,13 @@ import { useCallback, useEffect } from "react";
 import { StyleSheet, View } from "react-native";
 import "react-native-reanimated";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { QueryClientProvider } from "@tanstack/react-query";
 
 import { useColorScheme } from "@/components/useColorScheme";
 import { AuthProvider, useAuth } from "@/src/contexts/AuthContext";
 import { FontScaleProvider, useFontScale } from "@/src/contexts/FontScaleContext";
 import { NotificationsProvider } from "@/src/contexts/NotificationsContext";
+import { queryClient } from "@/src/queries/queryClient";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -31,11 +33,13 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
-      <FontScaleProvider>
-        <AuthProvider>
-          <RootLayoutContent />
-        </AuthProvider>
-      </FontScaleProvider>
+      <QueryClientProvider client={queryClient}>
+        <FontScaleProvider>
+          <AuthProvider>
+            <RootLayoutContent />
+          </AuthProvider>
+        </FontScaleProvider>
+      </QueryClientProvider>
     </SafeAreaProvider>
   );
 }

@@ -9,7 +9,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { Platform } from "react-native";
+import { AppState, Platform } from "react-native";
 
 import { definirAntesDeSair } from "@/services/api";
 import notificationService from "@/services/notificationService";
@@ -77,8 +77,33 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     void refreshUnreadCount();
     if (!userId) return;
-    const interval = setInterval(() => void refreshUnreadCount(), POLLING_INTERVAL_MS);
-    return () => clearInterval(interval);
+
+    // O polling só roda com o app em primeiro plano: em segundo plano ele gastaria
+    // rede e bateria à toa (os pushes continuam atualizando o contador). Ao voltar
+    // para o app, atualiza na hora e retoma o intervalo.
+    let interval: ReturnType<typeof setInterval> | null = null;
+    const iniciar = () => {
+      interval ??= setInterval(() => void refreshUnreadCount(), POLLING_INTERVAL_MS);
+    };
+    const parar = () => {
+      if (interval) clearInterval(interval);
+      interval = null;
+    };
+
+    if (AppState.currentState === "active") iniciar();
+    const assinatura = AppState.addEventListener("change", (estado) => {
+      if (estado === "active") {
+        void refreshUnreadCount();
+        iniciar();
+      } else {
+        parar();
+      }
+    });
+
+    return () => {
+      parar();
+      assinatura.remove();
+    };
   }, [userId, refreshUnreadCount]);
 
   useEffect(() => {

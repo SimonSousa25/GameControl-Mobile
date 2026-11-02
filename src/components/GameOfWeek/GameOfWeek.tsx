@@ -1,20 +1,13 @@
-import { TouchableOpacity, Image, ActivityIndicator } from 'react-native';
+import { TouchableOpacity, ActivityIndicator } from 'react-native';
+import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useEffect, useState } from 'react';
 import { Text, View } from '@/components/Themed';
-import gameService, { GameDTO } from '@/services/gameService';
+import { useGameOfWeek } from '@/src/queries/gameQueries';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { styles } from './styles';
 
 interface GameOfWeekProps {
   onGamePress?: (gameId: string) => void;
-}
-
-interface GameOfWeekData {
-  game: GameDTO;
-  /** Presentes quando o jogo vem do ranking por reviews. */
-  averageRating?: number;
-  reviewCount?: number;
 }
 
 const MAX_STARS = 5;
@@ -27,38 +20,9 @@ function starName(average: number, index: number): 'star' | 'star-half' | 'star-
 }
 
 export default function GameOfWeek({ onGamePress }: GameOfWeekProps) {
-  const [data, setData] = useState<GameOfWeekData | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    loadGame();
-  }, []);
-
-  const loadGame = async () => {
-    try {
-      setLoading(true);
-
-      // Prioridade: o jogo mais bem avaliado pelas reviews dos jogadores.
-      const topRated = await gameService.buscarMelhorAvaliado().catch(() => null);
-      if (topRated?.game) {
-        setData({
-          game: topRated.game,
-          averageRating: topRated.averageRating,
-          reviewCount: topRated.reviewCount,
-        });
-        return;
-      }
-
-      // Ainda não há jogo com avaliações suficientes: usa o destaque da semana.
-      const featured = await gameService.buscarJogoDaSemana();
-      setData(featured ? { game: featured } : null);
-    } catch (error) {
-      console.error('Erro ao carregar o jogo da semana:', error);
-      setData(null);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Busca com cache: voltar para a Home reaproveita o resultado por alguns minutos.
+  // Em caso de erro `data` fica indefinido e a seção simplesmente não aparece.
+  const { data, isPending: loading } = useGameOfWeek();
 
   if (loading) {
     return (
@@ -115,7 +79,8 @@ export default function GameOfWeek({ onGamePress }: GameOfWeekProps) {
               <Image
                 source={{ uri: game.coverImageUrl || game.capa }}
                 style={styles.gameImage}
-                resizeMode="cover"
+                contentFit="cover"
+                transition={150}
               />
               <LinearGradient
                 colors={['transparent', 'rgba(10, 14, 21, 0.9)']}
