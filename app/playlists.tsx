@@ -33,6 +33,10 @@ export default function PlaylistsScreen() {
       router.replace("/profile");
       return;
     }
+    if (tabId === "feed") {
+      router.push("/feed");
+      return;
+    }
     console.log(`${tabId} pressed`);
   };
 

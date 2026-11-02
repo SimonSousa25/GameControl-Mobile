@@ -1,6 +1,6 @@
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   ImageBackground,
@@ -13,7 +13,8 @@ import {
 import type { ImageSourcePropType } from "react-native";
 
 import { Text, View } from "@/components/Themed";
-import gameService, { GameDTO } from "@/services/gameService";
+import type { GameDTO } from "@/services/gameService";
+import { useHeroGames } from "@/src/queries/gameQueries";
 import { styles } from "./styles";
 
 const MAX_CONTENT_WIDTH = 402;
@@ -41,7 +42,7 @@ const localBanner: BannerItem = {
   description:
     "Veja jogos, avaliações, playlists e perfis de outros jogadores.",
   ctaLabel: "Ver Todos os Jogos",
-  localImage: require("../../../assets/images/img-arcade-960x800.png"),
+  localImage: require("../../../assets/images/img-arcade-960x800.webp"),
   isPresentation: true,
 };
 
@@ -51,23 +52,25 @@ const HERO_GAMES = [
     title: "Phasmophobia",
     description:
       "Investigue locais assombrados com seus amigos. Você tem coragem?",
-    image: require("../../../assets/images/img-phasmophobia-960x800.png"),
+    image: require("../../../assets/images/img-phasmophobia-960x800.webp"),
   },
   {
     slug: "elden-ring",
     title: "Elden Ring",
     description:
       "Um mundo aberto épico criado por Hidetaka Miyazaki e George R.R. Martin.",
-    image: require("../../../assets/images/img-elden-ring-960x800.png"),
+    image: require("../../../assets/images/img-elden-ring-960x800.webp"),
   },
   {
     slug: "the-isle",
     title: "The Isle",
     description:
       "Sobreviva em uma ilha selvagem dominada por dinossauros. Você será caçador ou presa?",
-    image: require("../../../assets/images/img-the-isle-960x800.png"),
+    image: require("../../../assets/images/img-the-isle-960x800.webp"),
   },
 ] as const;
+
+const HERO_SLUGS = HERO_GAMES.map((heroGame) => heroGame.slug);
 
 const normalizeGameName = (value: string) => value.trim().toLowerCase();
 
@@ -97,10 +100,6 @@ export default function HeroBanner({
   onGamePress,
   onExplorePress,
 }: HeroBannerProps) {
-  const [games, setGames] = useState<BannerItem[]>(
-    initialGames ? selectHeroGames(initialGames) : [],
-  );
-  const [loading, setLoading] = useState(!initialGames);
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollRef = useRef<ScrollView>(null);
 
@@ -108,30 +107,24 @@ export default function HeroBanner({
   const slideWidth = Math.min(windowWidth, MAX_CONTENT_WIDTH);
   const slideHeight = slideWidth / BANNER_ASPECT_RATIO;
 
-  const gameSlides: BannerItem[] = [localBanner, ...games];
+  // Busca (com cache) só quando a tela não recebeu os jogos prontos. Em caso de
+  // erro `data` fica indefinido e o banner mostra apenas o slide de apresentação.
+  const { data: fetchedGames, isPending } = useHeroGames(
+    HERO_SLUGS,
+    !initialGames,
+  );
+  const loading = !initialGames && isPending;
 
-  useEffect(() => {
-    if (initialGames) {
-      setGames(selectHeroGames(initialGames));
-      setLoading(false);
-      return;
-    }
+  const sourceGames = initialGames ?? fetchedGames;
+  const games = useMemo(
+    () => (sourceGames ? selectHeroGames(sourceGames) : []),
+    [sourceGames],
+  );
 
-    loadGames();
-  }, [initialGames]);
-
-  const loadGames = async () => {
-    try {
-      setLoading(true);
-      const data = await gameService.listarTodosJogos();
-      setGames(selectHeroGames(data));
-    } catch (error) {
-      console.error("Erro ao carregar banner principal:", error);
-      setGames([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const gameSlides: BannerItem[] = useMemo(
+    () => [localBanner, ...games],
+    [games],
+  );
 
   const goToSlide = (index: number) => {
     if (gameSlides.length === 0) return;

@@ -30,6 +30,10 @@ export default function NotificationsScreen() {
       router.push("/profile");
       return;
     }
+    if (tabId === "feed") {
+      router.push("/feed");
+      return;
+    }
     console.log(`${tabId} pressed`);
   };
 
