@@ -11,6 +11,7 @@ export interface UserPostDTO {
   commentIds?: string[];
   createdAt?: string;
   profilePictureUrl?: string;
+  edited?: boolean;
 }
 
 export interface CreateUserPostRequest {
@@ -83,6 +84,23 @@ class UserPostService {
       }
     } catch (error) {
       console.error("Erro ao curtir post:", error);
+      throw error;
+    }
+  }
+
+  async editarPost(id: string, text: string): Promise<UserPostDTO> {
+    try {
+      const response = await apiFetch(`/posts/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+      if (!response.ok) {
+        throw new Error(`Erro ao editar post: ${response.statusText}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error("Erro ao editar post:", error);
       throw error;
     }
   }

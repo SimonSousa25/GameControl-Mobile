@@ -48,11 +48,21 @@ export function PostCommentsModal({
   const [deleteHoveredCommentId, setDeleteHoveredCommentId] = useState<
     string | null
   >(null);
+  const [editHoveredCommentId, setEditHoveredCommentId] = useState<
+    string | null
+  >(null);
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editCommentText, setEditCommentText] = useState("");
+  const [savingEditCommentId, setSavingEditCommentId] = useState<string | null>(
+    null,
+  );
 
   useEffect(() => {
     // O modal permanece montado quando é fechado, então limpamos o menu manualmente.
     setOpenMenuCommentId(null);
     setDeleteHoveredCommentId(null);
+    setEditHoveredCommentId(null);
+    setEditingCommentId(null);
 
     if (!visible || !postId) return;
     setText("");
@@ -91,6 +101,38 @@ export function PostCommentsModal({
       console.error("Erro ao enviar comentário:", error);
     } finally {
       setSending(false);
+    }
+  };
+
+  const startEditingComment = (comment: PostCommentDTO) => {
+    if (!comment.id) return;
+    setOpenMenuCommentId(null);
+    setDeleteHoveredCommentId(null);
+    setEditHoveredCommentId(null);
+    setEditCommentText(comment.content ?? "");
+    setEditingCommentId(comment.id);
+  };
+
+  const cancelEditingComment = () => {
+    setEditingCommentId(null);
+    setEditCommentText("");
+  };
+
+  const handleSaveEditComment = async (comment: PostCommentDTO) => {
+    const trimmed = editCommentText.trim();
+    if (!comment.id || !trimmed || savingEditCommentId) return;
+
+    try {
+      setSavingEditCommentId(comment.id);
+      const updated = await postCommentService.editarComentario(comment.id, trimmed);
+      setComments((prev) =>
+        prev.map((item) => (item.id === comment.id ? updated : item)),
+      );
+      setEditingCommentId(null);
+    } catch (error) {
+      console.error("Erro ao editar comentário:", error);
+    } finally {
+      setSavingEditCommentId(null);
     }
   };
 
@@ -179,18 +221,82 @@ export function PostCommentsModal({
                           {formatCommentDate(comment.createdAt)}
                         </Text>
                       </View>
-                      <Text
-                        style={[
-                          styles.rowContent,
-                          openMenuCommentId === comment.id &&
-                            styles.rowContentMenuOpen,
-                        ]}
-                      >
-                        {comment.content}
-                      </Text>
+                      {editingCommentId === comment.id ? (
+                        <View
+                          style={styles.editContainer}
+                          lightColor="transparent"
+                          darkColor="transparent"
+                        >
+                          <TextInput
+                            style={styles.editInput}
+                            value={editCommentText}
+                            onChangeText={setEditCommentText}
+                            placeholderTextColor="#5C6478"
+                            multiline
+                            autoFocus
+                          />
+                          <View
+                            style={styles.editButtonsRow}
+                            lightColor="transparent"
+                            darkColor="transparent"
+                          >
+                            <TouchableOpacity
+                              accessibilityLabel="Cancelar edição"
+                              accessibilityRole="button"
+                              style={styles.editCancelButton}
+                              activeOpacity={0.8}
+                              disabled={savingEditCommentId === comment.id}
+                              onPress={cancelEditingComment}
+                            >
+                              <Text style={styles.editCancelButtonText}>
+                                Cancelar
+                              </Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                              accessibilityLabel="Salvar edição"
+                              accessibilityRole="button"
+                              style={[
+                                styles.editSaveButton,
+                                (!editCommentText.trim() ||
+                                  savingEditCommentId === comment.id) &&
+                                  styles.editSaveButtonDisabled,
+                              ]}
+                              activeOpacity={0.8}
+                              disabled={
+                                !editCommentText.trim() ||
+                                savingEditCommentId === comment.id
+                              }
+                              onPress={() => handleSaveEditComment(comment)}
+                            >
+                              {savingEditCommentId === comment.id ? (
+                                <ActivityIndicator size="small" color="#F5F7FF" />
+                              ) : (
+                                <Text style={styles.editSaveButtonText}>
+                                  Salvar
+                                </Text>
+                              )}
+                            </TouchableOpacity>
+                          </View>
+                        </View>
+                      ) : (
+                        <Text
+                          style={[
+                            styles.rowContent,
+                            openMenuCommentId === comment.id &&
+                              styles.rowContentMenuOpen,
+                          ]}
+                        >
+                          {comment.content}
+                          {comment.edited && (
+                            <Text style={styles.editedTag}> (editado)</Text>
+                          )}
+                        </Text>
+                      )}
                     </View>
 
-                    {comment.userId === userId && comment.id && (
+                    {comment.userId === userId &&
+                      comment.id &&
+                      editingCommentId !== comment.id && (
                       <View
                         style={styles.commentMenuContainer}
                         lightColor="transparent"
@@ -223,6 +329,37 @@ export function PostCommentsModal({
                     comment.id &&
                     openMenuCommentId === comment.id && (
                       <View style={styles.commentActionMenu}>
+                        <Pressable
+                          accessibilityLabel="Editar comentário"
+                          accessibilityRole="button"
+                          onHoverIn={() => setEditHoveredCommentId(comment.id!)}
+                          onHoverOut={() => setEditHoveredCommentId(null)}
+                          style={({ pressed }) => [
+                            styles.commentActionMenuItem,
+                            (editHoveredCommentId === comment.id || pressed) &&
+                              styles.commentActionMenuItemActive,
+                          ]}
+                          onPress={() => startEditingComment(comment)}
+                        >
+                          <Ionicons
+                            name="pencil-outline"
+                            size={15}
+                            color={
+                              editHoveredCommentId === comment.id
+                                ? "#F5F7FF"
+                                : "#CBD2DF"
+                            }
+                          />
+                          <Text
+                            style={[
+                              styles.commentActionMenuText,
+                              editHoveredCommentId === comment.id &&
+                                styles.commentActionMenuTextActive,
+                            ]}
+                          >
+                            Editar
+                          </Text>
+                        </Pressable>
                         <Pressable
                           accessibilityLabel="Excluir comentário"
                           accessibilityRole="button"

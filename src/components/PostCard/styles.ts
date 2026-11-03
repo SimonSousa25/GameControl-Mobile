@@ -146,6 +146,72 @@ export const styles = StyleSheet.create({
   contentMenuOpen: {
     paddingRight: 104,
   },
+  editedTag: {
+    color: "#5C6478",
+    fontFamily: "OrbitronMedium",
+    fontSize: 10,
+  },
+  editContainer: {
+    marginTop: 10,
+    gap: 8,
+  },
+  editInput: {
+    backgroundColor: "#051124",
+    borderWidth: 1,
+    borderColor: "#3E4E66",
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    color: "#F5F7FF",
+    fontFamily: "Orbitron",
+    fontSize: 12,
+    lineHeight: 18,
+    maxHeight: 120,
+  },
+  editActionsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  editCounter: {
+    color: "#6B7280",
+    fontFamily: "OrbitronMedium",
+    fontSize: 10,
+  },
+  editButtonsRow: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  editCancelButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "rgba(0, 229, 255, 0.15)",
+  },
+  editCancelButtonText: {
+    color: "#CBD2DF",
+    fontFamily: "OrbitronMedium",
+    fontSize: 11,
+  },
+  editSaveButton: {
+    minWidth: 68,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 8,
+    backgroundColor: "#F52E8F",
+  },
+  editSaveButtonDisabled: {
+    opacity: 0.5,
+  },
+  editSaveButtonText: {
+    color: "#F5F7FF",
+    fontFamily: "OrbitronBold",
+    fontSize: 11,
+    fontWeight: "700",
+  },
   dateCompact: {
     marginLeft: "auto",
   },
