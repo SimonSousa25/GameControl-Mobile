@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Modal, Pressable, ScrollView, TouchableOpacity } from "react-native";
+import { ActivityIndicator, Image, Modal, Pressable, ScrollView, TouchableOpacity } from "react-native";
 import { ScaledTextInput as TextInput } from "@/components/ScaledText/ScaledText";
 
 import AvatarGradient from "@/components/PlayersHighlight/AvatarGradient";
@@ -8,6 +8,7 @@ import { Text, View } from "@/components/Themed";
 import postCommentService, {
   PostCommentDTO,
 } from "@/services/postCommentService";
+import { getAvatarUrl } from "@/utils/avatar";
 
 import { styles } from "./styles";
 
@@ -141,7 +142,9 @@ export function PostCommentsModal({
             </View>
           ) : (
             <ScrollView style={styles.list} showsVerticalScrollIndicator={false}>
-              {comments.map((comment, index) => (
+              {comments.map((comment, index) => {
+                const avatarUrl = getAvatarUrl(comment.profilePictureUrl);
+                return (
                 <View
                   key={comment.id ?? index}
                   style={[
@@ -156,12 +159,20 @@ export function PostCommentsModal({
                     lightColor="transparent"
                     darkColor="transparent"
                   >
-                    <AvatarGradient
-                      initial={(comment.username || "?")
-                        .charAt(0)
-                        .toUpperCase()}
-                      colorIndex={index}
-                    />
+                    {avatarUrl ? (
+                      <Image
+                        source={{ uri: avatarUrl }}
+                        style={styles.rowAvatarImage}
+                        resizeMode="cover"
+                      />
+                    ) : (
+                      <AvatarGradient
+                        initial={(comment.username || "?")
+                          .charAt(0)
+                          .toUpperCase()}
+                        colorIndex={index}
+                      />
+                    )}
                     <View
                       style={styles.rowTextWrap}
                       lightColor="transparent"
@@ -259,7 +270,8 @@ export function PostCommentsModal({
                       </View>
                     )}
                 </View>
-              ))}
+                );
+              })}
             </ScrollView>
           )}
 

@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useRef, useState } from "react";
-import { ActivityIndicator, ScrollView, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Image, ScrollView, TouchableOpacity, View } from "react-native";
 import { ScaledTextInput as TextInput } from "@/components/ScaledText/ScaledText";
 
 import AvatarGradient from "@/components/PlayersHighlight/AvatarGradient";
@@ -13,6 +13,7 @@ import reviewService, {
   GameReviewsPageDTO,
   ReviewDTO,
 } from "@/services/reviewService";
+import { getAvatarUrl } from "@/utils/avatar";
 
 import { styles } from "./styles";
 
@@ -234,13 +235,22 @@ export default function Reviews({
               allReviews.map((review, index) => {
                 const reviewStars = Math.round(review.rating ?? 0);
                 const isOwnReview = review.userId === userId;
+                const avatarUrl = getAvatarUrl(review.profilePictureUrl);
                 return (
                   <View key={review.id ?? index} style={styles.reviewCard}>
                     <View style={styles.reviewHeader}>
-                      <AvatarGradient
-                        initial={(review.userName || "?").charAt(0).toUpperCase()}
-                        colorIndex={index}
-                      />
+                      {avatarUrl ? (
+                        <Image
+                          source={{ uri: avatarUrl }}
+                          style={styles.reviewAvatarImage}
+                          resizeMode="cover"
+                        />
+                      ) : (
+                        <AvatarGradient
+                          initial={(review.userName || "?").charAt(0).toUpperCase()}
+                          colorIndex={index}
+                        />
+                      )}
                       <View style={styles.reviewHeaderInfo}>
                         <View style={styles.reviewUsernameRow}>
                           <Text style={styles.reviewUsername}>
