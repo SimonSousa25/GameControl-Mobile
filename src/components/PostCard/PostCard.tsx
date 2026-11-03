@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
-import { Image, Pressable, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Image, Pressable, TouchableOpacity, View } from "react-native";
+import { ScaledTextInput as TextInput } from "@/components/ScaledText/ScaledText";
 
 import AvatarGradient from "@/components/PlayersHighlight/AvatarGradient";
 import { Text } from "@/components/Themed";
@@ -9,6 +10,8 @@ import { UserPostDTO } from "@/services/userPostService";
 import { getAvatarUrl } from "@/utils/avatar";
 
 import { COMPACT_MIN_HEIGHT, styles } from "./styles";
+
+const MAX_LENGTH = 280;
 
 export interface PostCardProps {
   post: UserPostDTO;
@@ -21,6 +24,7 @@ export interface PostCardProps {
   onUserPress?: () => void;
   onCommentsPress?: () => void;
   onDeletePress?: () => void;
+  onEditSubmit?: (newText: string) => Promise<void> | void;
 }
 
 function formatShortDate(value?: string): string {
@@ -55,10 +59,15 @@ export default function PostCard({
   onUserPress,
   onCommentsPress,
   onDeletePress,
+  onEditSubmit,
 }: PostCardProps) {
   const { fontScale } = useFontScale();
   const [menuVisible, setMenuVisible] = useState(false);
   const [deleteHovered, setDeleteHovered] = useState(false);
+  const [editHovered, setEditHovered] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editText, setEditText] = useState(post.text ?? "");
+  const [savingEdit, setSavingEdit] = useState(false);
   const avatarUrl = getAvatarUrl(post.profilePictureUrl);
   const commentsCount = post.commentIds?.length ?? 0;
   const likesCount = post.likesCount ?? post.likedUserIds?.length ?? 0;
@@ -67,6 +76,31 @@ export default function PostCard({
     setMenuVisible(false);
     setDeleteHovered(false);
     action?.();
+  };
+
+  const startEditing = () => {
+    setMenuVisible(false);
+    setDeleteHovered(false);
+    setEditHovered(false);
+    setEditText(post.text ?? "");
+    setIsEditing(true);
+  };
+
+  const cancelEditing = () => {
+    setIsEditing(false);
+    setEditText(post.text ?? "");
+  };
+
+  const handleSaveEdit = async () => {
+    const trimmed = editText.trim();
+    if (!trimmed || savingEdit) return;
+    try {
+      setSavingEdit(true);
+      await onEditSubmit?.(trimmed);
+      setIsEditing(false);
+    } finally {
+      setSavingEdit(false);
+    }
   };
 
   return (
@@ -114,7 +148,7 @@ export default function PostCard({
             )}
           </TouchableOpacity>
 
-          {isOwnPost && onDeletePress && (
+          {isOwnPost && (onDeletePress || onEditSubmit) && !isEditing && (
             <View style={styles.menuContainer}>
               <TouchableOpacity
                 accessibilityLabel="Opções do post"
@@ -123,6 +157,7 @@ export default function PostCard({
                 activeOpacity={0.7}
                 onPress={() => {
                   setDeleteHovered(false);
+                  setEditHovered(false);
                   setMenuVisible((current) => !current);
                 }}
                 hitSlop={6}
@@ -137,50 +172,128 @@ export default function PostCard({
           )}
         </View>
 
-        {menuVisible && onDeletePress && (
+        {menuVisible && (onDeletePress || onEditSubmit) && (
           <View style={styles.actionMenu}>
-            <Pressable
-              accessibilityLabel="Excluir post"
-              accessibilityRole="button"
-              onHoverIn={() => setDeleteHovered(true)}
-              onHoverOut={() => setDeleteHovered(false)}
-              onPress={() => {
-                setDeleteHovered(false);
-                setMenuVisible(false);
-                onDeletePress();
-              }}
-              style={({ pressed }) => [
-                styles.actionMenuItem,
-                (deleteHovered || pressed) && styles.actionMenuItemActive,
-              ]}
-            >
-              <Ionicons
-                name="trash-outline"
-                size={15}
-                color={deleteHovered ? "#FFD5DC" : "#CBD2DF"}
-              />
-              <Text
-                style={[
-                  styles.actionMenuText,
-                  deleteHovered && styles.actionMenuTextActive,
+            {onEditSubmit && (
+              <Pressable
+                accessibilityLabel="Editar post"
+                accessibilityRole="button"
+                onHoverIn={() => setEditHovered(true)}
+                onHoverOut={() => setEditHovered(false)}
+                onPress={startEditing}
+                style={({ pressed }) => [
+                  styles.actionMenuItem,
+                  (editHovered || pressed) && styles.actionMenuItemActive,
                 ]}
               >
-                Excluir
-              </Text>
-            </Pressable>
+                <Ionicons
+                  name="pencil-outline"
+                  size={15}
+                  color={editHovered ? "#F5F7FF" : "#CBD2DF"}
+                />
+                <Text
+                  style={[
+                    styles.actionMenuText,
+                    editHovered && styles.actionMenuTextActive,
+                  ]}
+                >
+                  Editar
+                </Text>
+              </Pressable>
+            )}
+            {onDeletePress && (
+              <Pressable
+                accessibilityLabel="Excluir post"
+                accessibilityRole="button"
+                onHoverIn={() => setDeleteHovered(true)}
+                onHoverOut={() => setDeleteHovered(false)}
+                onPress={() => {
+                  setDeleteHovered(false);
+                  setMenuVisible(false);
+                  onDeletePress();
+                }}
+                style={({ pressed }) => [
+                  styles.actionMenuItem,
+                  (deleteHovered || pressed) && styles.actionMenuItemActive,
+                ]}
+              >
+                <Ionicons
+                  name="trash-outline"
+                  size={15}
+                  color={deleteHovered ? "#FFD5DC" : "#CBD2DF"}
+                />
+                <Text
+                  style={[
+                    styles.actionMenuText,
+                    deleteHovered && styles.actionMenuTextActive,
+                  ]}
+                >
+                  Excluir
+                </Text>
+              </Pressable>
+            )}
           </View>
         )}
 
-        <Text
-          style={[
-            styles.content,
-            compact && styles.contentCompact,
-            menuVisible && styles.contentMenuOpen,
-          ]}
-          numberOfLines={compact ? 3 : undefined}
-        >
-          {post.text}
-        </Text>
+        {isEditing ? (
+          <View style={styles.editContainer}>
+            <TextInput
+              style={styles.editInput}
+              value={editText}
+              onChangeText={(value) => setEditText(value.slice(0, MAX_LENGTH))}
+              placeholderTextColor="#5C6478"
+              multiline
+              maxLength={MAX_LENGTH}
+              autoFocus
+            />
+            <View style={styles.editActionsRow}>
+              <Text style={styles.editCounter}>
+                {editText.length}/{MAX_LENGTH}
+              </Text>
+              <View style={styles.editButtonsRow}>
+                <TouchableOpacity
+                  accessibilityLabel="Cancelar edição"
+                  accessibilityRole="button"
+                  style={styles.editCancelButton}
+                  activeOpacity={0.8}
+                  disabled={savingEdit}
+                  onPress={cancelEditing}
+                >
+                  <Text style={styles.editCancelButtonText}>Cancelar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  accessibilityLabel="Salvar edição"
+                  accessibilityRole="button"
+                  style={[
+                    styles.editSaveButton,
+                    (!editText.trim() || savingEdit) && styles.editSaveButtonDisabled,
+                  ]}
+                  activeOpacity={0.8}
+                  disabled={!editText.trim() || savingEdit}
+                  onPress={handleSaveEdit}
+                >
+                  {savingEdit ? (
+                    <ActivityIndicator size="small" color="#F5F7FF" />
+                  ) : (
+                    <Text style={styles.editSaveButtonText}>Salvar</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        ) : (
+          <Text
+            style={[
+              styles.content,
+              compact && styles.contentCompact,
+              menuVisible && styles.contentMenuOpen,
+            ]}
+            numberOfLines={compact ? 3 : undefined}
+          >
+            {post.text}
+            {post.edited && <Text style={styles.editedTag}> (editado)</Text>}
+          </Text>
+        )}
 
         <View style={[styles.footer, compact && styles.footerCompact]}>
           <TouchableOpacity

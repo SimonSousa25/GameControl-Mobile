@@ -60,8 +60,8 @@ export const styles = StyleSheet.create({
     borderRadius: 18,
   },
   rowMenuOpen: {
-    // O menu absoluto termina próximo de 80px; esta altura mantém uma folga abaixo dele.
-    minHeight: 88,
+    // O menu absoluto agora tem 2 itens (Editar + Excluir); esta altura mantém uma folga abaixo dele.
+    minHeight: 120,
     zIndex: 20,
     elevation: 20,
   },
@@ -97,6 +97,63 @@ export const styles = StyleSheet.create({
   },
   rowContentMenuOpen: {
     paddingRight: 94,
+  },
+  editedTag: {
+    color: "#5C6478",
+    fontFamily: "OrbitronMedium",
+    fontSize: 9,
+  },
+  editContainer: {
+    marginTop: 4,
+    gap: 6,
+  },
+  editInput: {
+    backgroundColor: "#051124",
+    borderWidth: 1,
+    borderColor: "#3E4E66",
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    color: "#F5F7FF",
+    fontFamily: "Orbitron",
+    fontSize: 12,
+    lineHeight: 17,
+    maxHeight: 90,
+  },
+  editButtonsRow: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: 8,
+  },
+  editCancelButton: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "rgba(0, 229, 255, 0.15)",
+  },
+  editCancelButtonText: {
+    color: "#CBD2DF",
+    fontFamily: "OrbitronMedium",
+    fontSize: 10,
+  },
+  editSaveButton: {
+    minWidth: 60,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+    backgroundColor: "#F52E8F",
+  },
+  editSaveButtonDisabled: {
+    opacity: 0.5,
+  },
+  editSaveButtonText: {
+    color: "#F5F7FF",
+    fontFamily: "OrbitronBold",
+    fontSize: 10,
+    fontWeight: "700",
   },
   commentMenuContainer: {
     position: "relative",

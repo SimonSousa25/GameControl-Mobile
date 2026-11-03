@@ -8,6 +8,7 @@ export interface PostCommentDTO {
   postId?: string;
   content?: string;
   createdAt?: string;
+  edited?: boolean;
 }
 
 export interface CreatePostCommentRequest {
@@ -43,6 +44,23 @@ class PostCommentService {
       return await response.json();
     } catch (error) {
       console.error("Erro ao criar comentário:", error);
+      throw error;
+    }
+  }
+
+  async editarComentario(id: string, content: string): Promise<PostCommentDTO> {
+    try {
+      const response = await apiFetch(`/postcomments/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content }),
+      });
+      if (!response.ok) {
+        throw new Error(`Erro ao editar comentário: ${response.statusText}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error("Erro ao editar comentário:", error);
       throw error;
     }
   }

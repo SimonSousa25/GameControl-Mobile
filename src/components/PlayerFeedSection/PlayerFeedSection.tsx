@@ -116,6 +116,15 @@ export function PlayerFeedSection({
     }
   };
 
+  const handleEditPost = async (post: UserPostDTO, newText: string) => {
+    if (!post.id) return;
+
+    const updated = await userPostService.editarPost(post.id, newText);
+    setPosts((prev) =>
+      prev.map((item) => (item.id === post.id ? updated : item)),
+    );
+  };
+
   return (
     <View style={styles.card}>
       <View style={styles.headerRow} lightColor="transparent" darkColor="transparent">
@@ -167,6 +176,7 @@ export function PlayerFeedSection({
             onUserPress={post.userId ? () => onUserPress?.(post.userId!) : undefined}
             onCommentsPress={post.id ? () => setCommentsPostId(post.id!) : undefined}
             onDeletePress={() => handleDeletePost(post)}
+            onEditSubmit={(newText) => handleEditPost(post, newText)}
           />
         ))
       )}

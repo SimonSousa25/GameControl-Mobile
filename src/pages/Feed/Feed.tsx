@@ -138,6 +138,15 @@ export function Feed({ userId, onBackPress, onTabPress, onUserPress }: FeedProps
     }
   };
 
+  const handleEditPost = async (post: UserPostDTO, newText: string) => {
+    if (!post.id || post.userId !== userId) return;
+
+    const updated = await userPostService.editarPost(post.id, newText);
+    setPosts((prev) =>
+      prev.map((item) => (item.id === post.id ? updated : item)),
+    );
+  };
+
   return (
     <View style={styles.screenContainer}>
       <View style={styles.headerContainer}>
@@ -212,6 +221,11 @@ export function Feed({ userId, onBackPress, onTabPress, onUserPress }: FeedProps
               onCommentsPress={post.id ? () => setCommentsPostId(post.id!) : undefined}
               onDeletePress={
                 post.userId === userId ? () => handleDeletePost(post) : undefined
+              }
+              onEditSubmit={
+                post.userId === userId
+                  ? (newText) => handleEditPost(post, newText)
+                  : undefined
               }
             />
           ))
