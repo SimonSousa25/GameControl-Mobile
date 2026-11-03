@@ -1,7 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 import { useState } from "react";
-import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from "react-native";
+import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from "react-native";
+import AppAlert from "@/components/modals/AppAlert/AppAlert";
 import { ScaledText as Text, ScaledTextInput as TextInput } from "@/components/ScaledText/ScaledText";
 
 import PresentationLogo from "@/components/PresentationLogo";
@@ -25,12 +26,12 @@ export default function ForgotPassword({
 
     // Validação básica do campo de e-mail.
     if (!normalizedEmail) {
-      Alert.alert("Campo incompleto", "Digite seu e-mail.");
+      AppAlert.alert("Campo incompleto", "Digite seu e-mail.");
       return;
     }
 
     if (!/^\S+@\S+\.\S+$/.test(normalizedEmail)) {
-      Alert.alert("E-mail inválido", "Digite um endereço de e-mail válido.");
+      AppAlert.alert("E-mail inválido", "Digite um endereço de e-mail válido.");
       return;
     }
 
@@ -38,7 +39,7 @@ export default function ForgotPassword({
       setIsSubmitting(true);
       await onSubmit?.(normalizedEmail);
     } catch {
-      Alert.alert(
+      AppAlert.alert(
         "Não foi possível continuar",
         "Tente novamente dentro de alguns instantes.",
       );

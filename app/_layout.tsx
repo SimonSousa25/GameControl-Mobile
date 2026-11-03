@@ -14,6 +14,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { QueryClientProvider } from "@tanstack/react-query";
 
 import { useColorScheme } from "@/components/useColorScheme";
+import { AppAlertHost } from "@/components/modals/AppAlert/AppAlert";
 import { AuthProvider, useAuth } from "@/src/contexts/AuthContext";
 import { FontScaleProvider, useFontScale } from "@/src/contexts/FontScaleContext";
 import { NotificationsProvider } from "@/src/contexts/NotificationsContext";
@@ -90,6 +91,7 @@ function RootLayoutContent() {
       <NotificationsProvider>
         <RootLayoutNav />
       </NotificationsProvider>
+      <AppAlertHost />
     </View>
   );
 }

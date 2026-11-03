@@ -2,11 +2,11 @@ import { Ionicons } from "@expo/vector-icons";
 import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   RefreshControl,
   ScrollView,
   TouchableOpacity,
 } from "react-native";
+import AppAlert from "@/components/modals/AppAlert/AppAlert";
 
 import BackButton from "@/components/BackButton/BackButton";
 import FollowRequestItem from "@/components/FollowRequestItem/FollowRequestItem";
@@ -131,12 +131,12 @@ export default function Notifications({
       if (isNotFoundError(error)) {
         // O pedido foi cancelado por quem enviou (ou já respondido).
         removeRequest();
-        Alert.alert(
+        AppAlert.alert(
           "Pedido indisponível",
           "Este pedido foi cancelado ou já foi respondido.",
         );
       } else {
-        Alert.alert(
+        AppAlert.alert(
           action === "accept"
             ? "Não foi possível aceitar"
             : "Não foi possível recusar",

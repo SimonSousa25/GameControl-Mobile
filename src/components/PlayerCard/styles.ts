@@ -41,14 +41,14 @@ export const styles = StyleSheet.create({
   followButton: {
     backgroundColor: "#F52E8F",
     paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-    minWidth: 40,
+    paddingVertical: 5,
+    borderRadius: 5,
+    minWidth: 50,
     alignItems: "center",
     justifyContent: "center",
   },
   followButtonText: {
-    fontSize: 6,
+    fontSize: 8,
     fontWeight: "700",
     color: "#fff",
     fontFamily: "Orbitron",
@@ -76,12 +76,12 @@ export const styles = StyleSheet.create({
     minHeight: 20,
   },
   followButtonLarge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 5,
-    minWidth: 56,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: 6,
+    minWidth: 76,
   },
   followButtonTextLarge: {
-    fontSize: 8,
+    fontSize: 11,
   },
 });

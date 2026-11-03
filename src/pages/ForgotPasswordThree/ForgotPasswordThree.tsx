@@ -1,6 +1,7 @@
 import { StatusBar } from "expo-status-bar";
 import { useRef, useState } from "react";
-import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from "react-native";
+import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from "react-native";
+import AppAlert from "@/components/modals/AppAlert/AppAlert";
 import { ScaledText as Text, ScaledTextInput as TextInput } from "@/components/ScaledText/ScaledText";
 import type { TextInput as RNTextInput } from "react-native";
 
@@ -33,12 +34,12 @@ export function ForgotPasswordThree({
 
   const handleSubmit = async () => {
     if (!password || !confirmPassword) {
-      Alert.alert("Campos de senha vazios", "Preencha os dois campos de senha");
+      AppAlert.alert("Campos de senha vazios", "Preencha os dois campos de senha");
       return;
     }
 
     if (password.length < 8) {
-      Alert.alert(
+      AppAlert.alert(
         "Senha muito curta",
         "Escolha uma senha com pelo menos 8 caracteres.",
       );
@@ -46,7 +47,7 @@ export function ForgotPasswordThree({
     }
 
     if (password !== confirmPassword) {
-      Alert.alert(
+      AppAlert.alert(
         "Senhas diferentes",
         "A confirmação precisa ser igual à senha.",
       );
@@ -55,7 +56,7 @@ export function ForgotPasswordThree({
 
     // Impede que a interface simule sucesso antes da API estar conectada.
     if (!onSubmit) {
-      Alert.alert(
+      AppAlert.alert(
         "Recuperação indisponível",
         "A tela está pronta, mas o endpoint para alterar a senha ainda não existe no backend.",
       );
@@ -66,10 +67,10 @@ export function ForgotPasswordThree({
       setIsSubmitting(true);
       await onSubmit(password);
 
-      Alert.alert("Senha alterada", "Sua nova senha foi salva com sucesso.");
+      AppAlert.alert("Senha alterada", "Sua nova senha foi salva com sucesso.");
       onPasswordChanged?.();
     } catch {
-      Alert.alert(
+      AppAlert.alert(
         "Não foi possível alterar a senha",
         "O link pode ter expirado. Solicite uma nova recuperação e tente novamente.",
       );
