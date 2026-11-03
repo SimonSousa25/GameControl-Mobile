@@ -189,6 +189,11 @@ export const styles = StyleSheet.create({
     gap: 10,
     marginBottom: 10,
   },
+  reviewAvatarImage: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+  },
   reviewHeaderInfo: {
     flex: 1,
     gap: 4,

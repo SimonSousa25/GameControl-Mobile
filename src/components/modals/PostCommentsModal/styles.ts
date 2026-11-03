@@ -54,6 +54,11 @@ export const styles = StyleSheet.create({
     gap: 10,
     paddingVertical: 10,
   },
+  rowAvatarImage: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+  },
   rowMenuOpen: {
     // O menu absoluto termina próximo de 80px; esta altura mantém uma folga abaixo dele.
     minHeight: 88,

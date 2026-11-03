@@ -4,6 +4,7 @@ export interface PostCommentDTO {
   id?: string;
   userId?: string;
   username?: string;
+  profilePictureUrl?: string;
   postId?: string;
   content?: string;
   createdAt?: string;
