@@ -1,6 +1,7 @@
 import { useFocusEffect } from "expo-router";
 import { useCallback, useRef, useState } from "react";
-import { Alert, ScrollView } from "react-native";
+import { ScrollView } from "react-native";
+import AppAlert from "@/components/modals/AppAlert/AppAlert";
 
 import Header from "@/components/Header/Header";
 import ConfirmModal from "@/components/modals/ConfirmModal/ConfirmModal";
@@ -124,7 +125,7 @@ export function Profile({
       setPlaylists((prev) => [...prev, created]);
       setFormModalVisible(false);
     } catch {
-      Alert.alert(
+      AppAlert.alert(
         "Não foi possível criar a playlist",
         "Tente novamente em instantes.",
       );
@@ -148,7 +149,7 @@ export function Profile({
       );
       setPlaylistToDelete(null);
     } catch {
-      Alert.alert(
+      AppAlert.alert(
         "Não foi possível excluir a playlist",
         "Tente novamente em instantes.",
       );

@@ -2,7 +2,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { ImageManipulator, SaveFormat } from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
 import { useState } from "react";
-import { ActivityIndicator, Alert, Image, Pressable, ScrollView } from "react-native";
+import { ActivityIndicator, Image, Pressable, ScrollView } from "react-native";
+import AppAlert from "@/components/modals/AppAlert/AppAlert";
 import { ScaledTextInput as TextInput } from "@/components/ScaledText/ScaledText";
 
 import { Text, View } from "@/components/Themed";
@@ -116,10 +117,10 @@ export default function Settings({
         `data:image/jpeg;base64,${processedImage.base64}`,
       );
 
-      Alert.alert("Foto atualizada", "Sua nova foto de perfil foi salva.");
+      AppAlert.alert("Foto atualizada", "Sua nova foto de perfil foi salva.");
     } catch (error) {
       console.error("Erro ao atualizar foto de perfil:", error);
-      Alert.alert(
+      AppAlert.alert(
         "Não foi possível atualizar a foto",
         "Escolha outra imagem ou tente novamente em instantes.",
       );
@@ -134,7 +135,7 @@ export default function Settings({
         await ImagePicker.requestMediaLibraryPermissionsAsync();
 
       if (!permission.granted) {
-        Alert.alert(
+        AppAlert.alert(
           "Permissão necessária",
           "Permita o acesso às suas fotos para escolher uma imagem de perfil.",
         );
@@ -153,7 +154,7 @@ export default function Settings({
       await uploadAvatar(pickerResult.assets[0].uri);
     } catch (error) {
       console.error("Erro ao abrir a galeria:", error);
-      Alert.alert(
+      AppAlert.alert(
         "Não foi possível abrir a galeria",
         "Tente novamente em instantes.",
       );
@@ -165,7 +166,7 @@ export default function Settings({
       const permission = await ImagePicker.requestCameraPermissionsAsync();
 
       if (!permission.granted) {
-        Alert.alert(
+        AppAlert.alert(
           "Permissão necessária",
           "Permita o acesso à câmera para tirar uma foto de perfil.",
         );
@@ -184,7 +185,7 @@ export default function Settings({
       await uploadAvatar(cameraResult.assets[0].uri);
     } catch (error) {
       console.error("Erro ao abrir a câmera:", error);
-      Alert.alert(
+      AppAlert.alert(
         "Não foi possível abrir a câmera",
         "Tente novamente em instantes.",
       );
@@ -192,7 +193,7 @@ export default function Settings({
   };
 
   const handleSelectAvatar = () => {
-    Alert.alert("Foto de perfil", "De onde você quer pegar a foto?", [
+    AppAlert.alert("Foto de perfil", "De onde você quer pegar a foto?", [
       { text: "Tirar foto", onPress: () => void handleTakePhoto() },
       {
         text: "Escolher da galeria",
@@ -204,7 +205,7 @@ export default function Settings({
 
   const handleSave = async () => {
     if (!username.trim()) {
-      Alert.alert(
+      AppAlert.alert(
         "Nome obrigatório",
         "Informe um nome de usuário para continuar.",
       );
@@ -226,9 +227,9 @@ export default function Settings({
         isPrivate: isPrivateAccount,
       });
 
-      Alert.alert("Tudo certo", "As alterações foram salvas.");
+      AppAlert.alert("Tudo certo", "As alterações foram salvas.");
     } catch {
-      Alert.alert(
+      AppAlert.alert(
         "Não foi possível salvar",
         "Verifique sua conexão e tente novamente.",
       );
@@ -245,7 +246,7 @@ export default function Settings({
     } catch {
       setDeletingAccount(false);
       setDeleteModalVisible(false);
-      Alert.alert(
+      AppAlert.alert(
         "Não foi possível excluir a conta",
         "Verifique sua conexão e tente novamente.",
       );

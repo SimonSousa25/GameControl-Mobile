@@ -1,6 +1,7 @@
 import { StatusBar } from "expo-status-bar";
 import { useRef, useState } from "react";
-import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from "react-native";
+import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from "react-native";
+import AppAlert from "@/components/modals/AppAlert/AppAlert";
 import { ScaledText as Text, ScaledTextInput as TextInput } from "@/components/ScaledText/ScaledText";
 import type { TextInput as RNTextInput } from "react-native";
 import type { StyleProp, ViewStyle } from "react-native";
@@ -35,12 +36,12 @@ export function Login({
 
   const handleSubmit = async () => {
     if (!email.trim() || !password) {
-      Alert.alert("Campos incompletos", "Preencha e-mail e senha para continuar.");
+      AppAlert.alert("Campos incompletos", "Preencha e-mail e senha para continuar.");
       return;
     }
 
     if (!/^\S+@\S+\.\S+$/.test(email.trim())) {
-      Alert.alert("E-mail inválido", "Digite um endereço de e-mail válido.");
+      AppAlert.alert("E-mail inválido", "Digite um endereço de e-mail válido.");
       return;
     }
 
@@ -52,7 +53,7 @@ export function Login({
       });
       onSuccess?.(auth);
     } catch (error) {
-      Alert.alert(
+      AppAlert.alert(
         "Não foi possível entrar",
         mensagemDeErroAuth(
           error,

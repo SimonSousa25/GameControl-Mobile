@@ -41,7 +41,7 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   viewAll: {
-    fontSize: 7,
+    fontSize: 10,
     color: "#F52E8F",
     fontWeight: "700",
     fontFamily: "Orbitron",

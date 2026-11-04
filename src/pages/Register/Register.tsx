@@ -1,7 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 import { useRef, useState } from "react";
-import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from "react-native";
+import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from "react-native";
+import AppAlert from "@/components/modals/AppAlert/AppAlert";
 import { ScaledText as Text, ScaledTextInput as TextInput } from "@/components/ScaledText/ScaledText";
 import type { TextInput as RNTextInput } from "react-native";
 
@@ -83,7 +84,7 @@ export function Register({
 
   const handleSubmit = async () => {
     if (!username.trim() || !email.trim() || !password || !confirmPassword) {
-      Alert.alert("Campos incompletos", "Preencha todos os campos para continuar.");
+      AppAlert.alert("Campos incompletos", "Preencha todos os campos para continuar.");
       return;
     }
 
@@ -91,12 +92,12 @@ export function Register({
      * O "!" na frente inverte: se NÃO bater com esse padrão, esse if retorna 
      * uma mensagem de alerta (email inválido). */
     if (!/^\S+@\S+\.\S+$/.test(email.trim())) {
-      Alert.alert("E-mail inválido", "Digite um endereço de e-mail válido.");
+      AppAlert.alert("E-mail inválido", "Digite um endereço de e-mail válido.");
       return;
     }
 
     if (password !== confirmPassword) {
-      Alert.alert("Senhas diferentes", "A confirmação precisa ser igual à senha.");
+      AppAlert.alert("Senhas diferentes", "A confirmação precisa ser igual à senha.");
       return;
     }
 
@@ -110,7 +111,7 @@ export function Register({
         password,
       });
     } catch (error) {
-      Alert.alert(
+      AppAlert.alert(
         "Não foi possível criar a conta",
         mensagemDeErroAuth(
           error,
@@ -130,7 +131,7 @@ export function Register({
       onSuccess?.(auth);
     } catch {
       // O cadastro deu certo, só o login automático falhou: manda para o login.
-      Alert.alert(
+      AppAlert.alert(
         "Conta criada",
         "Seu cadastro foi realizado, mas não foi possível entrar automaticamente. Faça login para continuar.",
         [{ text: "Ir para o login", onPress: onLoginPress }],

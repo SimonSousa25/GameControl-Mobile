@@ -1,6 +1,7 @@
 import { useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { Alert, RefreshControl, ScrollView } from "react-native";
+import { RefreshControl, ScrollView } from "react-native";
+import AppAlert from "@/components/modals/AppAlert/AppAlert";
 
 import BackButton from "@/components/BackButton/BackButton";
 import FollowButton from "@/components/FollowButton/FollowButton";
@@ -178,12 +179,12 @@ export function UserProfile({
       setUser(snapshot);
       if (isTooManyRequestsError(error)) {
         await loadFollowStatus();
-        Alert.alert(
+        AppAlert.alert(
           "Pedido recusado",
           "Seu pedido foi recusado há pouco tempo. Aguarde para tentar de novo.",
         );
       } else {
-        Alert.alert(
+        AppAlert.alert(
           wasFollowing
             ? "Não foi possível deixar de seguir"
             : wasRequested
