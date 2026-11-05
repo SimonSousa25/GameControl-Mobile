@@ -40,12 +40,6 @@ export const styles = StyleSheet.create({
     fontFamily: "Orbitron",
     flex: 1,
   },
-  viewAll: {
-    fontSize: 10,
-    color: "#F52E8F",
-    fontWeight: "700",
-    fontFamily: "Orbitron",
-  },
   loadingContainer: {
     paddingVertical: 40,
     justifyContent: "center",

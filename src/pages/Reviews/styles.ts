@@ -204,6 +204,7 @@ export const styles = StyleSheet.create({
     gap: 6,
   },
   reviewUsername: {
+    flexShrink: 1,
     fontSize: 13,
     fontWeight: "700",
     fontFamily: "OrbitronBold",
@@ -221,6 +222,19 @@ export const styles = StyleSheet.create({
     fontFamily: "OrbitronBold",
     color: "#F52E8F",
     letterSpacing: 0.5,
+  },
+  reviewActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  deleteReviewButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255, 77, 94, 0.12)",
   },
   editReviewButton: {
     width: 28,

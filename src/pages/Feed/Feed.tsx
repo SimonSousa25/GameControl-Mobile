@@ -2,10 +2,11 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useFocusEffect } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
-import { ActivityIndicator, ScrollView, Switch } from "react-native";
+import { ActivityIndicator, Switch } from "react-native";
 
 import BackButton from "@/components/BackButton/BackButton";
 import Header from "@/components/Header/Header";
+import KeyboardAwareScrollView from "@/components/KeyboardAwareScrollView/KeyboardAwareScrollView";
 import NavBottom from "@/components/NavBottom/NavBottom";
 import PostCommentsModal from "@/components/modals/PostCommentsModal/PostCommentsModal";
 import PostCard from "@/components/PostCard/PostCard";
@@ -163,7 +164,7 @@ export function Feed({ userId, onBackPress, onTabPress, onUserPress }: FeedProps
         </View>
       </View>
 
-      <ScrollView
+      <KeyboardAwareScrollView
         style={styles.container}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
@@ -230,7 +231,7 @@ export function Feed({ userId, onBackPress, onTabPress, onUserPress }: FeedProps
             />
           ))
         )}
-      </ScrollView>
+      </KeyboardAwareScrollView>
 
       <NavBottom activeTab="feed" onTabPress={onTabPress} />
 

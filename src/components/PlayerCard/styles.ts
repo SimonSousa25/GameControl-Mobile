@@ -38,20 +38,17 @@ export const styles = StyleSheet.create({
     maxWidth: 56,
     minHeight: 16,
   },
-  followButton: {
-    backgroundColor: "#F52E8F",
-    paddingHorizontal: 6,
-    paddingVertical: 5,
-    borderRadius: 5,
-    minWidth: 50,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  followButtonText: {
-    fontSize: 8,
-    fontWeight: "700",
-    color: "#fff",
+  bio: {
+    fontSize: 6,
+    lineHeight: 9,
+    minHeight: 9 * 4, // reserva as 4 linhas mesmo com bio curta ou vazia
+    color: "#9AA3B5",
     fontFamily: "Orbitron",
+    textAlign: "center",
+    maxWidth: 56,
+  },
+  bioEmpty: {
+    color: "#5C6478",
   },
 
   userCardLarge: {
@@ -75,13 +72,10 @@ export const styles = StyleSheet.create({
     maxWidth: "100%",
     minHeight: 20,
   },
-  followButtonLarge: {
-    paddingHorizontal: 14,
-    paddingVertical: 7,
-    borderRadius: 6,
-    minWidth: 76,
-  },
-  followButtonTextLarge: {
-    fontSize: 11,
+  bioLarge: {
+    fontSize: 8,
+    lineHeight: 11,
+    minHeight: 11 * 4,
+    maxWidth: "100%",
   },
 });

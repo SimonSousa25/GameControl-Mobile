@@ -18,6 +18,10 @@ interface PlayerCardProps {
 
 const LARGE_AVATAR_SIZE = 52;
 
+/** A bio ocupa sempre o mesmo espaço, para os cards de uma fileira ficarem do mesmo tamanho. */
+export const BIO_MAX_LINES = 4;
+export const EMPTY_BIO_TEXT = "Sem descrição";
+
 export default function PlayerCard({
   user,
   colorIndex,
@@ -26,6 +30,8 @@ export default function PlayerCard({
   size = "default",
 }: PlayerCardProps) {
   const large = size === "large";
+  // Quebras de linha e espaços repetidos gastariam as linhas do card à toa.
+  const bio = user.bio?.replace(/\s+/g, " ").trim();
 
   return (
     <LinearGradient
@@ -38,6 +44,8 @@ export default function PlayerCard({
         style={[styles.userCard, large && styles.userCardLarge]}
         onPress={() => onPress?.(user.id)}
         activeOpacity={0.8}
+        accessibilityRole="button"
+        accessibilityLabel={`Ver perfil de ${user.username}`}
       >
         <View style={[styles.avatarContainer, large && styles.avatarContainerLarge]}>
           {user.profilePictureUrl ? (
@@ -59,14 +67,13 @@ export default function PlayerCard({
         >
           {user.username}
         </Text>
-        <TouchableOpacity
-          style={[styles.followButton, large && styles.followButtonLarge]}
-          onPress={() => onPress?.(user.id)}
+        <Text
+          style={[styles.bio, large && styles.bioLarge, !bio && styles.bioEmpty]}
+          numberOfLines={BIO_MAX_LINES}
+          ellipsizeMode="tail"
         >
-          <Text style={[styles.followButtonText, large && styles.followButtonTextLarge]}>
-            Seguir
-          </Text>
-        </TouchableOpacity>
+          {bio || EMPTY_BIO_TEXT}
+        </Text>
       </TouchableOpacity>
     </LinearGradient>
   );

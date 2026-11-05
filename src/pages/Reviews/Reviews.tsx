@@ -7,6 +7,8 @@ import { ScaledTextInput as TextInput } from "@/components/ScaledText/ScaledText
 import AvatarGradient from "@/components/PlayersHighlight/AvatarGradient";
 import BackButton from "@/components/BackButton/BackButton";
 import Header from "@/components/Header/Header";
+import AppAlert from "@/components/modals/AppAlert/AppAlert";
+import ConfirmModal from "@/components/modals/ConfirmModal/ConfirmModal";
 import NavBottom from "@/components/NavBottom/NavBottom";
 import { Text } from "@/components/Themed";
 import reviewService, {
@@ -43,16 +45,22 @@ export default function Reviews({
   const [myRating, setMyRating] = useState(0);
   const [myComment, setMyComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [reviewToDelete, setReviewToDelete] = useState<ReviewDTO | null>(null);
+  const [deletingReview, setDeletingReview] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
 
   useEffect(() => {
     loadReviews();
   }, [gameId, userId]);
 
-  const loadReviews = async () => {
+  // `silent`: atualiza os dados sem trocar a tela por um spinner (nem por uma
+  // tela de erro, caso falhe) — usado após excluir, quando a tela já está certa.
+  const loadReviews = async ({ silent = false } = {}) => {
     try {
-      setLoading(true);
-      setError(false);
+      if (!silent) {
+        setLoading(true);
+        setError(false);
+      }
       const page = await reviewService.buscarPaginaDeAvaliacoes(
         gameId,
         userId,
@@ -60,9 +68,9 @@ export default function Reviews({
       setData(page);
     } catch (err) {
       console.error("Erro ao carregar avaliações:", err);
-      setError(true);
+      if (!silent) setError(true);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
@@ -90,6 +98,42 @@ export default function Reviews({
     setMyRating(Math.round(review.rating ?? 0));
     setMyComment(review.description ?? "");
     scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+  };
+
+  const closeDeleteModal = () => {
+    if (deletingReview) return;
+    setReviewToDelete(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    const id = reviewToDelete?.id;
+    if (!id || deletingReview) return;
+    try {
+      setDeletingReview(true);
+      await reviewService.deletarAvaliacao(id, userId);
+      setReviewToDelete(null);
+      // O formulário "Sua avaliação" estava preenchido com a review excluída.
+      setMyRating(0);
+      setMyComment("");
+      // Some da lista na hora; a busca em seguida corrige a nota média.
+      setData((prev) =>
+        prev
+          ? {
+              ...prev,
+              userReview: prev.userReview?.id === id ? null : prev.userReview,
+              reviews: (prev.reviews ?? []).filter((review) => review.id !== id),
+            }
+          : prev,
+      );
+      await loadReviews({ silent: true });
+    } catch {
+      AppAlert.alert(
+        "Não foi possível excluir a avaliação",
+        "Tente novamente em instantes.",
+      );
+    } finally {
+      setDeletingReview(false);
+    }
   };
 
   const allReviews = data?.userReview
@@ -253,7 +297,11 @@ export default function Reviews({
                       )}
                       <View style={styles.reviewHeaderInfo}>
                         <View style={styles.reviewUsernameRow}>
-                          <Text style={styles.reviewUsername}>
+                          <Text
+                            style={styles.reviewUsername}
+                            // Com os botões de ação o espaço é curto: trunca em vez de quebrar.
+                            numberOfLines={isOwnReview ? 1 : undefined}
+                          >
                             {review.userName}
                           </Text>
                           {isOwnReview && (
@@ -279,15 +327,28 @@ export default function Reviews({
                         {formatDate(review.createdAt)}
                       </Text>
                       {isOwnReview && (
-                        <TouchableOpacity
-                          accessibilityLabel="Editar sua avaliação"
-                          accessibilityRole="button"
-                          style={styles.editReviewButton}
-                          onPress={() => handleEditReview(review)}
-                          hitSlop={6}
-                        >
-                          <Ionicons name="create-outline" size={16} color="#00E5FF" />
-                        </TouchableOpacity>
+                        <View style={styles.reviewActions}>
+                          <TouchableOpacity
+                            accessibilityLabel="Editar sua avaliação"
+                            accessibilityRole="button"
+                            style={styles.editReviewButton}
+                            onPress={() => handleEditReview(review)}
+                            hitSlop={6}
+                          >
+                            <Ionicons name="create-outline" size={16} color="#00E5FF" />
+                          </TouchableOpacity>
+                          {review.id ? (
+                            <TouchableOpacity
+                              accessibilityLabel="Excluir sua avaliação"
+                              accessibilityRole="button"
+                              style={styles.deleteReviewButton}
+                              onPress={() => setReviewToDelete(review)}
+                              hitSlop={6}
+                            >
+                              <Ionicons name="trash-outline" size={16} color="#FF4D5E" />
+                            </TouchableOpacity>
+                          ) : null}
+                        </View>
                       )}
                     </View>
                     {review.description ? (
@@ -302,6 +363,18 @@ export default function Reviews({
           </View>
         </ScrollView>
       )}
+
+      <ConfirmModal
+        visible={reviewToDelete !== null}
+        title="Excluir avaliação"
+        message="Tem certeza que deseja excluir sua avaliação deste jogo?"
+        warning="Essa ação não poderá ser desfeita"
+        confirmLabel="Excluir"
+        destructive
+        submitting={deletingReview}
+        onConfirm={handleConfirmDelete}
+        onCancel={closeDeleteModal}
+      />
 
       <NavBottom onTabPress={onTabPress} />
     </View>

@@ -1,6 +1,15 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useEffect, useState } from "react";
-import { ActivityIndicator, Image, Modal, Pressable, ScrollView, TouchableOpacity } from "react-native";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  ActivityIndicator,
+  Image,
+  Keyboard,
+  KeyboardAvoidingView,
+  Modal,
+  Pressable,
+  ScrollView,
+  TouchableOpacity,
+} from "react-native";
 import { ScaledTextInput as TextInput } from "@/components/ScaledText/ScaledText";
 
 import AvatarGradient from "@/components/PlayersHighlight/AvatarGradient";
@@ -9,6 +18,7 @@ import postCommentService, {
   PostCommentDTO,
 } from "@/services/postCommentService";
 import { getAvatarUrl } from "@/utils/avatar";
+import { useKeyboard } from "@/utils/useKeyboard";
 
 import { styles } from "./styles";
 
@@ -57,6 +67,10 @@ export function PostCommentsModal({
   const [savingEditCommentId, setSavingEditCommentId] = useState<string | null>(
     null,
   );
+  const keyboard = useKeyboard();
+  const listRef = useRef<ScrollView>(null);
+  // Posição Y de cada comentário dentro da lista, para rolar até o que está sendo editado.
+  const rowOffsets = useRef<Record<string, number>>({});
 
   useEffect(() => {
     // O modal permanece montado quando é fechado, então limpamos o menu manualmente.
@@ -105,6 +119,21 @@ export function PostCommentsModal({
     }
   };
 
+  // Com o teclado aberto o card encolhe e a lista fica curta: alinhar o
+  // comentário em edição ao topo da lista o mantém visível acima do teclado.
+  // Roda ao iniciar a edição e de novo quando a lista é redimensionada
+  // (o teclado abrindo/fechando muda a altura do card).
+  const scrollToEditingComment = useCallback(() => {
+    if (!editingCommentId) return;
+    const y = rowOffsets.current[editingCommentId];
+    if (y === undefined) return;
+    listRef.current?.scrollTo({ y: Math.max(0, y - 4), animated: true });
+  }, [editingCommentId]);
+
+  useEffect(() => {
+    scrollToEditingComment();
+  }, [scrollToEditingComment]);
+
   const startEditingComment = (comment: PostCommentDTO) => {
     if (!comment.id) return;
     setOpenMenuCommentId(null);
@@ -115,6 +144,7 @@ export function PostCommentsModal({
   };
 
   const cancelEditingComment = () => {
+    Keyboard.dismiss();
     setEditingCommentId(null);
     setEditCommentText("");
   };
@@ -129,6 +159,7 @@ export function PostCommentsModal({
       setComments((prev) =>
         prev.map((item) => (item.id === comment.id ? updated : item)),
       );
+      Keyboard.dismiss();
       setEditingCommentId(null);
     } catch (error) {
       console.error("Erro ao editar comentário:", error);
@@ -152,13 +183,24 @@ export function PostCommentsModal({
   };
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <View
-        style={styles.overlay}
-        lightColor="rgba(3, 7, 13, 0.85)"
-        darkColor="rgba(3, 7, 13, 0.85)"
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      onRequestClose={onClose}
+      // Android: a janela do modal ocupa a tela toda (inclusive sob as barras do
+      // sistema). Assim as coordenadas batem com as do teclado e o
+      // KeyboardAvoidingView calcula o espaço certo.
+      statusBarTranslucent
+      navigationBarTranslucent
+    >
+      {/* O card fica centralizado na área livre acima do teclado. */}
+      <KeyboardAvoidingView
+        behavior="padding"
+        style={[styles.overlay, keyboard.visible && styles.overlayKeyboardOpen]}
+        contentContainerStyle={styles.overlayContent}
       >
-        <View style={styles.card}>
+        <View style={[styles.card, keyboard.visible && styles.cardKeyboardOpen]}>
           <View style={styles.headerRow} lightColor="transparent" darkColor="transparent">
             <View style={styles.headerLeft} lightColor="transparent" darkColor="transparent">
               <View style={styles.titleBar} />
@@ -183,12 +225,26 @@ export function PostCommentsModal({
               <Text style={styles.stateText}>Nenhum comentário ainda.</Text>
             </View>
           ) : (
-            <ScrollView style={styles.list} showsVerticalScrollIndicator={false}>
+            <ScrollView
+              ref={listRef}
+              style={styles.list}
+              showsVerticalScrollIndicator={false}
+              // Sem isso, tocar em Salvar/Cancelar com o teclado aberto só
+              // fecha o teclado e exige um segundo toque.
+              keyboardShouldPersistTaps="handled"
+              onLayout={scrollToEditingComment}
+            >
               {comments.map((comment, index) => {
                 const avatarUrl = getAvatarUrl(comment.profilePictureUrl);
                 return (
                 <View
                   key={comment.id ?? index}
+                  testID={`comment-row-${comment.id}`}
+                  onLayout={(event) => {
+                    if (comment.id) {
+                      rowOffsets.current[comment.id] = event.nativeEvent.layout.y;
+                    }
+                  }}
                   style={[
                     styles.commentRowLayout,
                     openMenuCommentId === comment.id && styles.rowMenuOpen,
@@ -433,7 +489,7 @@ export function PostCommentsModal({
             </TouchableOpacity>
           </View>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }

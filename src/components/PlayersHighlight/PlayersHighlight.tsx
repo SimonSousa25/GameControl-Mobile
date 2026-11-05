@@ -7,9 +7,9 @@ import {
   PanResponder,
   Platform,
   ScrollView,
-  TouchableOpacity,
 } from "react-native";
 import PlayerCard from "@/components/PlayerCard/PlayerCard";
+import ViewAllButton from "@/components/ViewAllButton/ViewAllButton";
 import { styles } from "./styles";
 
 interface PlayersHighlightProps {
@@ -92,9 +92,11 @@ export default function PlayersHighlight({
           style={styles.titleGradientBar}
         />
         <Text style={styles.title}>Jogadores em Destaque</Text>
-        <TouchableOpacity onPress={onViewAllPress}>
-          <Text style={styles.viewAll}>Ver tudo →</Text>
-        </TouchableOpacity>
+        <ViewAllButton
+          accessibilityLabel="Ver todos os jogadores"
+          onPress={onViewAllPress}
+          style={styles.viewAllButton}
+        />
       </View>
 
       <ScrollView
