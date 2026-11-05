@@ -24,12 +24,10 @@ export const styles = StyleSheet.create({
     fontFamily: "Orbitron",
     flex: 1,
   },
-  viewAll: {
-    fontSize: 10,
-    color: "#F52E8F",
-    fontWeight: "700",
-    fontFamily: "Orbitron",
-    paddingRight: 20,
+  // O cabeçalho só tem padding à esquerda (o carrossel sangra até a borda),
+  // então a margem direita fica no botão.
+  viewAllButton: {
+    marginRight: 20,
   },
   carouselContainer: {
     paddingLeft: 20,

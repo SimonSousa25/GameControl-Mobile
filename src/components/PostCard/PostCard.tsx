@@ -1,8 +1,16 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useState } from "react";
-import { ActivityIndicator, Image, Pressable, TouchableOpacity, View } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import {
+  ActivityIndicator,
+  Image,
+  Keyboard,
+  Pressable,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { ScaledTextInput as TextInput } from "@/components/ScaledText/ScaledText";
 
+import { useKeyboardScroll } from "@/components/KeyboardAwareScrollView/KeyboardAwareScrollView";
 import AvatarGradient from "@/components/PlayersHighlight/AvatarGradient";
 import { Text } from "@/components/Themed";
 import { useFontScale } from "@/src/contexts/FontScaleContext";
@@ -68,6 +76,8 @@ export default function PostCard({
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(post.text ?? "");
   const [savingEdit, setSavingEdit] = useState(false);
+  const keyboardScroll = useKeyboardScroll();
+  const editContainerRef = useRef<View>(null);
   const avatarUrl = getAvatarUrl(post.profilePictureUrl);
   const commentsCount = post.commentIds?.length ?? 0;
   const likesCount = post.likesCount ?? post.likedUserIds?.length ?? 0;
@@ -78,6 +88,15 @@ export default function PostCard({
     action?.();
   };
 
+  // Ao editar, traz o bloco de edição para cima do teclado. Sem um
+  // KeyboardAwareScrollView por perto (ex.: carrossel da home) não faz nada.
+  const revealEditor = () => keyboardScroll?.scrollToView(editContainerRef.current);
+
+  useEffect(() => {
+    if (isEditing) revealEditor();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEditing]);
+
   const startEditing = () => {
     setMenuVisible(false);
     setDeleteHovered(false);
@@ -87,6 +106,7 @@ export default function PostCard({
   };
 
   const cancelEditing = () => {
+    Keyboard.dismiss();
     setIsEditing(false);
     setEditText(post.text ?? "");
   };
@@ -97,6 +117,7 @@ export default function PostCard({
     try {
       setSavingEdit(true);
       await onEditSubmit?.(trimmed);
+      Keyboard.dismiss();
       setIsEditing(false);
     } finally {
       setSavingEdit(false);
@@ -236,11 +257,12 @@ export default function PostCard({
         )}
 
         {isEditing ? (
-          <View style={styles.editContainer}>
+          <View ref={editContainerRef} style={styles.editContainer}>
             <TextInput
               style={styles.editInput}
               value={editText}
               onChangeText={(value) => setEditText(value.slice(0, MAX_LENGTH))}
+              onFocus={revealEditor}
               placeholderTextColor="#5C6478"
               multiline
               maxLength={MAX_LENGTH}

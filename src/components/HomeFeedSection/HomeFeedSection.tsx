@@ -1,10 +1,11 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, ScrollView, TouchableOpacity } from "react-native";
+import { ActivityIndicator, ScrollView } from "react-native";
 
 import PostCommentsModal from "@/components/modals/PostCommentsModal/PostCommentsModal";
 import PostCard from "@/components/PostCard/PostCard";
 import { Text, View } from "@/components/Themed";
+import ViewAllButton from "@/components/ViewAllButton/ViewAllButton";
 import userPostService, { UserPostDTO } from "@/services/userPostService";
 import userService from "@/services/userService";
 
@@ -125,9 +126,10 @@ export function HomeFeedSection({
           style={styles.titleGradientBar}
         />
         <Text style={styles.title}>Feed Geral</Text>
-        <TouchableOpacity onPress={onViewAllPress}>
-          <Text style={styles.viewAll}>Ver tudo →</Text>
-        </TouchableOpacity>
+        <ViewAllButton
+          accessibilityLabel="Ver todos os posts do feed"
+          onPress={onViewAllPress}
+        />
       </View>
 
       {loading ? (

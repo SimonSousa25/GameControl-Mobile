@@ -3,10 +3,20 @@ import { StyleSheet } from "react-native";
 export const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+    backgroundColor: "rgba(3, 7, 13, 0.85)",
     paddingHorizontal: 24,
     paddingVertical: 60,
+  },
+  // Com o teclado aberto cada pixel conta: reduz a margem para o card ganhar espaço.
+  overlayKeyboardOpen: {
+    paddingVertical: 16,
+  },
+  // Área onde o KeyboardAvoidingView aplica o espaço do teclado; o card é
+  // centralizado dentro dela.
+  overlayContent: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
   },
   card: {
     width: "100%",
@@ -17,6 +27,9 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(0, 229, 255, 0.15)",
     padding: 20,
+  },
+  cardKeyboardOpen: {
+    maxHeight: "100%",
   },
   headerRow: {
     flexDirection: "row",
