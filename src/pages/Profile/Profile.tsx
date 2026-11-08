@@ -1,9 +1,9 @@
 import { useFocusEffect } from "expo-router";
 import { useCallback, useRef, useState } from "react";
-import { ScrollView } from "react-native";
 import AppAlert from "@/components/modals/AppAlert/AppAlert";
 
 import Header from "@/components/Header/Header";
+import KeyboardAwareScrollView from "@/components/KeyboardAwareScrollView/KeyboardAwareScrollView";
 import ConfirmModal from "@/components/modals/ConfirmModal/ConfirmModal";
 import FollowListModal from "@/components/modals/FollowListModal/FollowListModal";
 import PlaylistFormModal, {
@@ -195,7 +195,7 @@ export function Profile({
         />
       </View>
 
-      <ScrollView
+      <KeyboardAwareScrollView
         style={styles.content}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
@@ -218,7 +218,7 @@ export function Profile({
             onDeletePress={setPlaylistToDelete}
           />
         </SectionPager>
-      </ScrollView>
+      </KeyboardAwareScrollView>
 
       <NavBottom activeTab="profile" onTabPress={onTabPress} />
 
