@@ -11,6 +11,7 @@ import {
 import { ScaledTextInput as TextInput } from "@/components/ScaledText/ScaledText";
 
 import { useKeyboardScroll } from "@/components/KeyboardAwareScrollView/KeyboardAwareScrollView";
+import AppAlert from "@/components/modals/AppAlert/AppAlert";
 import AvatarGradient from "@/components/PlayersHighlight/AvatarGradient";
 import { Text } from "@/components/Themed";
 import { useFontScale } from "@/src/contexts/FontScaleContext";
@@ -119,6 +120,11 @@ export default function PostCard({
       await onEditSubmit?.(trimmed);
       Keyboard.dismiss();
       setIsEditing(false);
+    } catch {
+      AppAlert.alert(
+        "Não foi possível salvar a edição",
+        "Tente novamente em instantes.",
+      );
     } finally {
       setSavingEdit(false);
     }
