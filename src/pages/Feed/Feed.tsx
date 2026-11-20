@@ -1,8 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useFocusEffect } from "expo-router";
-import { useCallback, useMemo, useState } from "react";
-import { ActivityIndicator, Switch } from "react-native";
+import { useCallback, useMemo, useRef, useState } from "react";
+import { ActivityIndicator, Switch, TouchableOpacity } from "react-native";
 
 import BackButton from "@/components/BackButton/BackButton";
 import Header from "@/components/Header/Header";
@@ -13,9 +13,11 @@ import PostCard from "@/components/PostCard/PostCard";
 import PostComposer from "@/components/PostComposer/PostComposer";
 import { Text, View } from "@/components/Themed";
 import userPostService, { UserPostDTO } from "@/services/userPostService";
-import userService from "@/services/userService";
 
 import { styles } from "./styles";
+
+/** Posts por página: o suficiente para encher a tela sem baixar o feed inteiro. */
+const PAGE_SIZE = 10;
 
 export interface FeedProps {
   userId: string;
@@ -27,47 +29,74 @@ export interface FeedProps {
 
 export function Feed({ userId, onBackPress, onTabPress, onUserPress }: FeedProps) {
   const [posts, setPosts] = useState<UserPostDTO[]>([]);
-  const [following, setFollowing] = useState<string[]>([]);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [commentsPostId, setCommentsPostId] = useState<string | null>(null);
   const [hideOwnPosts, setHideOwnPosts] = useState(false);
+  const generationRef = useRef(0);
 
   useFocusEffect(
     useCallback(() => {
       loadPosts();
-      loadFollowing();
-    }, [userId]),
+    }, [userId, hideOwnPosts]),
   );
 
-  const loadFollowing = async () => {
-    try {
-      const freshUser = await userService.buscarUsuarioPorId(userId);
-      setFollowing(freshUser.following ?? []);
-    } catch (error) {
-      console.error("Erro ao carregar lista de seguindo:", error);
-    }
-  };
-
   const loadPosts = async () => {
+    const generation = ++generationRef.current;
     try {
       setLoading(true);
-      const all = await userPostService.listarTodosPosts();
-      setPosts(all);
+      // O backend filtra quem o usuário segue, ordena e pagina.
+      const page = await userPostService.listarFeed({
+        limit: PAGE_SIZE,
+        incluirProprios: !hideOwnPosts,
+      });
+      if (generation !== generationRef.current) return;
+      setPosts(page.itens);
+      setNextCursor(page.proximoCursor ?? null);
+      setHasMore(page.temMais);
     } catch (error) {
       console.error("Erro ao carregar o feed:", error);
+      if (generation !== generationRef.current) return;
       setPosts([]);
+      setNextCursor(null);
+      setHasMore(false);
     } finally {
-      setLoading(false);
+      if (generation === generationRef.current) setLoading(false);
     }
   };
 
-  const followingPosts = useMemo(() => {
-    const visibleIds = new Set([...following, userId]);
-    return posts
-      .filter((post) => post.userId && visibleIds.has(post.userId))
-      .filter((post) => !hideOwnPosts || post.userId !== userId)
-      .sort((a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? ""));
-  }, [posts, following, userId, hideOwnPosts]);
+  const loadMore = async () => {
+    if (!hasMore || !nextCursor || loading || loadingMore) return;
+    const generation = generationRef.current;
+    try {
+      setLoadingMore(true);
+      const page = await userPostService.listarFeed({
+        limit: PAGE_SIZE,
+        cursor: nextCursor,
+        incluirProprios: !hideOwnPosts,
+      });
+      if (generation !== generationRef.current) return;
+      setPosts((prev) => {
+        const known = new Set(prev.map((post) => post.id));
+        return [...prev, ...page.itens.filter((post) => !known.has(post.id))];
+      });
+      setNextCursor(page.proximoCursor ?? null);
+      setHasMore(page.temMais);
+    } catch (error) {
+      // Mantém o que já está na tela e o botão, para tentar de novo.
+      console.error("Erro ao carregar mais posts do feed:", error);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  // O post recém-criado entra no topo localmente; com "Ocultar meus posts" ele fica de fora.
+  const visiblePosts = useMemo(
+    () => (hideOwnPosts ? posts.filter((post) => post.userId !== userId) : posts),
+    [posts, userId, hideOwnPosts],
+  );
 
   const handleSubmitPost = async (text: string) => {
     const created = await userPostService.criarPost({ userId, text });
@@ -200,7 +229,7 @@ export function Feed({ userId, onBackPress, onTabPress, onUserPress }: FeedProps
           <View style={styles.stateContainer} lightColor="transparent" darkColor="transparent">
             <ActivityIndicator size="large" color="#F52E8F" />
           </View>
-        ) : followingPosts.length === 0 ? (
+        ) : visiblePosts.length === 0 ? (
           <View style={styles.stateContainer} lightColor="transparent" darkColor="transparent">
             <Ionicons name="chatbubble-outline" size={28} color="#6B7280" />
             <Text style={styles.stateText}>
@@ -210,7 +239,7 @@ export function Feed({ userId, onBackPress, onTabPress, onUserPress }: FeedProps
             </Text>
           </View>
         ) : (
-          followingPosts.map((post, index) => (
+          visiblePosts.map((post, index) => (
             <PostCard
               key={post.id ?? index}
               post={post}
@@ -231,6 +260,23 @@ export function Feed({ userId, onBackPress, onTabPress, onUserPress }: FeedProps
             />
           ))
         )}
+
+        {!loading && hasMore ? (
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel="Carregar mais publicações"
+            style={styles.loadMoreButton}
+            onPress={loadMore}
+            disabled={loadingMore}
+            activeOpacity={0.8}
+          >
+            {loadingMore ? (
+              <ActivityIndicator size="small" color="#F52E8F" />
+            ) : (
+              <Text style={styles.loadMoreText}>Carregar mais</Text>
+            )}
+          </TouchableOpacity>
+        ) : null}
       </KeyboardAwareScrollView>
 
       <NavBottom activeTab="feed" onTabPress={onTabPress} />

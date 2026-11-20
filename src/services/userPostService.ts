@@ -14,12 +14,49 @@ export interface UserPostDTO {
   edited?: boolean;
 }
 
+/** Página do feed; a próxima vem de `listarFeed({ cursor: proximoCursor })`. */
+export interface FeedPageDTO {
+  itens: UserPostDTO[];
+  proximoCursor?: string | null;
+  temMais: boolean;
+}
+
+export interface ListarFeedOptions {
+  limit?: number;
+  cursor?: string | null;
+  incluirProprios?: boolean;
+}
+
 export interface CreateUserPostRequest {
   userId: string;
   text: string;
 }
 
 class UserPostService {
+  async listarFeed(opcoes: ListarFeedOptions = {}): Promise<FeedPageDTO> {
+    try {
+      const params = new URLSearchParams();
+      if (opcoes.limit !== undefined) params.set("limit", String(opcoes.limit));
+      if (opcoes.cursor) params.set("cursor", opcoes.cursor);
+      if (opcoes.incluirProprios !== undefined) {
+        params.set("incluirProprios", String(opcoes.incluirProprios));
+      }
+      const query = params.toString();
+      const response = await apiFetch(`/posts/feed${query ? `?${query}` : ""}`);
+      if (!response.ok) {
+        throw new Error(`Erro ao carregar o feed: ${response.statusText}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error("Erro ao carregar o feed:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * @deprecated Lê a coleção inteira de posts no backend. Para o feed use
+   * `listarFeed`; para posts de um perfil, `listarPostsDoUsuario`.
+   */
   async listarTodosPosts(): Promise<UserPostDTO[]> {
     try {
       const response = await apiFetch("/posts");

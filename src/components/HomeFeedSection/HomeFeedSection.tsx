@@ -7,7 +7,6 @@ import PostCard from "@/components/PostCard/PostCard";
 import { Text, View } from "@/components/Themed";
 import ViewAllButton from "@/components/ViewAllButton/ViewAllButton";
 import userPostService, { UserPostDTO } from "@/services/userPostService";
-import userService from "@/services/userService";
 
 import { styles, COLUMN_WIDTH, COLUMN_GAP } from "./styles";
 
@@ -27,7 +26,6 @@ export function HomeFeedSection({
   onUserPress,
 }: HomeFeedSectionProps) {
   const [posts, setPosts] = useState<UserPostDTO[]>([]);
-  const [following, setFollowing] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [commentsPostId, setCommentsPostId] = useState<string | null>(null);
 
@@ -38,12 +36,11 @@ export function HomeFeedSection({
   const loadFeed = async () => {
     try {
       setLoading(true);
-      const [freshUser, allPosts] = await Promise.all([
-        userService.buscarUsuarioPorId(userId),
-        userPostService.listarTodosPosts(),
-      ]);
-      setFollowing(freshUser.following ?? []);
-      setPosts(allPosts);
+      const page = await userPostService.listarFeed({
+        limit: MAX_POSTS,
+        incluirProprios: false,
+      });
+      setPosts(page.itens);
     } catch (error) {
       console.error("Erro ao carregar o feed da home:", error);
       setPosts([]);
@@ -52,26 +49,14 @@ export function HomeFeedSection({
     }
   };
 
-  // Só quem o usuário segue: os próprios posts ficam de fora (já estão no perfil).
-  const feedPosts = useMemo(() => {
-    const followedIds = new Set(following);
-    return posts
-      .filter(
-        (post) =>
-          post.userId && post.userId !== userId && followedIds.has(post.userId),
-      )
-      .sort((a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? ""))
-      .slice(0, MAX_POSTS);
-  }, [posts, following, userId]);
-
   // Cada coluna empilha 2 posts; o scroll horizontal passa de coluna em coluna.
   const columns = useMemo(() => {
     const result: UserPostDTO[][] = [];
-    for (let i = 0; i < feedPosts.length; i += POSTS_PER_COLUMN) {
-      result.push(feedPosts.slice(i, i + POSTS_PER_COLUMN));
+    for (let i = 0; i < posts.length; i += POSTS_PER_COLUMN) {
+      result.push(posts.slice(i, i + POSTS_PER_COLUMN));
     }
     return result;
-  }, [feedPosts]);
+  }, [posts]);
 
   const handleToggleLike = async (post: UserPostDTO) => {
     if (!post.id) return;
@@ -112,7 +97,7 @@ export function HomeFeedSection({
     );
   };
 
-  if (!loading && feedPosts.length === 0) {
+  if (!loading && posts.length === 0) {
     return null;
   }
 
