@@ -1,6 +1,7 @@
 import { Redirect, useRouter } from "expo-router";
 import { useAuth } from "@/src/contexts/AuthContext";
 import Settings, { SettingsFormValues } from "@/pages/Settings/Settings";
+import authService from "@/services/authService";
 import userService from "@/services/userService";
 
 export default function SettingsScreen() {
@@ -76,6 +77,9 @@ export default function SettingsScreen() {
       onProfilePictureChange={handleProfilePictureChange}
       onSearchSubmit={handleSearchSubmit}
       onSave={handleSave}
+      onChangePassword={(currentPassword, newPassword) =>
+        authService.alterarSenha(user.id, currentPassword, newPassword)
+      }
       onDeleteAccount={handleDeleteAccount}
       onLogoutPress={handleLogout}
       onTabPress={(tabId) => {

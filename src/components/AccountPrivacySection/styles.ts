@@ -37,7 +37,7 @@ export const styles = StyleSheet.create({
   subtitle: {
     color: "#6A7282",
     fontFamily: "OrbitronMedium",
-    fontSize: 7,
+    fontSize: 8,
     marginTop: 4,
   },
   divider: {

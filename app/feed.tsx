@@ -42,6 +42,12 @@ export default function FeedScreen() {
       onBackPress={goBack}
       onTabPress={handleTabPress}
       onUserPress={(pressedUserId) => router.push(`/user/${pressedUserId}`)}
+      onSearchSubmit={(searchTerm) => {
+        router.push({ 
+          pathname: "/catalog", 
+          params: { search: searchTerm } 
+        })
+      }}
     />
   );
 }

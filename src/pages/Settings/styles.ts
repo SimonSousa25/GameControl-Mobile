@@ -119,8 +119,21 @@ export const styles = StyleSheet.create({
   notificationSubtitle: {
     color: "#6A7282",
     fontFamily: "OrbitronMedium",
-    fontSize: 7,
+    fontSize: 8,
     marginTop: 4,
+  },
+  passwordSubtitle: {
+    fontFamily: "OrbitronMedium",
+    color: "#6A7282",
+    fontSize: 8,
+    marginTop: 4,
+  },
+  passwordSuccess: {
+    color: "#8CE6BE",
+    backgroundColor: "#060B14",
+    fontSize: 12,
+    paddingHorizontal: 13,
+    paddingBottom: 12,
   },
   notificationsCard: {
     overflow: "hidden",
