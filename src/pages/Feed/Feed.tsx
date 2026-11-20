@@ -25,11 +25,20 @@ export interface FeedProps {
   onTabPress?: (tabId: string) => void;
   onUserPress?: (userId: string) => void;
   onDeletePress?: (userId: string) => void;
+  onSearchSubmit?: (searchTerm: string) => void;
 }
 
-export function Feed({ userId, onBackPress, onTabPress, onUserPress }: FeedProps) {
+export function Feed({
+  userId,
+  onBackPress,
+  onTabPress,
+  onUserPress,
+  onSearchSubmit,
+}: FeedProps) {
   const [posts, setPosts] = useState<UserPostDTO[]>([]);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const [hasMore, setHasMore] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -94,7 +103,8 @@ export function Feed({ userId, onBackPress, onTabPress, onUserPress }: FeedProps
 
   // O post recém-criado entra no topo localmente; com "Ocultar meus posts" ele fica de fora.
   const visiblePosts = useMemo(
-    () => (hideOwnPosts ? posts.filter((post) => post.userId !== userId) : posts),
+    () =>
+      hideOwnPosts ? posts.filter((post) => post.userId !== userId) : posts,
     [posts, userId, hideOwnPosts],
   );
 
@@ -177,15 +187,40 @@ export function Feed({ userId, onBackPress, onTabPress, onUserPress }: FeedProps
     );
   };
 
+  const handleSearchSubmit = () => {
+    onSearchSubmit?.(searchTerm.trim());
+  };
+
+   const closeSearch = () => {
+    setIsSearchOpen(false);
+    setSearchTerm("");
+  };
+
   return (
     <View style={styles.screenContainer}>
       <View style={styles.headerContainer}>
-        <Header variant="icon" />
+        <Header
+          variant={isSearchOpen ? "search" : "icon"}
+          searchValue={searchTerm}
+          onSearchChange={setSearchTerm}
+          onSearchPress={() => setIsSearchOpen(true)}
+          onSearchSubmit={handleSearchSubmit}
+          onClose={closeSearch}
+          autoFocusSearch={isSearchOpen}
+        />
       </View>
 
-      <View style={styles.titleBar} lightColor="transparent" darkColor="transparent">
+      <View
+        style={styles.titleBar}
+        lightColor="transparent"
+        darkColor="transparent"
+      >
         <BackButton onPress={onBackPress} />
-        <View style={styles.titleTextWrap} lightColor="transparent" darkColor="transparent">
+        <View
+          style={styles.titleTextWrap}
+          lightColor="transparent"
+          darkColor="transparent"
+        >
           <Text style={styles.title}>Feed Geral</Text>
           <Text style={styles.subtitle}>
             Suas publicações e as dos usuários que você segue
@@ -200,8 +235,16 @@ export function Feed({ userId, onBackPress, onTabPress, onUserPress }: FeedProps
       >
         <PostComposer onSubmit={handleSubmitPost} />
 
-        <View style={styles.sectionHeaderRow} lightColor="transparent" darkColor="transparent">
-          <View style={styles.sectionTitleRow} lightColor="transparent" darkColor="transparent">
+        <View
+          style={styles.sectionHeaderRow}
+          lightColor="transparent"
+          darkColor="transparent"
+        >
+          <View
+            style={styles.sectionTitleRow}
+            lightColor="transparent"
+            darkColor="transparent"
+          >
             <LinearGradient
               colors={["#0559AB", "#F22E8F"]}
               start={{ x: 0, y: 0 }}
@@ -213,7 +256,11 @@ export function Feed({ userId, onBackPress, onTabPress, onUserPress }: FeedProps
           <Text style={styles.sectionSort}>Mais recentes primeiro</Text>
         </View>
 
-        <View style={styles.hideOwnRow} lightColor="transparent" darkColor="transparent">
+        <View
+          style={styles.hideOwnRow}
+          lightColor="transparent"
+          darkColor="transparent"
+        >
           <Text style={styles.hideOwnLabel}>Ocultar meus posts</Text>
           <Switch
             value={hideOwnPosts}
@@ -226,11 +273,19 @@ export function Feed({ userId, onBackPress, onTabPress, onUserPress }: FeedProps
         </View>
 
         {loading ? (
-          <View style={styles.stateContainer} lightColor="transparent" darkColor="transparent">
+          <View
+            style={styles.stateContainer}
+            lightColor="transparent"
+            darkColor="transparent"
+          >
             <ActivityIndicator size="large" color="#F52E8F" />
           </View>
         ) : visiblePosts.length === 0 ? (
-          <View style={styles.stateContainer} lightColor="transparent" darkColor="transparent">
+          <View
+            style={styles.stateContainer}
+            lightColor="transparent"
+            darkColor="transparent"
+          >
             <Ionicons name="chatbubble-outline" size={28} color="#6B7280" />
             <Text style={styles.stateText}>
               {hideOwnPosts
@@ -247,10 +302,16 @@ export function Feed({ userId, onBackPress, onTabPress, onUserPress }: FeedProps
               likedByMe={post.likedUserIds?.includes(userId) ?? false}
               isOwnPost={post.userId === userId}
               onLikePress={() => handleToggleLike(post)}
-              onUserPress={post.userId ? () => onUserPress?.(post.userId!) : undefined}
-              onCommentsPress={post.id ? () => setCommentsPostId(post.id!) : undefined}
+              onUserPress={
+                post.userId ? () => onUserPress?.(post.userId!) : undefined
+              }
+              onCommentsPress={
+                post.id ? () => setCommentsPostId(post.id!) : undefined
+              }
               onDeletePress={
-                post.userId === userId ? () => handleDeletePost(post) : undefined
+                post.userId === userId
+                  ? () => handleDeletePost(post)
+                  : undefined
               }
               onEditSubmit={
                 post.userId === userId
