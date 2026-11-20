@@ -31,6 +31,9 @@ const responsiveBackground = `
 body {
   background-color: #fff;
 }
+#change-password-modal input::-ms-reveal {
+  display: none;
+}
 @media (prefers-color-scheme: dark) {
   body {
     background-color: #000;
