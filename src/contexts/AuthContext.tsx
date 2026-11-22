@@ -66,11 +66,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Antes de encerrar o login, deixa o app limpar o que ainda exige
     // autenticação (ex.: remover o token de push deste aparelho).
     await executarAntesDeSair();
+
+    // Cancela requisições em andamento para que nenhuma termine sem login.
+    await queryClient.cancelQueries();
+
     await sessionService.limpar();
     applySession(null);
-    // Descarta os dados em cache para que a próxima conta nunca veja os da anterior.
-    queryClient.clear();
     await authService.sair().catch(() => {});
+
+    // Descarta o cache só depois de encerrar a sessão: as telas autenticadas
+    // desabilitam suas queries quando `user` é null, então nada é refeito sem token.
+    queryClient.removeQueries();
   }, [applySession]);
 
   const updateUser = useCallback(

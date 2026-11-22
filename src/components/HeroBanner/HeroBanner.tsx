@@ -14,6 +14,7 @@ import type { ImageSourcePropType } from "react-native";
 
 import { Text, View } from "@/components/Themed";
 import type { GameDTO } from "@/services/gameService";
+import { useAuth } from "@/src/contexts/AuthContext";
 import { useHeroGames } from "@/src/queries/gameQueries";
 import { styles } from "./styles";
 
@@ -109,11 +110,14 @@ export default function HeroBanner({
 
   // Busca (com cache) só quando a tela não recebeu os jogos prontos. Em caso de
   // erro `data` fica indefinido e o banner mostra apenas o slide de apresentação.
+  // Sem usuário logado (ex.: logo após o logout) a API recusa a requisição.
+  const { user } = useAuth();
+  const shouldFetch = !initialGames && !!user;
   const { data: fetchedGames, isPending } = useHeroGames(
     HERO_SLUGS,
-    !initialGames,
+    shouldFetch,
   );
-  const loading = !initialGames && isPending;
+  const loading = shouldFetch && isPending;
 
   const sourceGames = initialGames ?? fetchedGames;
   const games = useMemo(

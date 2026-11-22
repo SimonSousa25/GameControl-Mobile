@@ -100,8 +100,8 @@ export function useHeroGames(slugs: readonly string[], enabled = true) {
   return useQuery({ ...heroGamesQuery(slugs), enabled });
 }
 
-export function useGameOfWeek() {
-  return useQuery(gameOfWeekQuery());
+export function useGameOfWeek(enabled = true) {
+  return useQuery({ ...gameOfWeekQuery(), enabled });
 }
 
 /**

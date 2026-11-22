@@ -2,6 +2,7 @@ import { TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Text, View } from '@/components/Themed';
+import { useAuth } from '@/src/contexts/AuthContext';
 import { useGameOfWeek } from '@/src/queries/gameQueries';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { styles } from './styles';
@@ -22,7 +23,10 @@ function starName(average: number, index: number): 'star' | 'star-half' | 'star-
 export default function GameOfWeek({ onGamePress }: GameOfWeekProps) {
   // Busca com cache: voltar para a Home reaproveita o resultado por alguns minutos.
   // Em caso de erro `data` fica indefinido e a seção simplesmente não aparece.
-  const { data, isPending: loading } = useGameOfWeek();
+  // Sem usuário logado (ex.: logo após o logout) a API recusa a requisição.
+  const { user } = useAuth();
+  const { data, isPending } = useGameOfWeek(!!user);
+  const loading = !!user && isPending;
 
   if (loading) {
     return (

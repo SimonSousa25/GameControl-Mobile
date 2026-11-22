@@ -1,5 +1,6 @@
 import { Text, View } from "@/components/Themed";
 import type { GameDTO } from "@/services/gameService";
+import { useAuth } from "@/src/contexts/AuthContext";
 import { useFeaturedGames } from "@/src/queries/gameQueries";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
@@ -84,7 +85,9 @@ export default function GameCarousel({
   fetchRecent = false,
 }: GameCarouselProps) {
   // Busca (com cache) só quando a tela pede e não recebeu os jogos prontos.
-  const shouldFetch = fetchRecent && !initialGames;
+  // Sem usuário logado (ex.: logo após o logout) a API recusa a requisição.
+  const { user } = useAuth();
+  const shouldFetch = fetchRecent && !initialGames && !!user;
   const { data: fetchedGames, isPending } = useFeaturedGames(
     MAX_GAMES,
     shouldFetch,

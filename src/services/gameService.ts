@@ -47,7 +47,7 @@ class GameService {
     try {
       const response = await apiFetch(`/games`);
       if (!response.ok) {
-        throw new Error(`Erro ao listar jogos: ${response.statusText}`);
+        throw new Error(`Erro ao listar jogos: (HTTP ${response.status})`);
       }
       return await response.json();
     } catch (error) {
@@ -61,7 +61,7 @@ class GameService {
       const response = await apiFetch(`/games/recentes`);
       if (!response.ok) {
         throw new Error(
-          `Erro ao listar jogos recentes: ${response.statusText}`,
+          `Erro ao listar jogos recentes: (HTTP ${response.status})`,
         );
       }
       return await response.json();
@@ -77,7 +77,7 @@ class GameService {
       const response = await apiFetch(`/games/destaques${query}`);
       if (!response.ok) {
         throw new Error(
-          `Erro ao listar jogos em destaque: ${response.statusText}`,
+          `Erro ao listar jogos em destaque: (HTTP ${response.status})`,
         );
       }
       return await response.json();
@@ -103,7 +103,7 @@ class GameService {
         `/games/catalogo?${params.toString()}`,
       );
       if (!response.ok) {
-        throw new Error(`Erro ao listar catálogo: ${response.statusText}`);
+        throw new Error(`Erro ao listar catálogo: (HTTP ${response.status})`);
       }
       return await response.json();
     } catch (error) {
@@ -124,7 +124,7 @@ class GameService {
       }
       if (!response.ok) {
         throw new Error(
-          `Erro ao buscar jogo mais bem avaliado: ${response.statusText}`,
+          `Erro ao buscar jogo mais bem avaliado: (HTTP ${response.status})`,
         );
       }
       return await response.json();
@@ -142,7 +142,7 @@ class GameService {
       }
       if (!response.ok) {
         throw new Error(
-          `Erro ao buscar jogo da semana: ${response.statusText}`,
+          `Erro ao buscar jogo da semana: (HTTP ${response.status})`,
         );
       }
       return await response.json();
@@ -159,7 +159,7 @@ class GameService {
         if (response.status === 404) {
           return null;
         }
-        throw new Error(`Erro ao buscar jogo: ${response.statusText}`);
+        throw new Error(`Erro ao buscar jogo: (HTTP ${response.status})`);
       }
       return await response.json();
     } catch (error) {
@@ -175,7 +175,7 @@ class GameService {
         if (response.status === 404) {
           return null;
         }
-        throw new Error(`Erro ao buscar jogo: ${response.statusText}`);
+        throw new Error(`Erro ao buscar jogo: (HTTP ${response.status})`);
       }
       return await response.json();
     } catch (error) {
@@ -188,7 +188,7 @@ class GameService {
     try {
       const response = await apiFetch(`/genres`);
       if (!response.ok) {
-        throw new Error(`Erro ao listar gêneros: ${response.statusText}`);
+        throw new Error(`Erro ao listar gêneros: (HTTP ${response.status})`);
       }
       return await response.json();
     } catch (error) {
@@ -207,7 +207,7 @@ class GameService {
         body: JSON.stringify(dados),
       });
       if (!response.ok) {
-        throw new Error(`Erro ao criar jogo: ${response.statusText}`);
+        throw new Error(`Erro ao criar jogo: (HTTP ${response.status})`);
       }
       return await response.json();
     } catch (error) {
@@ -226,7 +226,7 @@ class GameService {
         body: JSON.stringify(dados),
       });
       if (!response.ok) {
-        throw new Error(`Erro ao atualizar jogo: ${response.statusText}`);
+        throw new Error(`Erro ao atualizar jogo: (HTTP ${response.status})`);
       }
       return await response.json();
     } catch (error) {
@@ -241,7 +241,7 @@ class GameService {
         method: "DELETE",
       });
       if (!response.ok) {
-        throw new Error(`Erro ao deletar jogo: ${response.statusText}`);
+        throw new Error(`Erro ao deletar jogo: (HTTP ${response.status})`);
       }
     } catch (error) {
       console.error("Erro ao deletar jogo:", error);
