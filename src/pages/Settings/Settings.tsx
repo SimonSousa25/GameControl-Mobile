@@ -9,7 +9,7 @@ import { ScaledTextInput as TextInput } from "@/components/ScaledText/ScaledText
 import { Text, View } from "@/components/Themed";
 import type { NotificationPreferences, UserDTO } from "@/services/userService";
 import { getAvatarUrl } from "@/utils/avatar";
-
+import ChangePasswordModal from "@/components/modals/ChangePasswordModal/ChangePasswordModal";
 import AccountPrivacySection from "@/components/AccountPrivacySection/AccountPrivacySection";
 import BackButton from "@/components/BackButton/BackButton";
 import FontSizeSection from "@/components/FontSizeSection/FontSizeSection";
@@ -37,8 +37,11 @@ interface SettingsProps {
   onSearchSubmit?: (searchTerm: string) => void;
   onProfilePictureChange?: (base64Image: string) => Promise<void>;
   onSave?: (values: SettingsFormValues) => Promise<void>;
-  /** Exclui a conta de forma permanente (quem chama encerra a sessão depois). */
   onDeleteAccount?: () => Promise<void>;
+  onChangePassword?: (
+    currentPassword: string,
+    newPassword: string,
+  ) => Promise<void>;
 }
 /**
  * TODO: implementar as opções de edição e configuração da conta
@@ -54,6 +57,7 @@ export default function Settings({
   onProfilePictureChange,
   onSave,
   onDeleteAccount,
+  onChangePassword,
 }: SettingsProps) {
   // Estados dos campos editáveis do perfil.
   const [username, setUsername] = useState(user.username);
@@ -82,6 +86,7 @@ export default function Settings({
   const [deletingAccount, setDeletingAccount] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [changePasswordVisible, setChangePasswordVisible] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const avatarUrl = getAvatarUrl(user.profilePictureUrl);
 
@@ -399,6 +404,26 @@ export default function Settings({
           isPrivate={isPrivateAccount}
           onValueChange={setIsPrivateAccount}
         />
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Alterar senha"
+          onPress={() => setChangePasswordVisible(true)}
+          style={({ pressed }) => [
+            styles.changePasswordCard,
+            pressed && styles.changePasswordCardPressed,
+          ]}
+        >
+          <View style={styles.notificationsHeaderIcon}>
+            <Ionicons name="key-outline" size={19} color="#F43B97" />
+          </View>
+        
+          <View style={styles.notificationsHeaderText}>
+            <Text style={styles.notificationTitle}>Alterar senha</Text>
+            <Text style={styles.notificationSubtitle}>Segurança da conta</Text>
+          </View>
+        
+          <Ionicons name="chevron-forward" size={20} color="#F43B97" />
+        </Pressable>
 
         {/* Acessibilidade: aplicada e salva na hora, sem precisar de "Salvar". */}
         <FontSizeSection />
@@ -471,6 +496,21 @@ export default function Settings({
           if (!deletingAccount) setDeleteModalVisible(false);
         }}
       />
+      {changePasswordVisible && (
+      <ChangePasswordModal
+        onCancel={() => setChangePasswordVisible(false)}
+        onChangePassword={async (current, next) => {
+          if (!onChangePassword) {
+            throw new Error("Não foi possível alterar a senha.");
+          }
+          await onChangePassword(current, next);
+        }}
+        onSuccess={() => {
+          setChangePasswordVisible(false);
+          AppAlert.alert("Senha alterada", "Sua senha foi atualizada com sucesso.");
+        }}
+      />
+    )}
     </View>
   );
 }

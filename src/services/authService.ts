@@ -3,9 +3,12 @@ import { auth } from "@/services/firebase";
 import {
   createUserWithEmailAndPassword,
   deleteUser,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signOut as firebaseSignOut,
+  updatePassword,
 } from "firebase/auth";
 
 
@@ -59,6 +62,56 @@ const authService = {
   /** Envia o e-mail com o link para redefinir a senha. */
   async recuperarSenha(email: string): Promise<void> {
     await sendPasswordResetEmail(auth, email);
+  },
+
+  async alterarSenha(
+    userId: string,
+    senhaAtual: string,
+    novaSenha: string,
+  ): Promise<void> {
+    const mensagemSessao = "Entre novamente na sua conta para alterar a senha.";
+    await auth.authStateReady();
+    const usuario = auth.currentUser;
+    if (!usuario?.email || usuario.uid !== userId) {
+      throw new Error(mensagemSessao);
+    }
+
+    try {
+      const credencial = EmailAuthProvider.credential(usuario.email, senhaAtual);
+      await reauthenticateWithCredential(usuario, credencial);
+    } catch (error) {
+      const codigo = codigoDoErro(error);
+      if (
+        codigo === "auth/wrong-password" ||
+        codigo === "auth/invalid-credential"
+      ) {
+        throw new Error("A senha atual está incorreta.");
+      }
+      throw new Error(
+        mensagemDeErroAuth(error, "Não foi possível confirmar a senha atual."),
+      );
+    }
+
+    if (auth.currentUser !== usuario) throw new Error(mensagemSessao);
+
+    try {
+      await updatePassword(usuario, novaSenha);
+    } catch (error) {
+      switch (codigoDoErro(error)) {
+        case "auth/weak-password":
+        case "auth/password-does-not-meet-requirements":
+          throw new Error(
+            "A nova senha não atende aos requisitos. Tente uma senha mais forte.",
+          );
+        case "auth/requires-recent-login":
+        case "auth/user-token-expired":
+          throw new Error(mensagemSessao);
+        default:
+          throw new Error(
+            mensagemDeErroAuth(error, "Não foi possível alterar a senha. Tente novamente."),
+          );
+      }
+    }
   },
 
   async sair(): Promise<void> {
