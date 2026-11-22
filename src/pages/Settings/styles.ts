@@ -266,4 +266,19 @@ export const styles = StyleSheet.create({
     fontFamily: "OrbitronBold",
     fontSize: 12,
   },
+  changePasswordCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    minHeight: 66,
+    paddingHorizontal: 13,
+    paddingVertical: 11,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#123048",
+    backgroundColor: "#060B14",
+  },
+  changePasswordCardPressed: {
+    opacity: 0.75,
+  },
 });
